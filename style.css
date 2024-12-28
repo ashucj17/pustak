@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+}
+
+.header-logo {
+  width: 200px;
+  cursor: pointer;
+}
+.header-menu {
+  display: flex;
+  cursor: pointer;
+}
+
+.menu-items {
+  padding: 20px;
+  list-style: none;
+  font-weight: bold;
+}
+
+.search {
+  width: 200px;
+  padding: 5px 15px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.member {
+  width: 150px;
+  padding: 8px 20px;
+  border: none;
+  background-color: #111;
+  color: #fbfbfb;
+  border-radius: 8px;
+  cursor: pointer;
+}
