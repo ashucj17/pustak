@@ -10,6 +10,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 40px;
+  border-bottom: 1px solid #111;
 }
 
 .header-logo {
@@ -27,6 +28,12 @@
   font-weight: bold;
 }
 
+.menu-items:hover {
+  color: #f4b907;
+  border-bottom: 2px solid #f4b907;
+  padding-bottom: 5px;
+}
+
 .search {
   width: 200px;
   padding: 5px 15px;
@@ -36,10 +43,17 @@
 
 .member {
   width: 150px;
-  padding: 8px 20px;
+  padding: 10px 25px;
   border: none;
   background-color: #111;
   color: #fbfbfb;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
+}
+
+.member:hover {
+  background-color: #f4b907;
+  color: #111;
+  font-weight: bold;
+  border: none;
 }
