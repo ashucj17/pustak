@@ -23,15 +23,18 @@
 }
 
 .menu-items {
-  padding: 20px;
+  padding: 0 20px;
   list-style: none;
   font-weight: bold;
 }
 
+.list-item {
+  text-decoration: none;
+  color: #111;
+}
+
 .menu-items:hover {
   color: #f4b907;
-  border-bottom: 2px solid #f4b907;
-  padding-bottom: 5px;
 }
 
 .search {
@@ -56,4 +59,24 @@
   color: #111;
   font-weight: bold;
   border: none;
+}
+
+.banner {
+  width: 100vw;
+  height: 80vh;
+  background-color: #f4b907;
+  position: relative;
+  /* padding: 50px; */
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  margin-top: 50px;
+  position: absolute;
+  top: 0;
+  padding: 0 50px;
+  left: 0;
+  /* right: 50px; */
 }
