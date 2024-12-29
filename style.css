@@ -34,7 +34,7 @@
 }
 
 .menu-items:hover {
-  color: #f4b907;
+  color: #771ba5;
 }
 
 .search {
@@ -55,28 +55,28 @@
 }
 
 .member:hover {
-  background-color: #f4b907;
-  color: #111;
+  background-color: #771ba5;
+  color: #fbfbfb;
   font-weight: bold;
   border: none;
 }
 
 .banner {
-  width: 100vw;
-  height: 80vh;
-  background-color: #f4b907;
+  height: 500px;
+  background-color: #771ba5;
   position: relative;
-  /* padding: 50px; */
 }
-
-.hero-image {
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  margin-top: 50px;
+.inner-banner {
   position: absolute;
-  top: 0;
-  padding: 0 50px;
-  left: 0;
-  /* right: 50px; */
+  box-sizing: border-box;
+  top: 60px;
+  left: 150px;
+}
+.hero-image,
+.banner-overlay {
+  width: 1200px;
+  height: 550px;
+  position: absolute;
+  z-index: 1;
+  background: linear-gradient(180deg, black 0%, rgba(0, 0, 0, 0) 75%);
 }
