@@ -111,11 +111,48 @@
 
 /* first fold responsive */
 
-@media screen and (max-width: 768px) {
+@media screen and (min-width: 1920px) {
   .header,
   .header-menu {
-    background-color: #787878;
+    background-color: #fbfbfb;
     display: flex;
-    flex-direction: column;
+  }
+  .search {
+    width: 400px;
+    padding: 5px 15px;
+    border-radius: 8px;
+    border: 1px solid;
+  }
+
+  .member {
+    width: 150px;
+    padding: 10px 25px;
+    border: none;
+    background-color: #111;
+    color: #fbfbfb;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+
+  .inner-banner,
+  .hero-heading {
+    position: absolute;
+    box-sizing: border-box;
+    top: 60px;
+    left: 150px;
+  }
+
+  .hero-image {
+    width: 100vh;
+    height: 60vh;
+    position: absolute;
+    z-index: 1;
+    background: linear-gradient(180deg, #111 0%, #310f0f3a 75%);
+  }
+  .banner {
+    width: 100%;
+    height: 800px;
+    background-color: #771ba5;
+    position: relative;
   }
 }
