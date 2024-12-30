@@ -54,7 +54,9 @@
   cursor: pointer;
 }
 
-.member:hover {
+.member:hover,
+.sign-ip:hover,
+.login:hover {
   background-color: #771ba5;
   color: #fbfbfb;
   font-weight: bold;
@@ -66,17 +68,40 @@
   background-color: #771ba5;
   position: relative;
 }
-.inner-banner {
+.inner-banner,
+.hero-heading {
   position: absolute;
   box-sizing: border-box;
   top: 60px;
   left: 150px;
 }
 .hero-image,
-.banner-overlay {
+.banner-overlay,
+.hero-heading {
   width: 1200px;
   height: 550px;
   position: absolute;
   z-index: 1;
-  background: linear-gradient(180deg, black 0%, rgba(0, 0, 0, 0) 75%);
+  background: linear-gradient(180deg, #111 0%, #310f0f3a 75%);
+}
+
+.hero-heading {
+  width: 75%;
+  color: #fbfbfb;
+  text-transform: uppercase;
+  font-size: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.sign-ip,
+.login {
+  font-weight: bold;
+  padding: 10px 25px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
 }
