@@ -5,6 +5,7 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* header section */
 .header {
   display: flex;
   justify-content: space-between;
@@ -63,6 +64,8 @@
   border: none;
 }
 
+/* banner section */
+
 .banner {
   height: 500px;
   background-color: #771ba5;
@@ -104,4 +107,15 @@
   border-radius: 25px;
   border: none;
   cursor: pointer;
+}
+
+/* first fold responsive */
+
+@media screen and (max-width: 768px) {
+  .header,
+  .header-menu {
+    background-color: #787878;
+    display: flex;
+    flex-direction: column;
+  }
 }
