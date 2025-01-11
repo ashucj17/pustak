@@ -7,11 +7,11 @@
 
 /* header section */
 .header {
+  background-color: #eec80b;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 40px;
-  border-bottom: 1px solid #111;
 }
 
 .header-logo {
@@ -39,10 +39,14 @@
 }
 
 .search {
-  width: 200px;
-  padding: 5px 15px;
+  width: 500px;
+  padding: 8px 15px;
   border-radius: 8px;
-  border: 1px solid;
+  border: none;
+}
+
+.search:focus {
+  outline: none;
 }
 
 .member {
@@ -62,6 +66,16 @@
   color: #fbfbfb;
   font-weight: bold;
   border: none;
+}
+
+.header-menu {
+  display: flex;
+  text-align: center;
+}
+
+.header-menu ul {
+  margin: 10px auto;
+  align-items: center;
 }
 
 /* banner section */
@@ -111,7 +125,7 @@
 
 /* first fold responsive */
 
-@media screen and (min-width: 1920px) {
+@media only screen and (width: 1280px) {
   .header,
   .header-menu {
     background-color: #fbfbfb;
