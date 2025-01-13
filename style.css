@@ -5,12 +5,12 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container {
+.small-container {
+  padding: 20px 80px 10px;
   background-color: #efe117;
 }
 
 .row {
-  padding: 10px 80px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,6 +22,12 @@
 
 .Pustak-logo {
   width: 100%;
+}
+
+.row .fa-bars {
+  display: none;
+  padding: 5px;
+  font-size: 20px;
 }
 
 .search-bar input {
@@ -47,4 +53,47 @@
 .right-icons i {
   padding: 5px;
   font-size: 20px;
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.menu-items {
+  padding: 10px;
+  color: #111;
+  font-weight: bolder;
+  font-size: 16px;
+}
+
+.menu a {
+  text-decoration: none;
+  list-style: none;
+}
+
+.shipping {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ededed;
+  padding: 5px;
+  color: #444;
+  font-size: 16px;
+}
+
+.shipping p {
+  margin-right: 5px;
+}
+
+/* media query for device size less then 1025px */
+
+@media (max-width: 1024px) {
+  .row .fa-bars {
+    display: block;
+    padding: 5px;
+    font-size: 20px;
+  }
 }
