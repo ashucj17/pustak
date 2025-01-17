@@ -5,15 +5,27 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body {
+  margin: 0;
+  font-size: 16px;
+}
+
+.main-container {
+  width: 100%;
+}
+
 .small-container {
-  padding: 20px 80px 10px;
+  padding: 10px 40px;
   background-color: #efe117;
+  display: flex;
+  flex-direction: column;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -30,12 +42,37 @@
   font-size: 20px;
 }
 
-.search-bar input {
-  width: 500px;
-  padding: 10px;
-  border-radius: 8px 0 0 8px;
-  border: none;
+.search-bar {
+  display: flex;
   position: relative;
+  flex-grow: 1;
+  max-width: 500px;
+  margin: 10px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.search-bar input:focus {
+  outline: none;
+}
+
+.search-bar i {
+  background-color: #111;
+  color: #fff;
+  padding: 10px;
+  border-radius: 0 8px 8px 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-bar input:focus {
