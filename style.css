@@ -5,27 +5,15 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {
-  margin: 0;
-  font-size: 16px;
-}
-
-.main-container {
-  width: 100%;
-}
-
 .small-container {
-  padding: 10px 40px;
+  padding: 20px 80px 10px;
   background-color: #efe117;
-  display: flex;
-  flex-direction: column;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .logo {
@@ -42,37 +30,12 @@ body {
   font-size: 20px;
 }
 
-.search-bar {
-  display: flex;
-  position: relative;
-  flex-grow: 1;
-  max-width: 500px;
-  margin: 10px;
-}
-
 .search-bar input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
+  width: 500px;
+  padding: 8px;
+  border-radius: 8px 0 0 8px;
   border: none;
-}
-
-.search-bar input:focus {
-  outline: none;
-}
-
-.search-bar i {
-  background-color: #111;
-  color: #fff;
-  padding: 10px;
-  border-radius: 0 8px 8px 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 
 .search-bar input:focus {
@@ -82,23 +45,14 @@ body {
 .fa-magnifying-glass {
   background-color: #111;
   color: #fff;
-  padding: 11px;
+  padding: 9px;
   border-radius: 0 8px 8px 0;
   position: absolute;
-}
-
-.fa-magnifying-glass:hover {
-  background: #fff;
-  color: #ad0b0b;
 }
 
 .right-icons i {
   padding: 5px;
   font-size: 20px;
-}
-
-.right-icons i:hover {
-  color: #ad0b0b;
 }
 
 .menu {
@@ -110,36 +64,16 @@ body {
 
 .menu-items {
   padding: 10px;
+  color: #111;
   font-weight: bolder;
   font-size: 16px;
 }
 
 .menu a {
-  color: #111;
-  text-decoration: none; /* Remove default underline */
+  text-decoration: none;
   list-style: none;
-  position: relative;
-}
-.menu a::after {
-  content: ""; /* Add a pseudo-element */
-  position: absolute;
-  bottom: 0; /* Position at the bottom of the text */
-  left: 0;
-  width: 0; /* Start with zero width */
-  height: 3px; /* Height of the underline */
-  background-color: #efe117; /* Color of the underline */
-  transition: width 0.5s ease; /* Smooth transition effect */
 }
 
-.menu a:hover,
-.menu a:focus {
-  color: #ad0b0b; /* Change text color on hover or focus */
-}
-
-.menu a:hover::after,
-.menu a:focus::after {
-  width: 100%; /* Expand the underline to full width */
-}
 .shipping {
   display: flex;
   justify-content: center;
