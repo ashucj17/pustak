@@ -16,7 +16,7 @@
   align-items: center;
 }
 
-.logo {
+.left-icons {
   width: 200px;
 }
 
@@ -30,9 +30,18 @@
   font-size: 20px;
 }
 
+.search-bar {
+  display: inline;
+  align-items: center;
+  position: absolute;
+  top: 30px;
+  left: 35%;
+  right: auto;
+}
+
 .search-bar input {
   width: 500px;
-  padding: 8px;
+  padding: 10px;
   border-radius: 8px 0 0 8px;
   border: none;
   position: relative;
@@ -45,14 +54,23 @@
 .fa-magnifying-glass {
   background-color: #111;
   color: #fff;
-  padding: 9px;
+  padding: 11px;
   border-radius: 0 8px 8px 0;
   position: absolute;
+}
+
+.fa-magnifying-glass:hover {
+  background: #fff;
+  color: #ad0b0b;
 }
 
 .right-icons i {
   padding: 5px;
   font-size: 20px;
+}
+
+.right-icons i:hover {
+  color: #ad0b0b;
 }
 
 .menu {
@@ -64,16 +82,36 @@
 
 .menu-items {
   padding: 10px;
-  color: #111;
   font-weight: bolder;
   font-size: 16px;
 }
 
 .menu a {
-  text-decoration: none;
+  color: #111;
+  text-decoration: none; /* Remove default underline */
   list-style: none;
+  position: relative;
+}
+.menu a::after {
+  content: ""; /* Add a pseudo-element */
+  position: absolute;
+  bottom: 0; /* Position at the bottom of the text */
+  left: 0;
+  width: 0; /* Start with zero width */
+  height: 3px; /* Height of the underline */
+  background-color: #efe117; /* Color of the underline */
+  transition: width 0.5s ease; /* Smooth transition effect */
 }
 
+.menu a:hover,
+.menu a:focus {
+  color: #ad0b0b; /* Change text color on hover or focus */
+}
+
+.menu a:hover::after,
+.menu a:focus::after {
+  width: 100%; /* Expand the underline to full width */
+}
 .shipping {
   display: flex;
   justify-content: center;
@@ -114,5 +152,8 @@
   }
   .header-menu {
     display: none;
+  }
+  .search-bar {
+    position: static;
   }
 }
