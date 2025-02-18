@@ -170,9 +170,10 @@
 .hero {
   display: flex;
   align-items: center;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 10px auto 0;
-  padding: 2rem 1rem;
+  /* padding: 2rem 1rem; */
+  padding: 20px 50px 10px;
   border: 10px solid #efe117;
 }
 
@@ -218,7 +219,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px #343321ac;
 }
 
 /* Responsive design */
