@@ -167,12 +167,12 @@
 }
 
 }
-.hero {
+/* .hero {
   display: flex;
   align-items: center;
   max-width: 100%;
   margin: 10px auto 0;
-  /* padding: 2rem 1rem; */
+ padding: 2rem 1rem; 
   padding: 20px 50px 10px;
   border: 10px solid #efe117;
 }
@@ -207,7 +207,7 @@
 }
 
 .hero__cta:hover {
-  background-color: #111;
+background-color: #111;  
 }
 
 .hero__image {
@@ -220,6 +220,64 @@
   height: auto;
   border-radius: 8px;
   box-shadow: 0 5px 15px #343321ac;
+} */
+
+.hero {
+  background-color: #ffcc00;
+  color: #333;
+  position: relative;
+  overflow: hidden;
+  height: 400px;
+}
+
+.hero-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 40px;
+  z-index: 2;
+}
+
+.hero h2 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.hero p {
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
+.hero-img {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background-image: url('/api/placeholder/700/400');
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-btn {
+ display: inline-block;
+ background-color: #ad0b0b;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s ease; */
+}
+
+.hero-btn:hover{
+  background-color: #111;
 }
 
 /* Responsive design */
@@ -324,4 +382,67 @@
 
 .mobile-menu-active .mobile-menu-overlay {
   opacity: 1;
+}
+
+ /* Events Section */
+ .events {
+  padding: 50px 0;
+  background-color: white;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.event-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.event-card {
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.event-img {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+
+.event-content {
+  padding: 20px;
+}
+
+.event-date {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.event-card h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.event-card p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.card-btn {
+  display: inline-block;
+  background-color: #ffcc00;
+  color: #333;
+  padding: 8px 15px;
+  border-radius: 3px;
+  font-weight: bold;
 }
