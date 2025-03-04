@@ -43,6 +43,7 @@
   border-radius: 8px 0 0 8px;
   border: none;
   position: relative;
+  bottom: 65px;
 }
 
 .search-bar input:focus {
@@ -55,6 +56,7 @@
   padding: 11px;
   border-radius: 0 8px 8px 0;
   position: absolute;
+  bottom: 65px;
 }
 
 .fa-magnifying-glass:hover {
@@ -158,72 +160,20 @@
   }
   .search-bar input {
     width: calc(100% - 40px);
+    top: 0;
 }
 .fa-magnifying-glass {
-  right: 0;
+  right: 1;
+  bottom: 0;
 }
 .mobile-menu-container {
   display: block; /* Show on mobile, but still invisible until activated */
 }
 
 }
-/* .hero {
-  display: flex;
-  align-items: center;
-  max-width: 100%;
-  margin: 10px auto 0;
- padding: 2rem 1rem; 
-  padding: 20px 50px 10px;
-  border: 10px solid #efe117;
-}
-
-.hero__content {
-  flex: 1;
-  padding: 0 2rem;
-}
-
-.hero__title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.hero__text {
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-  color: #666;
-  line-height: 1.5;
-}
-
-.hero__cta {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background-color: #ad0b0b;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.hero__cta:hover {
-background-color: #111;  
-}
-
-.hero__image {
-  flex: 1;
-  padding: 0 2rem;
-}
-
-.hero__image img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px #343321ac;
-} */
 
 .hero {
-  background-color: #ffcc00;
+  background-image: url('./images/banner2.jpg');
   color: #333;
   position: relative;
   overflow: hidden;
@@ -255,28 +205,18 @@ background-color: #111;
   margin-bottom: 20px;
 }
 
-.hero-img {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 60%;
-  height: 100%;
-  background-image: url('/api/placeholder/700/400');
-  background-size: cover;
-  background-position: center;
-}
-
-.hero-btn {
+.hero__cta {
  display: inline-block;
  background-color: #ad0b0b;
   color: white;
   text-decoration: none;
+  padding: 10px 20px;
   border-radius: 4px;
   font-weight: bold;
-  transition: background-color 0.3s ease; */
+  transition: background-color 0.3s ease;
 }
 
-.hero-btn:hover{
+.hero__cta:hover{
   background-color: #111;
 }
 
@@ -286,12 +226,12 @@ background-color: #111;
       flex-direction: column;
       text-align: center;
   }
-  
+
   .hero__content,
   .hero__image {
       padding: 1rem;
   }
-  
+
   .hero__image {
       order: -1; /* Places image above content on mobile */
   }
