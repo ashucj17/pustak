@@ -14,6 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .left-icons {
@@ -22,6 +23,7 @@
 
 .Pustak-logo {
   width: 100%;
+  max-width: 200px;
 }
 
 .row .fa-bars {
@@ -64,12 +66,13 @@
   color: #ad0b0b;
 }
 
-.right-icons i {
+.social-icons i {
+  margin-bottom: 10px;
   padding: 5px;
   font-size: 20px;
 }
 
-.right-icons i:hover {
+.social-icons i:hover {
   color: #ad0b0b;
 }
 
@@ -463,6 +466,7 @@
 
 .explore-science {
   padding: 50px 80px;
+  border: 5px solid #efe117;
   background-color: #fff;
 }
 
@@ -524,7 +528,7 @@
 
  /* Footer */
  footer {
-  background-color: #ffcc00;
+  background-color: #efe117;
   color: #333;
   padding: 30px 80px;
 }
@@ -536,21 +540,24 @@
 
 .newsletter {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 20px;
+}
+
+.newsletter span{
+  font-weight: bold;
 }
 
 .newsletter input {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 3px;
-  width: 250px;
+  width: 350px;
 }
 
 .social-icons {
   display: flex;
-  justify-content: center;
   gap: 15px;
   margin-top: 20px;
 }
@@ -584,6 +591,16 @@
 
 .footer-section ul li {
   margin-bottom: 8px;
+}
+
+.footer-section a{
+  text-decoration: none;
+  font-weight: bold;
+  color: #111;
+}
+
+.footer-section a:hover{
+color: #ad0b0b;
 }
 
 .footer-bottom {
