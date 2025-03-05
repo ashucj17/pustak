@@ -193,6 +193,12 @@
 .hero__text {
   font-size: 1rem;
 }
+
+.footer-main {
+  grid-template-columns: repeat(2, 1fr);
+  text-align: center;
+}
+
 }
 
 .hero {
@@ -302,6 +308,22 @@
   .hero__image {
       order: -1; /* Places image above content on mobile */
   }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .newsletter {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .newsletter input {
+    width: 90%;
+  }
+
 }
 
 /* Mobile Menu Styles */
