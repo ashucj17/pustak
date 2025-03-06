@@ -322,7 +322,7 @@
   }
 
   .newsletter input {
-    width: 90%;
+    width: 100%;
   }
 
 }
@@ -576,7 +576,7 @@
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 3px;
-  width: 350px;
+  max-width: 600px;
 }
 
 .social-icons {
@@ -655,7 +655,7 @@ color: #ad0b0b;
   
   /* Improve container spacing */
   .container, .small-container {
-    padding-left: 15px;
+    /* padding-left: 15px;   */
     padding-right: 15px;
     width: 100%;
     overflow: hidden;
@@ -758,12 +758,7 @@ color: #ad0b0b;
     align-items: flex-start;
     gap: 10px;
   }
-  
-  .newsletter input {
-    width: 100%;
-    margin: 10px 0;
-  }
-  
+
   .card-btn {
     display: inline-block;
     width: auto;
