@@ -641,3 +641,240 @@ color: #ad0b0b;
   font-size: 12px;
   margin-right: 5px;
 }
+
+/* Mobile View Design Fixes */
+
+/* General mobile fixes */
+@media (max-width: 767px) {
+  /* Fix content overflow */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  /* Improve container spacing */
+  .container, .small-container {
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Fix hero section mobile display */
+  .hero {
+    min-height: 350px;
+    padding: 40px 0;
+    text-align: center;
+  }
+  
+  .hero__content {
+    padding: 0 15px;
+    width: 100%;
+  }
+  
+  .hero__title {
+    font-size: 1.75rem;
+    margin-bottom: 15px;
+  }
+  
+  .hero__text {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  /* Fix section layouts - single column cards */
+  .event-cards,
+  .explore-cards,
+  .learning-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  /* Fix card styles on mobile */
+  .event-card {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .event-img {
+    height: 180px;
+    width: 100%;
+  }
+  
+  .event-content {
+    padding: 15px;
+  }
+
+  /* Fix text overlap issues */
+  h2, h3, p {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .section-header {
+    margin-bottom: 20px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .section-header p {
+    font-size: 0.9rem;
+  }
+  
+  /* Fix support section layout */
+  .support {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 15px;
+    gap: 20px;
+  }
+  
+  .support-content {
+    padding-right: 0;
+    order: 1;
+  }
+  
+  .support-img {
+    height: 200px;
+    order: 0;
+    margin-bottom: 15px;
+  }
+  
+  /* Fix newsletter and footer */
+  .newsletter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .newsletter input {
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .card-btn {
+    display: inline-block;
+    width: auto;
+    text-align: center;
+  }
+  
+  .footer-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .footer-section {
+    margin-bottom: 15px;
+  }
+  
+  .footer-bottom {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+}
+
+/* Extra small device fixes */
+@media (max-width: 375px) {
+  /* Fix header area on very small screens */
+  .left-icons {
+    max-width: 140px;
+  }
+  
+  .Pustak-logo {
+    max-width: 100px;
+  }
+  
+  .social-icons i {
+    font-size: 16px;
+    margin-left: 8px;
+  }
+  
+  /* Fix search bar on very small screens */
+  .search-bar input {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .fa-magnifying-glass {
+    padding: 9px;
+  }
+  
+  /* Make buttons more touch-friendly */
+  .card-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  /* Further reduce text sizes on tiny screens */
+  .hero__title {
+    font-size: 1.5rem;
+  }
+  
+  .hero__text {
+    font-size: 0.85rem;
+  }
+}
+
+/* Fix for broken images in mobile display */
+@media (max-width: 767px) {
+  .event-cards .event-card,
+  .explore-cards .event-card,
+  .learning-cards .event-card {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Eliminate any horizontal scrolling */
+  .events, 
+  .explore-science, 
+  .learning {
+    width: 100%;
+    padding: 30px 15px;
+    overflow: hidden;
+  }
+  
+  /* Better background image handling */
+  .event-img {
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
+}
+
+/* Fix yellow background container issue */
+@media (max-width: 767px) {
+  .explore-science {
+    border-width: 3px;
+    padding: 20px 15px;
+  }
+  
+  /* Improve content visibility */
+  .event-content h3 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  
+  .event-content p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  
+  /* Fix shipping notification bar */
+  .shipping {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .shipping i {
+    margin-left: 5px;
+  }
+}
