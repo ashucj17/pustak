@@ -186,7 +186,7 @@ function createBookCard(book) {
         ? `<div class="price">₹${book.price} <span class="original-price">₹${book.originalPrice}</span></div>`
         : `<div class="price">₹${book.price}</div>`;
     
-    const badgeHTML = book.badge 
+    const badgeHTML = book.badge
         ? `<div class="book-badge">${book.badge}</div>`
         : '';
     

@@ -97,40 +97,6 @@
         </div>
     </section>
 
-    <!-- Filter Section -->
-    <section class="filters">
-        <div class="container">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="category">Category:</label>
-                    <select id="category">
-                        <option value="">All Categories</option>
-                        <option value="fiction">Fiction</option>
-                        <option value="non-fiction">Non-Fiction</option>
-                        <option value="science">Science</option>
-                        <option value="technology">Technology</option>
-                        <option value="biography">Biography</option>
-                        <option value="history">History</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="sort">Sort by:</label>
-                    <select id="sort">
-                        <option value="newest">Newest First</option>
-                        <option value="popular">Most Popular</option>
-                        <option value="rating">Highest Rated</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                    </select>
-                </div>
-                <div class="view-toggle">
-                    <button class="view-btn active" data-view="grid"><i class="fa-solid fa-grip"></i></button>
-                    <button class="view-btn" data-view="list"><i class="fa-solid fa-list"></i></button>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Featured Books Section -->
     <section class="featured-books">
         <div class="container">
@@ -179,6 +145,44 @@
                             <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section - Moved Below Featured Books -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-header">
+                <h2>Browse All Books</h2>
+                <p>Filter and sort through our complete collection</p>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="category">Category:</label>
+                    <select id="category">
+                        <option value="">All Categories</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                        <option value="science">Science</option>
+                        <option value="technology">Technology</option>
+                        <option value="biography">Biography</option>
+                        <option value="history">History</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort by:</label>
+                    <select id="sort">
+                        <option value="newest">Newest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid"><i class="fa-solid fa-grip"></i></button>
+                    <button class="view-btn" data-view="list"><i class="fa-solid fa-list"></i></button>
                 </div>
             </div>
         </div>
