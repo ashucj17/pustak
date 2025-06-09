@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="new-noteworthy.css">
+    <link rel="stylesheet" href="top-50.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <title>New & Noteworthy - Pustak</title>
+    <title>Top 50 Books - Pustak</title>
 </head>
 
 <body>
@@ -18,8 +18,8 @@
                 <i class="fa-solid fa-xmark close-menu"></i>
             </div>
             <ul class="mobile-menu-items">
-                <li><a href="new-noteworthy.html" class="active">NEW & NOTEWORTHY</a></li>
-                <li><a href="top-50.html">TOP 50</a></li>
+                <li><a href="new-noteworthy.html">NEW & NOTEWORTHY</a></li>
+                <li><a href="top-50.html" class="active">TOP 50</a></li>
                 <li><a href="#">BOOKS</a></li>
                 <li><a href="#">KIDS BOOKS</a></li>
                 <li><a href="#">TOYS & GAMES</a></li>
@@ -51,10 +51,10 @@
         </div>
         <div class="header-menu">
             <ul class="menu">
-                <a class="list-item active" href="new-noteworthy.html">
+                <a class="list-item" href="new-noteworthy.html">
                     <li class="menu-items">NEW & NOTEWORTHY</li>
                 </a>
-                <a class="list-item" href="top-50.html">
+                <a class="list-item active" href="top-50.html">
                     <li class="menu-items">TOP 50</li>
                 </a>
                 <a class="list-item" href="#">
@@ -84,7 +84,7 @@
     <section class="breadcrumb">
         <div class="container">
             <nav>
-                <a href="index.html">Home</a> > <span>New & Noteworthy</span>
+                <a href="index.html">Home</a> > <span>Top 50</span>
             </nav>
         </div>
     </section>
@@ -92,18 +92,18 @@
     <!-- Page Header -->
     <section class="page-header">
         <div class="container">
-            <h1>New & Noteworthy</h1>
-            <p>Discover the latest and most exciting books that are making waves in the literary world. From groundbreaking research to captivating stories, find your next great read here.</p>
+            <h1>Top 50 Books</h1>
+            <p>Discover the highest-rated books loved by readers worldwide. These exceptional titles have earned their place through outstanding reviews, compelling content, and reader satisfaction.</p>
         </div>
     </section>
 
-    <!-- Featured Books Section -->
+    <!-- Top 3 Books Section -->
     <section class="featured-books">
         <div class="container">
-            <h2>This Month's Highlights</h2>
-            <div class="featured-grid">
-                <div class="featured-book-card">
-                    <div class="book-badge">Bestseller</div>
+            <h2>The Ultimate Top 3</h2>
+            <div class="top-three-grid">
+                <div class="rank-card rank-1">
+                    <div class="rank-badge">#1</div>
                     <div class="book-img" style="background-image: url('images/microscopic-event.jpg')"></div>
                     <div class="book-content">
                         <h3>The Quantum Universe</h3>
@@ -114,9 +114,9 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
-                            <span>(4.8)</span>
+                            <span>(4.97)</span>
                         </div>
-                        <p class="description">Explore the fascinating world of quantum physics through accessible explanations and real-world applications.</p>
+                        <p class="description">The most comprehensive and accessible guide to quantum physics, praised by scientists and readers alike.</p>
                         <div class="price">₹899 <span class="original-price">₹1299</span></div>
                         <div class="book-actions">
                             <button class="btn-primary">Add to Cart</button>
@@ -124,8 +124,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="featured-book-card">
-                    <div class="book-badge">New Release</div>
+                <div class="rank-card rank-2">
+                    <div class="rank-badge">#2</div>
+                    <div class="book-img" style="background-image: url('images/mathematics.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Visual Mathematics</h3>
+                        <p class="author">by John Derbyshire</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.95)</span>
+                        </div>
+                        <p class="description">A revolutionary approach to understanding mathematics through stunning visual representations.</p>
+                        <div class="price">₹599 <span class="original-price">₹799</span></div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="rank-card rank-3">
+                    <div class="rank-badge">#3</div>
                     <div class="book-img" style="background-image: url('images/mathematician.jpg')"></div>
                     <div class="book-content">
                         <h3>Mathematical Minds</h3>
@@ -135,10 +157,10 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                            <span>(4.6)</span>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.92)</span>
                         </div>
-                        <p class="description">Journey through the lives of history's greatest mathematicians and their groundbreaking discoveries.</p>
+                        <p class="description">Inspiring biographies of history's greatest mathematical minds and their groundbreaking discoveries.</p>
                         <div class="price">₹749 <span class="original-price">₹999</span></div>
                         <div class="book-actions">
                             <button class="btn-primary">Add to Cart</button>
@@ -150,16 +172,16 @@
         </div>
     </section>
 
-    <!-- Filter Section - Moved Below Featured Books -->
+    <!-- Filter Section -->
     <section class="filters">
         <div class="container">
             <div class="filter-header">
-                <h2>Browse All Books</h2>
-                <p>Filter and sort through our complete collection</p>
+                <h2>Complete Top 50 Rankings</h2>
+                <p>Browse through all 50 highest-rated books, ranked by reader reviews and expert opinions</p>
             </div>
             <div class="filter-row">
                 <div class="filter-group">
-                    <label for="category">Category:</label>
+                    <label for="category">Filter by Category:</label>
                     <select id="category">
                         <option value="">All Categories</option>
                         <option value="fiction">Fiction</option>
@@ -173,9 +195,9 @@
                 <div class="filter-group">
                     <label for="sort">Sort by:</label>
                     <select id="sort">
-                        <option value="newest">Newest First</option>
-                        <option value="popular">Most Popular</option>
-                        <option value="rating">Highest Rated</option>
+                        <option value="rank">Ranking (1-50)</option>
+                        <option value="rating">Highest Rating</option>
+                        <option value="reviews">Most Reviews</option>
                         <option value="price-low">Price: Low to High</option>
                         <option value="price-high">Price: High to Low</option>
                     </select>
@@ -193,69 +215,7 @@
         <div class="container">
             <div class="books-container" id="booksContainer">
                 <div class="book-card">
-                    <div class="book-img" style="background-image: url('images/mathematics.jpg')"></div>
-                    <div class="book-content">
-                        <h3>Visual Mathematics</h3>
-                        <p class="author">by John Derbyshire</p>
-                        <div class="rating">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <span>(4.9)</span>
-                        </div>
-                        <div class="price">₹599</div>
-                        <div class="book-actions">
-                            <button class="btn-primary">Add to Cart</button>
-                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="book-card">
-                    <div class="book-img" style="background-image: url('images/bill-coates.jpg')"></div>
-                    <div class="book-content">
-                        <h3>Physics Heroes</h3>
-                        <p class="author">by Bill Coates</p>
-                        <div class="rating">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                            <span>(4.7)</span>
-                        </div>
-                        <div class="price">₹549</div>
-                        <div class="book-actions">
-                            <button class="btn-primary">Add to Cart</button>
-                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="book-card">
-                    <div class="book-img" style="background-image: url('images/carying-baby.jpg')"></div>
-                    <div class="book-content">
-                        <h3>Physics of Everyday Life</h3>
-                        <p class="author">by Dr. Emma Watson</p>
-                        <div class="rating">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                            <span>(4.5)</span>
-                        </div>
-                        <div class="price">₹699</div>
-                        <div class="book-actions">
-                            <button class="btn-primary">Add to Cart</button>
-                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="book-card">
+                    <div class="rank-number">4</div>
                     <div class="book-img" style="background-image: url('images/food-book.jpg')"></div>
                     <div class="book-content">
                         <h3>Food Science & Nutrition</h3>
@@ -266,7 +226,7 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
-                            <span>(4.8)</span>
+                            <span>(4.89)</span>
                         </div>
                         <div class="price">₹799</div>
                         <div class="book-actions">
@@ -275,8 +235,53 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="book-card">
+                    <div class="rank-number">5</div>
+                    <div class="book-img" style="background-image: url('images/bill-coates.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Physics Heroes</h3>
+                        <p class="author">by Bill Coates</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.87)</span>
+                        </div>
+                        <div class="price">₹549</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="book-card">
+                    <div class="rank-number">6</div>
+                    <div class="book-img" style="background-image: url('images/carying-baby.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Physics of Everyday Life</h3>
+                        <p class="author">by Dr. Emma Watson</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.85)</span>
+                        </div>
+                        <div class="price">₹699</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="rank-number">7</div>
                     <div class="book-img" style="background-image: url('images/students.jpg')"></div>
                     <div class="book-content">
                         <h3>Learning Revolution</h3>
@@ -286,8 +291,8 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                            <span>(4.6)</span>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.83)</span>
                         </div>
                         <div class="price">₹649</div>
                         <div class="book-actions">
@@ -298,6 +303,7 @@
                 </div>
 
                 <div class="book-card">
+                    <div class="rank-number">8</div>
                     <div class="book-img" style="background-image: url('images/wokrshop.jpg')"></div>
                     <div class="book-content">
                         <h3>Hands-On Learning</h3>
@@ -307,10 +313,98 @@
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                            <span>(4.4)</span>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.81)</span>
                         </div>
                         <div class="price">₹529</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="rank-number">9</div>
+                    <div class="book-img" style="background-image: url('images/microscopic-event.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Molecular Biology Mastery</h3>
+                        <p class="author">by Dr. James Wilson</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.79)</span>
+                        </div>
+                        <div class="price">₹899</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="rank-number">10</div>
+                    <div class="book-img" style="background-image: url('images/mathematician.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Calculus Fundamentals</h3>
+                        <p class="author">by Prof. Lisa Chang</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.77)</span>
+                        </div>
+                        <div class="price">₹699</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="rank-number">11</div>
+                    <div class="book-img" style="background-image: url('images/food-book.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Organic Chemistry Simplified</h3>
+                        <p class="author">by Dr. Robert Green</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.75)</span>
+                        </div>
+                        <div class="price">₹749</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="rank-number">12</div>
+                    <div class="book-img" style="background-image: url('images/students.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Modern Education Theory</h3>
+                        <p class="author">by Dr. Amanda Foster</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.73)</span>
+                        </div>
+                        <div class="price">₹599</div>
                         <div class="book-actions">
                             <button class="btn-primary">Add to Cart</button>
                             <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
@@ -325,7 +419,23 @@
                 <button class="page-btn active">1</button>
                 <button class="page-btn">2</button>
                 <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
                 <button class="page-btn">Next</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated with Top Ratings</h2>
+                <p>Be the first to know when new books make it to our Top 50 list</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Enter your email address">
+                    <button class="btn-primary">Subscribe</button>
+                </div>
             </div>
         </div>
     </section>
@@ -382,7 +492,96 @@
         </div>
     </footer>
 
-    <script src="new-noteworthy.js"></script>
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.querySelector('.fa-bars');
+        const mobileMenuContainer = document.querySelector('.mobile-menu-container');
+        const closeMenu = document.querySelector('.close-menu');
+        const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+
+        function openMobileMenu() {
+            document.body.classList.add('mobile-menu-active');
+        }
+
+        function closeMobileMenu() {
+            document.body.classList.remove('mobile-menu-active');
+        }
+
+        menuToggle.addEventListener('click', openMobileMenu);
+        closeMenu.addEventListener('click', closeMobileMenu);
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+
+        // View toggle functionality
+        const viewBtns = document.querySelectorAll('.view-btn');
+        const booksContainer = document.getElementById('booksContainer');
+
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                viewBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const view = btn.getAttribute('data-view');
+                if (view === 'list') {
+                    booksContainer.classList.add('list-view');
+                } else {
+                    booksContainer.classList.remove('list-view');
+                }
+            });
+        });
+
+        // Pagination functionality
+        const pageButtons = document.querySelectorAll('.page-btn');
+        pageButtons.forEach(btn => {
+            if (!btn.disabled && !btn.classList.contains('active')) {
+                btn.addEventListener('click', () => {
+                    pageButtons.forEach(b => b.classList.remove('active'));
+                    if (!isNaN(btn.textContent)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        // Add to cart functionality
+        const addToCartBtns = document.querySelectorAll('.btn-primary');
+        addToCartBtns.forEach(btn => {
+            if (btn.textContent.includes('Add to Cart')) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Added!';
+                    btn.style.backgroundColor = '#28a745';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.backgroundColor = '';
+                    }, 2000);
+                });
+            }
+        });
+
+        // Wishlist functionality
+        const wishlistBtns = document.querySelectorAll('.btn-secondary');
+        wishlistBtns.forEach(btn => {
+            if (btn.innerHTML.includes('fa-heart')) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const heartIcon = btn.querySelector('i');
+                    if (heartIcon.classList.contains('fa-regular')) {
+                        heartIcon.classList.remove('fa-regular');
+                        heartIcon.classList.add('fa-solid');
+                        btn.style.backgroundColor = '#ad0b0b';
+                        btn.style.color = 'white';
+                    } else {
+                        heartIcon.classList.remove('fa-solid');
+                        heartIcon.classList.add('fa-regular');
+                        btn.style.backgroundColor = '';
+                        btn.style.color = '#ad0b0b';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
