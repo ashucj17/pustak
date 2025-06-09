@@ -1,10 +1,11 @@
-// Enhanced Book data management with JSON integration - 8 Books Per Page
+// Enhanced Book data management with JSON integration - 9 Books Default, 8 Books Per Page After Filter
 let allBooksData = [];
 let currentBooks = [];
 let currentCategory = '';
 let currentSort = 'newest';
 let currentPage = 1;
-let booksPerPage = 8; // Fixed to 8 books per page
+let booksPerPage = 9; // Default to 9 books for initial load
+let isFiltered = false; // Track if any filters are applied
 
 // DOM Elements
 const categorySelect = document.getElementById('category');
@@ -175,6 +176,11 @@ function initializeFilters() {
 function handleCategoryChange(e) {
     currentCategory = e.target.value;
     currentPage = 1; // Reset to first page
+    
+    // Set filtered state and adjust books per page
+    isFiltered = currentCategory !== '';
+    booksPerPage = isFiltered ? 8 : 9;
+    
     filterAndSortBooks();
 }
 
@@ -182,6 +188,11 @@ function handleCategoryChange(e) {
 function handleSortChange(e) {
     currentSort = e.target.value;
     currentPage = 1; // Reset to first page
+    
+    // If sorting is changed from default 'newest', consider it as filtered
+    isFiltered = currentSort !== 'newest' || currentCategory !== '';
+    booksPerPage = isFiltered ? 8 : 9;
+    
     filterAndSortBooks();
 }
 
@@ -228,7 +239,7 @@ function sortBooks(books, sortBy) {
     }
 }
 
-// Render books with pagination - Fixed 8 books per page
+// Render books with pagination - Dynamic books per page (9 default, 8 filtered)
 function renderBooksWithPagination(books) {
     const startIndex = (currentPage - 1) * booksPerPage;
     const endIndex = startIndex + booksPerPage;
@@ -259,7 +270,8 @@ function updatePaginationInfo(totalBooks, startIndex, endIndex) {
     }
     
     const totalPages = Math.ceil(totalBooks / booksPerPage);
-    paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalBooks} books (Page ${currentPage} of ${totalPages})`;
+    const viewMode = isFiltered ? `${booksPerPage} per page` : `${booksPerPage} featured books`;
+    paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalBooks} books (Page ${currentPage} of ${totalPages}) - ${viewMode}`;
 }
 
 // Render books to the DOM
@@ -385,6 +397,13 @@ function updateResultsCount(count) {
         text += ` in ${categoryName}`;
     }
     
+    // Add indication of current display mode
+    if (!isFiltered) {
+        text += ` - Showing ${booksPerPage} featured books per page`;
+    } else {
+        text += ` - Showing ${booksPerPage} books per page`;
+    }
+    
     resultsElement.textContent = text;
 }
 
@@ -485,7 +504,8 @@ function updatePagination(totalBooks) {
         `;
     }
     
-    // Page info
+    // Page info with dynamic display mode
+    const displayMode = isFiltered ? `${booksPerPage} per page` : `${booksPerPage} featured`;
     paginationHTML += `
         <div class="page-info" style="
             margin-left: 20px;
@@ -493,7 +513,7 @@ function updatePagination(totalBooks) {
             color: #666;
             white-space: nowrap;
         ">
-            Page ${currentPage} of ${totalPages}
+            Page ${currentPage} of ${totalPages} (${displayMode})
         </div>
     `;
     
@@ -839,202 +859,550 @@ function initializeSearch() {
             searchInput.value = '';
             clearButton.style.display = 'none';
             currentPage = 1;
+            
+            // Reset to default state
+            isFiltered = false;
+            booksPerPage = 9;
+            
             filterAndSortBooks();
         });
     }
 }
 
+// Complete handleSearch function and remaining code
+// Complete handleSearch function and remaining code
 function handleSearch(e) {
     const searchTerm = e.target.value.toLowerCase().trim();
     currentPage = 1; // Reset to first page
     
-    if (searchTerm === '') {
-        filterAndSortBooks();
-        return;
-    }
+    // Set filtered state when searching
+    isFiltered = searchTerm !== '' || currentCategory !== '' || currentSort !== 'newest';
+    booksPerPage = isFiltered ? 8 : 9;
     
-    let filteredBooks = [...allBooksData];
-    
-    // Apply category filter first
-    if (currentCategory && currentCategory !== '') {
-        filteredBooks = filteredBooks.filter(book => book.category === currentCategory);
-    }
-    
-    // Apply search filter
-    filteredBooks = filteredBooks.filter(book => 
-        book.title.toLowerCase().includes(searchTerm) ||
-        book.author.toLowerCase().includes(searchTerm) ||
-        book.category.toLowerCase().includes(searchTerm)
-    );
-    
-    // Apply sorting
-    filteredBooks = sortBooks(filteredBooks, currentSort);
-    
-    currentBooks = filteredBooks;
-    renderBooksWithPagination(currentBooks);
-    updateResultsCount(filteredBooks.length);
-    updatePagination(filteredBooks.length);
-}
-
-// Newsletter subscription
-function initializeNewsletter() {
-    const newsletterForms = document.querySelectorAll('.newsletter-form, .newsletter');
-    
-    newsletterForms.forEach(form => {
-        const button = form.querySelector('button, .card-btn');
-        const input = form.querySelector('input[type="email"]');
+    if (searchTerm === '' && currentCategory === '' && currentSort === 'newest') {
+        // Reset to default unfiltered state
+        isFiltered = false;
+        booksPerPage = 9;
+        currentBooks = [...allBooksData];
+    } else {
+        // Apply search filter
+        let filteredBooks = allBooksData.filter(book => {
+            const titleMatch = book.title.toLowerCase().includes(searchTerm);
+            const authorMatch = book.author.toLowerCase().includes(searchTerm);
+            const categoryMatch = book.category.toLowerCase().includes(searchTerm);
+            
+            return titleMatch || authorMatch || categoryMatch;
+        });
         
-        if (button && input) {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const email = input.value.trim();
-                
-                if (email && isValidEmail(email)) {
-                    showNotification('Successfully subscribed to newsletter!', 'success');
-                    input.value = '';
-                } else {
-                    showNotification('Please enter a valid email address', 'error');
-                }
-            });
+        // Apply category filter if set
+        if (currentCategory && currentCategory !== '') {
+            filteredBooks = filteredBooks.filter(book => book.category === currentCategory);
         }
-    });
-}
-
-// Email validation
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Dynamic category population
-function populateCategories() {
-    if (!categorySelect || allBooksData.length === 0) return;
-    
-    const categories = [...new Set(allBooksData.map(book => book.category))].sort();
-    
-    // Clear existing options except "All Categories"
-    const allOption = categorySelect.querySelector('option[value=""]');
-    categorySelect.innerHTML = '';
-    if (allOption) {
-        categorySelect.appendChild(allOption);
+        
+        // Apply sorting
+        filteredBooks = sortBooks(filteredBooks, currentSort);
+        currentBooks = filteredBooks;
     }
     
-    categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ');
-        categorySelect.appendChild(option);
-    });
+    renderBooksWithPagination(currentBooks);
+    updateResultsCount(currentBooks.length);
+    updatePagination(currentBooks.length);
+    
+    // Show search results message
+    if (searchTerm !== '') {
+        showSearchResultsMessage(searchTerm, currentBooks.length);
+    }
 }
 
-// Add loading state
-function showLoading() {
-    if (booksContainer) {
-        booksContainer.innerHTML = `
-            <div class="loading-spinner" style="
-                grid-column: 1 / -1;
-                text-align: center;
-                padding: 60px 20px;
-                color: #666;
-            ">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
-                <p>Loading books...</p>
-            </div>
+// Show search results message
+function showSearchResultsMessage(searchTerm, resultsCount) {
+    let searchMessage = document.querySelector('.search-results-message');
+    
+    if (!searchMessage) {
+        searchMessage = document.createElement('div');
+        searchMessage.className = 'search-results-message';
+        searchMessage.style.cssText = `
+            background: #e8f4f8;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            color: #0c5460;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         `;
+        
+        const container = document.querySelector('.books-grid .container');
+        const resultsCount = document.querySelector('.results-count');
+        if (container && resultsCount) {
+            container.insertBefore(searchMessage, resultsCount.nextSibling);
+        }
+    }
+    
+    if (resultsCount === 0) {
+        searchMessage.innerHTML = `
+            <i class="fa-solid fa-search"></i>
+            <span>No results found for "<strong>${searchTerm}</strong>". Try different keywords or check spelling.</span>
+        `;
+        searchMessage.style.background = '#fff3cd';
+        searchMessage.style.borderColor = '#ffeaa7';
+        searchMessage.style.color = '#856404';
+    } else {
+        searchMessage.innerHTML = `
+            <i class="fa-solid fa-search"></i>
+            <span>Found ${resultsCount} result${resultsCount !== 1 ? 's' : ''} for "<strong>${searchTerm}</strong>"</span>
+        `;
+        searchMessage.style.background = '#e8f4f8';
+        searchMessage.style.borderColor = '#bee5eb';
+        searchMessage.style.color = '#0c5460';
+    }
+    
+    searchMessage.style.display = 'flex';
+}
+
+// Clear search results message
+function clearSearchResultsMessage() {
+    const searchMessage = document.querySelector('.search-results-message');
+    if (searchMessage) {
+        searchMessage.style.display = 'none';
     }
 }
 
-// Keyboard navigation for pagination
-function initializePaginationKeyboard() {
+// Enhanced filter reset functionality
+function resetAllFilters() {
+    // Reset all filter states
+    currentCategory = '';
+    currentSort = 'newest';
+    currentPage = 1;
+    isFiltered = false;
+    booksPerPage = 9;
+    
+    // Reset form controls
+    const categorySelect = document.getElementById('category');
+    const sortSelect = document.getElementById('sort');
+    const searchInput = document.querySelector('.search-bar input');
+    
+    if (categorySelect) categorySelect.value = '';
+    if (sortSelect) sortSelect.value = 'newest';
+    if (searchInput) searchInput.value = '';
+    
+    // Clear search button
+    const clearButton = document.querySelector('.search-clear');
+    if (clearButton) clearButton.style.display = 'none';
+    
+    // Reset to original data
+    currentBooks = [...allBooksData];
+    
+    // Re-render everything
+    renderBooksWithPagination(currentBooks);
+    updateResultsCount(allBooksData.length);
+    updatePagination(allBooksData.length);
+    clearSearchResultsMessage();
+    
+    showNotification('All filters cleared', 'info');
+}
+
+// Add reset filters button functionality
+function addResetFiltersButton() {
+    const filtersSection = document.querySelector('.filters');
+    
+    if (filtersSection && !document.querySelector('.reset-filters-btn')) {
+        const resetButton = document.createElement('button');
+        resetButton.className = 'reset-filters-btn';
+        resetButton.innerHTML = '<i class="fa-solid fa-refresh"></i> Reset Filters';
+        resetButton.style.cssText = `
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            margin: 0 10px;
+        `;
+        
+        resetButton.addEventListener('click', resetAllFilters);
+        
+        resetButton.addEventListener('mouseenter', () => {
+            resetButton.style.background = '#5a6268';
+            resetButton.style.transform = 'translateY(-1px)';
+        });
+        
+        resetButton.addEventListener('mouseleave', () => {
+            resetButton.style.background = '#6c757d';
+            resetButton.style.transform = 'translateY(0)';
+        });
+        
+        filtersSection.appendChild(resetButton);
+    }
+}
+
+// Enhanced keyboard navigation
+function initializeKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
-        // Only handle keyboard navigation when not typing in input fields
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-            return;
-        }
+        // Only handle when not typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
         
         const totalPages = Math.ceil(currentBooks.length / booksPerPage);
         
         switch(e.key) {
             case 'ArrowLeft':
+            case 'h':
+                e.preventDefault();
                 if (currentPage > 1) {
-                    e.preventDefault();
                     changePage(currentPage - 1);
                 }
                 break;
+                
             case 'ArrowRight':
+            case 'l':
+                e.preventDefault();
                 if (currentPage < totalPages) {
-                    e.preventDefault();
                     changePage(currentPage + 1);
                 }
                 break;
+                
             case 'Home':
-                if (currentPage > 1) {
-                    e.preventDefault();
+                e.preventDefault();
+                if (currentPage !== 1) {
                     changePage(1);
                 }
                 break;
+                
             case 'End':
-                if (currentPage < totalPages) {
-                    e.preventDefault();
+                e.preventDefault();
+                if (currentPage !== totalPages) {
                     changePage(totalPages);
+                }
+                break;
+                
+            case 'g':
+                e.preventDefault();
+                jumpToPage();
+                break;
+                
+            case 'r':
+                e.preventDefault();
+                resetAllFilters();
+                break;
+                
+            case '/':
+                e.preventDefault();
+                const searchInput = document.querySelector('.search-bar input');
+                if (searchInput) {
+                    searchInput.focus();
                 }
                 break;
         }
     });
 }
 
-// Add quick page jump functionality
-function addQuickPageJump() {
-    const totalPages = Math.ceil(currentBooks.length / booksPerPage);
+// Books per page selector
+function addBooksPerPageSelector() {
+    const paginationElement = document.querySelector('.pagination');
     
-    if (totalPages > 5) {
-        const paginationElement = document.querySelector('.pagination');
-        if (paginationElement) {
-            const jumpButton = document.createElement('button');
-            jumpButton.className = 'page-btn jump-btn';
-            jumpButton.innerHTML = '<i class="fa-solid fa-search"></i>';
-            jumpButton.title = 'Jump to page';
-            jumpButton.onclick = jumpToPage;
-            
-            jumpButton.style.cssText = `
-                padding: 8px 12px;
+    if (paginationElement && !document.querySelector('.books-per-page-selector')) {
+        const selector = document.createElement('div');
+        selector.className = 'books-per-page-selector';
+        selector.style.cssText = `
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        `;
+        
+        const currentPerPage = isFiltered ? 8 : 9; 
+        const options = isFiltered ? [4, 8, 12, 16] : [3, 9, 12, 18];
+        
+        selector.innerHTML = `
+            <span>Show:</span>
+            <select class="books-per-page-select" style="
+                padding: 4px 8px;
                 border: 1px solid #ddd;
-                background: white;
-                color: #333;
-                cursor: pointer;
                 border-radius: 4px;
                 font-size: 14px;
+                background: white;
+                cursor: pointer;
+            ">
+                ${options.map(num => 
+                    `<option value="${num}" ${num === currentPerPage ? 'selected' : ''}>${num}</option>`
+                ).join('')}
+            </select>
+            <span>books</span>
+        `;
+        
+        const select = selector.querySelector('.books-per-page-select');
+        select.addEventListener('change', (e) => {
+            booksPerPage = parseInt(e.target.value);
+            currentPage = 1;
+            renderBooksWithPagination(currentBooks);
+            updateResultsCount(currentBooks.length);
+            updatePagination(currentBooks.length);
+        });
+        
+        paginationElement.appendChild(selector);
+    }
+}
+
+// Advanced sorting options
+function initializeAdvancedSorting() {
+    // Add sort direction toggle
+    const sortSelect = document.getElementById('sort');
+    if (sortSelect) {
+        const sortContainer = sortSelect.parentElement;
+        
+        if (!document.querySelector('.sort-direction-toggle')) {
+            const directionToggle = document.createElement('button');
+            directionToggle.className = 'sort-direction-toggle';
+            directionToggle.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
+            directionToggle.title = 'Toggle Sort Direction';
+            directionToggle.style.cssText = `
+                margin-left: 8px;
+                padding: 8px 10px;
+                border: 1px solid #ddd;
+                background: white;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
                 transition: all 0.3s ease;
-                margin-left: 10px;
             `;
             
-            paginationElement.appendChild(jumpButton);
+            let isAscending = false;
+            
+            directionToggle.addEventListener('click', () => {
+                isAscending = !isAscending;
+                directionToggle.innerHTML = isAscending 
+                    ? '<i class="fa-solid fa-arrow-up"></i>' 
+                    : '<i class="fa-solid fa-arrow-down"></i>';
+                
+                // Re-apply current sorting with new direction
+                currentBooks = reverseSortOrder(currentBooks);
+                renderBooksWithPagination(currentBooks);
+            });
+            
+            sortContainer.appendChild(directionToggle);
         }
     }
 }
 
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    showLoading();
-    initializeFilters();
-    initializeViewToggle();
-    initializeMobileMenu();
-    initializeSearch();
-    initializeNewsletter();
-    initializePaginationKeyboard();
+// Reverse sort order
+function reverseSortOrder(books) {
+    return [...books].reverse();
+}
+
+// Export/Import functionality
+function initializeDataExport() {
+    // Add export button
+    const filtersSection = document.querySelector('.filters');
     
-    // Populate categories after data loads
-    setTimeout(() => {
-        populateCategories();
-        addQuickPageJump();
-    }, 500);
-});
+    if (filtersSection && !document.querySelector('.export-btn')) {
+        const exportButton = document.createElement('button');
+        exportButton.className = 'export-btn';
+        exportButton.innerHTML = '<i class="fa-solid fa-download"></i> Export';
+        exportButton.style.cssText = `
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            margin: 0 10px;
+        `;
+        
+        exportButton.addEventListener('click', exportCurrentView);
+        
+        exportButton.addEventListener('mouseenter', () => {
+            exportButton.style.background = '#218838';
+            exportButton.style.transform = 'translateY(-1px)';
+        });
+        
+        exportButton.addEventListener('mouseleave', () => {
+            exportButton.style.background = '#28a745';
+            exportButton.style.transform = 'translateY(0)';
+        });
+        
+        filtersSection.appendChild(exportButton);
+    }
+}
 
-// Remove responsive behavior - keep fixed 8 books per page
-// (Removed the window resize handler that was changing booksPerPage)
+// Export current view data
+function exportCurrentView() {
+    const dataToExport = {
+        books: currentBooks,
+        filters: {
+            category: currentCategory,
+            sort: currentSort,
+            page: currentPage,
+            booksPerPage: booksPerPage,
+            isFiltered: isFiltered
+        },
+        exportDate: new Date().toISOString(),
+        totalBooks: currentBooks.length
+    };
+    
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `books-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Books data exported successfully!', 'success');
+}
 
-// Export functions for global access
-window.changePage = changePage;
-window.addToCart = addToCart;
-window.toggleWishlist = toggleWishlist;
-window.jumpToPage = jumpToPage;
+// Initialize all functionality
+function initializeApp() {
+    // Core functionality
+    initializeFilters();
+    initializeSearch();
+    initializeMobileMenu();
+    initializeViewToggle();
+    
+    // Enhanced features
+    initializeKeyboardNavigation();
+    addResetFiltersButton();
+    initializeAdvancedSorting();
+    initializeDataExport();
+    
+    // Show keyboard shortcuts help
+    showKeyboardHelp();
+}
+
+// Show keyboard shortcuts help
+function showKeyboardHelp() {
+    // Add help button
+    const body = document.body;
+    const helpButton = document.createElement('button');
+    helpButton.innerHTML = '<i class="fa-solid fa-question-circle"></i>';
+    helpButton.title = 'Keyboard Shortcuts';
+    helpButton.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    `;
+    
+    helpButton.addEventListener('click', toggleKeyboardShortcuts);
+    body.appendChild(helpButton);
+}
+
+// Toggle keyboard shortcuts modal
+function toggleKeyboardShortcuts() {
+    let modal = document.querySelector('.keyboard-shortcuts-modal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'keyboard-shortcuts-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; color: #333;">Keyboard Shortcuts</h3>
+                    <button class="close-shortcuts" style="
+                        background: none;
+                        border: none;
+                        font-size: 24px;
+                        cursor: pointer;
+                        color: #666;
+                    ">&times;</button>
+                </div>
+                <div style="display: grid; gap: 15px; font-size: 14px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>←</kbd> or <kbd>H</kbd></span>
+                        <span>Previous page</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>→</kbd> or <kbd>L</kbd></span>
+                        <span>Next page</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>Home</kbd></span>
+                        <span>First page</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>End</kbd></span>
+                        <span>Last page</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>G</kbd></span>
+                        <span>Go to page</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <span><kbd>/</kbd></span>
+                        <span>Focus search</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span><kbd>R</kbd></span>
+                        <span>Reset filters</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal functionality
+        const closeBtn = modal.querySelector('.close-shortcuts');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);
