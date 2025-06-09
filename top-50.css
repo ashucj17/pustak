@@ -239,8 +239,8 @@ body {
 }
 
 .shipping {
-    background-color: #ad0b0b;
-    color: white;
+    background-color: #ededed;
+    color: #444;
     text-align: center;
     padding: 10px;
     display: flex;
