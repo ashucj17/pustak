@@ -643,8 +643,9 @@ body {
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 40px;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
 }
 
 .page-btn {
