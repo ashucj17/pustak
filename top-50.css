@@ -718,6 +718,10 @@ body {
     outline: none;
 }
 
+.newsletter span{
+    color: #111;
+}
+
 .newsletter-form .btn-primary {
     background-color: #efe117;
     color: #333;
@@ -728,80 +732,68 @@ body {
     background-color: #d4c71a;
 }
 
-/* Footer */
+/* Footer - Replicated from new-noteworthy.css */
 footer {
-    background-color: #333;
-    color: white;
-    padding: 60px 0 20px;
+    background-color: #efe117;
+    color: #333;
+    padding: 30px 80px;
 }
 
 .footer-top {
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid #555;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .newsletter {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .newsletter span {
-    font-weight: 500;
-    white-space: nowrap;
+    font-weight: bold;
 }
 
 .newsletter input {
-    flex: 1;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    min-width: 250px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    max-width: 6000px;
 }
 
-.newsletter .card-btn {
-    background-color: #ad0b0b;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-}
-
-.newsletter .card-btn:hover {
-    background-color: #8b0000;
-}
-
-.footer-top .social-icons {
+.social-icons {
     display: flex;
     gap: 15px;
-    margin-left: auto;
+    margin-top: 20px;
 }
 
-.footer-top .social-icons i {
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.footer-top .social-icons i:hover {
-    color: #efe117;
+.social-icon {
+    width: 30px;
+    height: 30px;
+    background-color: #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
 .footer-main {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
-    margin-bottom: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.footer-main > div {
+    flex: 1;
+    min-width: 250px;
 }
 
 .footer-section h3 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    color: #efe117;
+    font-size: 18px;
+    margin-bottom: 15px;
 }
 
 .footer-section ul {
@@ -809,28 +801,49 @@ footer {
 }
 
 .footer-section ul li {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
-.footer-section ul li a {
-    color: #ccc;
+.footer-section a {
     text-decoration: none;
-    transition: color 0.3s ease;
+    font-weight: bold;
+    color: #111;
 }
 
-.footer-section ul li a:hover {
-    color: #efe117;
+.footer-section a:hover {
+    color: #ad0b0b;
 }
 
 .footer-bottom {
     text-align: center;
     padding-top: 20px;
-    border-top: 1px solid #555;
-    color: #999;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 14px;
 }
 
-.footer-bottom p {
-    margin-bottom: 10px;
+.tag {
+    display: inline-block;
+    background-color: #f94;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.card-btn {
+    display: inline-block;
+    background-color: #ad0b0b;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.card-btn:hover {
+    background-color: #111;
 }
 
 /* Responsive Design */

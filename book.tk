@@ -1,0 +1,374 @@
+{
+  "books": [
+    {
+      "title": "Visual Mathematics",
+      "author": "John Derbyshire",
+      "category": "science",
+      "rating": 4.9,
+      "price": 599,
+      "image": "images/mathematics.jpg",
+      "releaseDate": "2024-01-15",
+      "popularity": 95
+    },
+    {
+      "title": "The Art of Fiction",
+      "author": "Jane Austen",
+      "category": "literature",
+      "rating": 4.7,
+      "price": 450,
+      "image": "images/art_fiction.jpg",
+      "releaseDate": "2023-11-20",
+      "popularity": 88
+    },
+    {
+      "title": "Modern Physics Explained",
+      "author": "Dr. Sarah Chen",
+      "category": "science",
+      "rating": 4.8,
+      "price": 750,
+      "image": "images/modern_physics.jpg",
+      "releaseDate": "2024-03-10",
+      "popularity": 92
+    },
+    {
+      "title": "Digital Marketing Mastery",
+      "author": "Michael Rodriguez",
+      "category": "business",
+      "rating": 4.6,
+      "price": 520,
+      "image": "images/digital_marketing.jpg",
+      "releaseDate": "2023-12-05",
+      "popularity": 85
+    },
+    {
+      "title": "Ancient Civilizations",
+      "author": "Prof. Elizabeth Harper",
+      "category": "history",
+      "rating": 4.5,
+      "price": 680,
+      "image": "images/ancient_civilizations.jpg",
+      "releaseDate": "2024-02-18",
+      "popularity": 78
+    },
+    {
+      "title": "The Psychology of Success",
+      "author": "Dr. Robert Williams",
+      "category": "psychology",
+      "rating": 4.4,
+      "price": 390,
+      "image": "images/psychology_success.jpg",
+      "releaseDate": "2023-10-12",
+      "popularity": 82
+    },
+    {
+      "title": "Quantum Computing Revolution",
+      "author": "Dr. Alan Turing Jr.",
+      "category": "technology",
+      "rating": 4.9,
+      "price": 850,
+      "image": "images/quantum_computing.jpg",
+      "releaseDate": "2024-01-08",
+      "popularity": 96
+    },
+    {
+      "title": "Culinary Adventures",
+      "author": "Chef Maria Gonzalez",
+      "category": "cooking",
+      "rating": 4.3,
+      "price": 420,
+      "image": "images/culinary_adventures.jpg",
+      "releaseDate": "2023-09-25",
+      "popularity": 75
+    },
+    {
+      "title": "Financial Independence",
+      "author": "Warren Smith",
+      "category": "finance",
+      "rating": 4.7,
+      "price": 560,
+      "image": "images/financial_independence.jpg",
+      "releaseDate": "2024-01-30",
+      "popularity": 89
+    },
+    {
+      "title": "The Great Gatsby Revisited",
+      "author": "F. Scott Modern",
+      "category": "literature",
+      "rating": 4.2,
+      "price": 380,
+      "image": "images/gatsby_revisited.jpg",
+      "releaseDate": "2023-08-15",
+      "popularity": 71
+    },
+    {
+      "title": "Machine Learning Fundamentals",
+      "author": "Dr. Lisa Zhang",
+      "category": "technology",
+      "rating": 4.8,
+      "price": 720,
+      "image": "images/ml_fundamentals.jpg",
+      "releaseDate": "2024-02-22",
+      "popularity": 93
+    },
+    {
+      "title": "World War II Chronicles",
+      "author": "Historian David Brown",
+      "category": "history",
+      "rating": 4.6,
+      "price": 640,
+      "image": "images/wwii_chronicles.jpg",
+      "releaseDate": "2023-11-08",
+      "popularity": 84
+    },
+    {
+      "title": "Mindfulness and Meditation",
+      "author": "Dr. Sarah Peaceful",
+      "category": "self-help",
+      "rating": 4.5,
+      "price": 350,
+      "image": "images/mindfulness.jpg",
+      "releaseDate": "2024-01-12",
+      "popularity": 79
+    },
+    {
+      "title": "Advanced Calculus",
+      "author": "Prof. James Newton",
+      "category": "science",
+      "rating": 4.4,
+      "price": 780,
+      "image": "images/advanced_calculus.jpg",
+      "releaseDate": "2023-12-20",
+      "popularity": 76
+    },
+    {
+      "title": "The Entrepreneur's Guide",
+      "author": "Steve Innovation",
+      "category": "business",
+      "rating": 4.7,
+      "price": 490,
+      "image": "images/entrepreneur_guide.jpg",
+      "releaseDate": "2024-03-05",
+      "popularity": 87
+    },
+    {
+      "title": "Climate Change Solutions",
+      "author": "Dr. Green Environment",
+      "category": "science",
+      "rating": 4.8,
+      "price": 620,
+      "image": "images/climate_solutions.jpg",
+      "releaseDate": "2024-02-14",
+      "popularity": 91
+    },
+    {
+      "title": "Photography Masterclass",
+      "author": "Annie Lens",
+      "category": "arts",
+      "rating": 4.3,
+      "price": 460,
+      "image": "images/photography_masterclass.jpg",
+      "releaseDate": "2023-10-30",
+      "popularity": 73
+    },
+    {
+      "title": "Blockchain Technology",
+      "author": "Crypto Expert",
+      "category": "technology",
+      "rating": 4.6,
+      "price": 680,
+      "image": "images/blockchain_tech.jpg",
+      "releaseDate": "2024-01-25",
+      "popularity": 85
+    },
+    {
+      "title": "The Art of Negotiation",
+      "author": "Deal Master",
+      "category": "business",
+      "rating": 4.5,
+      "price": 410,
+      "image": "images/negotiation_art.jpg",
+      "releaseDate": "2023-11-15",
+      "popularity": 80
+    },
+    {
+      "title": "Organic Chemistry Simplified",
+      "author": "Dr. Molecule Science",
+      "category": "science",
+      "rating": 4.4,
+      "price": 590,
+      "image": "images/organic_chemistry.jpg",
+      "releaseDate": "2024-02-08",
+      "popularity": 77
+    },
+    {
+      "title": "Mystery of the Lost City",
+      "author": "Adventure Writer",
+      "category": "fiction",
+      "rating": 4.2,
+      "price": 340,
+      "image": "images/mystery_lost_city.jpg",
+      "releaseDate": "2023-09-10",
+      "popularity": 69
+    },
+    {
+      "title": "Data Science Handbook",
+      "author": "Dr. Big Data",
+      "category": "technology",
+      "rating": 4.9,
+      "price": 820,
+      "image": "images/data_science.jpg",
+      "releaseDate": "2024-03-12",
+      "popularity": 97
+    },
+    {
+      "title": "Renaissance Art History",
+      "author": "Prof. Art Historian",
+      "category": "arts",
+      "rating": 4.6,
+      "price": 580,
+      "image": "images/renaissance_art.jpg",
+      "releaseDate": "2023-12-03",
+      "popularity": 83
+    },
+    {
+      "title": "Fitness and Nutrition",
+      "author": "Health Coach Pro",
+      "category": "health",
+      "rating": 4.3,
+      "price": 380,
+      "image": "images/fitness_nutrition.jpg",
+      "releaseDate": "2024-01-20",
+      "popularity": 72
+    },
+    {
+      "title": "Space Exploration",
+      "author": "Dr. Cosmos Explorer",
+      "category": "science",
+      "rating": 4.8,
+      "price": 710,
+      "image": "images/space_exploration.jpg",
+      "releaseDate": "2024-02-28",
+      "popularity": 94
+    },
+    {
+      "title": "Investment Strategies",
+      "author": "Wall Street Guru",
+      "category": "finance",
+      "rating": 4.7,
+      "price": 650,
+      "image": "images/investment_strategies.jpg",
+      "releaseDate": "2023-11-22",
+      "popularity": 88
+    },
+    {
+      "title": "The Philosophy of Mind",
+      "author": "Dr. Deep Thinker",
+      "category": "philosophy",
+      "rating": 4.5,
+      "price": 520,
+      "image": "images/philosophy_mind.jpg",
+      "releaseDate": "2024-01-18",
+      "popularity": 78
+    },
+    {
+      "title": "Creative Writing Workshop",
+      "author": "Master Storyteller",
+      "category": "literature",
+      "rating": 4.4,
+      "price": 420,
+      "image": "images/creative_writing.jpg",
+      "releaseDate": "2023-10-08",
+      "popularity": 74
+    },
+    {
+      "title": "AI and Machine Ethics",
+      "author": "Dr. Tech Ethics",
+      "category": "technology",
+      "rating": 4.8,
+      "price": 690,
+      "image": "images/ai_ethics.jpg",
+      "releaseDate": "2024-03-08",
+      "popularity": 92
+    },
+    {
+      "title": "Home Gardening Guide",
+      "author": "Green Thumb Expert",
+      "category": "lifestyle",
+      "rating": 4.2,
+      "price": 320,
+      "image": "images/home_gardening.jpg",
+      "releaseDate": "2023-08-28",
+      "popularity": 68
+    },
+    {
+      "title": "Molecular Biology",
+      "author": "Dr. Gene Researcher",
+      "category": "science",
+      "rating": 4.7,
+      "price": 760,
+      "image": "images/molecular_biology.jpg",
+      "releaseDate": "2024-02-12",
+      "popularity": 86
+    },
+    {
+      "title": "Leadership Excellence",
+      "author": "CEO Mentor",
+      "category": "business",
+      "rating": 4.6,
+      "price": 480,
+      "image": "images/leadership_excellence.jpg",
+      "releaseDate": "2023-12-18",
+      "popularity": 81
+    },
+    {
+      "title": "The Science of Happiness",
+      "author": "Dr. Joy Researcher",
+      "category": "psychology",
+      "rating": 4.5,
+      "price": 370,
+      "image": "images/science_happiness.jpg",
+      "releaseDate": "2024-01-05",
+      "popularity": 77
+    },
+    {
+      "title": "Cybersecurity Essentials",
+      "author": "Security Expert",
+      "category": "technology",
+      "rating": 4.8,
+      "price": 730,
+      "image": "images/cybersecurity.jpg",
+      "releaseDate": "2024-02-25",
+      "popularity": 90
+    },
+    {
+      "title": "Classical Music Appreciation",
+      "author": "Maestro Composer",
+      "category": "arts",
+      "rating": 4.3,
+      "price": 390,
+      "image": "images/classical_music.jpg",
+      "releaseDate": "2023-09-18",
+      "popularity": 70
+    },
+    {
+      "title": "Environmental Science",
+      "author": "Dr. Earth Protector",
+      "category": "science",
+      "rating": 4.6,
+      "price": 580,
+      "image": "images/environmental_science.jpg",
+      "releaseDate": "2024-01-28",
+      "popularity": 84
+    },
+      {
+      "title": "The Biography Series",
+      "author": "Life Story Writer",
+      "category": "biography",
+      "rating": 4.4,
+      "price": 410,
+      "image": "images/biography_series.jpg",
+      "releaseDate": "2023-10-12",
+      "popularity": 75
+    }
+  ]
+}
