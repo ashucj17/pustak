@@ -1,0 +1,400 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.small-container {
+  padding: 20px 80px 10px;
+  background-color: #efe117;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.left-icons {
+  width: 200px;
+}
+
+.Pustak-logo {
+  width: 100%;
+  max-width: 200px;
+}
+
+.row .fa-bars {
+  display: none;
+  padding: 5px;
+  font-size: 20px;
+}
+
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: 15px auto 0;
+}
+
+.search-bar input {
+  width: 500px;
+  padding: 10px;
+  border-radius: 8px 0 0 8px;
+  border: none;
+  position: relative;
+  bottom: 65px;
+}
+
+.search-bar input:focus {
+  outline: none;
+}
+
+.fa-magnifying-glass {
+  background-color: #111;
+  color: #fff;
+  padding: 11px;
+  border-radius: 0 8px 8px 0;
+  position: absolute;
+  bottom: 65px;
+}
+
+.fa-magnifying-glass:hover {
+  background: #fff;
+  color: #ad0b0b;
+}
+
+.social-icons i {
+  margin-bottom: 10px;
+  padding: 5px;
+  font-size: 20px;
+}
+
+.social-icons i:hover {
+  color: #ad0b0b;
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.menu-items {
+  padding: 10px;
+  font-weight: bolder;
+  font-size: 16px;
+}
+
+.menu a {
+  color: #111;
+  text-decoration: none; /* Remove default underline */
+  list-style: none;
+  position: relative;
+}
+.menu a::after {
+  content: ""; /* Add a pseudo-element */
+  position: absolute;
+  bottom: 0; /* Position at the bottom of the text */
+  left: 0;
+  width: 0; /* Start with zero width */
+  height: 3px; /* Height of the underline */
+  background-color: #efe117; /* Color of the underline */
+  transition: width 0.5s ease; /* Smooth transition effect */
+}
+
+.menu a:hover,
+.menu a:focus {
+  color: #ad0b0b; /* Change text color on hover or focus */
+}
+
+.menu a:hover::after,
+.menu a:focus::after {
+  width: 100%; /* Expand the underline to full width */
+}
+.shipping {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ededed;
+  padding: 5px;
+  color: #444;
+  font-size: 16px;
+}
+
+.shipping p {
+  margin-right: 5px;
+}
+
+/* media query for device size less then 1025px */
+
+@media (max-width: 1024px) {
+  .small-container {
+    padding: 20px;
+  }
+  .row {
+    display: flex;
+  }
+
+  .logo {
+    padding: 10px;
+    align-items: start;
+  }
+
+  .Pustak-logo {
+    width: 200px;
+  }
+
+  .row .fa-bars {
+    display: block;
+    padding: 5px;
+    font-size: 20px;
+  }
+  .header-menu {
+    display: none;
+  }
+  .search-bar {
+    position: relative;
+    width: 100%;
+    margin-top: 15px;
+  }
+  .search-bar input {
+    width: calc(100% - 40px);
+    top: 0;
+}
+.fa-magnifying-glass {
+  right: 1;
+  bottom: 0;
+}
+.mobile-menu-container {
+  display: block; /* Show on mobile, but still invisible until activated */
+}
+}
+
+
+@media (max-width: 768px) {
+
+  .footer-main {
+    flex-direction: column;
+    text-align: center;
+}
+
+.footer-main > div {
+    width: 100%;
+}
+
+  .newsletter {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .newsletter input {
+    width: 90%;
+  }
+
+}
+
+.mobile-menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  visibility: hidden;
+  /* display: none; */
+}
+
+.mobile-menu {
+  position: absolute;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background-color: white;
+  transition: left 0.3s ease;
+  z-index: 1001;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #efe117;
+}
+
+.mobile-logo {
+  width: 150px;
+}
+
+.close-menu {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.mobile-menu-items {
+  list-style: none;
+  padding: 0;
+}
+
+.mobile-menu-items li {
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-menu-items a {
+  display: block;
+  padding: 15px 20px;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.mobile-menu-items a:hover {
+  background-color: #f5f5f5;
+  color: #ad0b0b;
+}
+
+.mobile-menu-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-active .mobile-menu-container {
+  visibility: visible;
+}
+
+.mobile-menu-active .mobile-menu {
+  left: 0;
+}
+
+.mobile-menu-active .mobile-menu-overlay {
+  opacity: 1;
+}
+
+ footer {
+  background-color: #efe117;
+  color: #333;
+  padding: 30px 80px;
+}
+
+.footer-top {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.newsletter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.newsletter span{
+  font-weight: bold;
+}
+
+.newsletter input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  max-width: 6000px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.social-icon {
+  width: 30px;
+  height: 30px;
+  background-color: #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.footer-main {
+  display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.footer-main > div {
+  flex: 1;
+  min-width: 250px; /* Ensures each row takes full width in mobile */
+}
+
+.footer-section h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section a{
+  text-decoration: none;
+  font-weight: bold;
+  color: #111;
+}
+
+.footer-section a:hover{
+color: #ad0b0b;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #f94;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+@media (max-width: 767px) {
+     .footer-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .footer-section {
+    margin-bottom: 15px;
+  }
+  
+  .footer-bottom {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+}
