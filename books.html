@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="_qLgWN_3LtIKdTROJxg9xN7CLHPirTHM53ZJUeQuaL4" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="books.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <title>Pustak</title>
+    <title>Books - Pustak</title>
 </head>
 
 <body>
@@ -21,7 +20,7 @@
             <ul class="mobile-menu-items">
                 <li><a href="new-noteworthy.html">NEW & NOTEWORTHY</a></li>
                 <li><a href="top-50.html">TOP 50</a></li>
-                <li><a href="books.html">BOOKS</a></li>
+                <li><a href="books.html" class="active">BOOKS</a></li>
                 <li><a href="#">KIDS BOOKS</a></li>
                 <li><a href="#">TOYS & GAMES</a></li>
                 <li><a href="#">STATIONERY & GIFTS</a></li>
@@ -48,7 +47,6 @@
             <div class="search-bar">
                 <input type="search" placeholder="Search by Title,Author">
                 <i class="fa-solid fa-magnifying-glass"></i>
-
             </div>
         </div>
         <div class="header-menu">
@@ -59,7 +57,7 @@
                 <a class="list-item" href="top-50.html">
                     <li class="menu-items">TOP 50</li>
                 </a>
-                <a class="list-item" href="books.html">
+                <a class="list-item active" href="books.html">
                     <li class="menu-items">BOOKS</li>
                 </a>
                 <a class="list-item" href="#">
@@ -82,62 +80,488 @@
         </div>
     </div>
 
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav>
+                <a href="index.html">Home</a> > <span>Books</span>
+            </nav>
+        </div>
+    </section>
 
-<!-- Footer -->
-<footer>
-    <div class="container">
-        <div class="footer-top">
-            <div class="newsletter">
-                <span>Subscribe to the Pustak newsletter</span>
-                <input type="email" placeholder="Your email">
-                <a href="#" class="card-btn">Submit</a>
-                <div class="social-icons">
-                    <i class="fa-brands fa-twitter"></i>
-                    <i class="fa-brands fa-facebook"></i>
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-youtube"></i>
-                    <i class="fa-brands fa-instagram"></i>
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Books Collection</h1>
+            <p>Explore our vast collection of books across all genres and subjects. From classic literature to cutting-edge research, find the perfect book for every reader and every occasion.</p>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="container">
+            <h2>Browse by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h3>Fiction</h3>
+                    <p>Novels, short stories, and literary works</p>
+                    <span class="book-count">2,450 books</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-microscope"></i>
+                    </div>
+                    <h3>Science</h3>
+                    <p>Physics, chemistry, biology, and more</p>
+                    <span class="book-count">1,820 books</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <h3>Technology</h3>
+                    <p>Programming, AI, and digital innovation</p>
+                    <span class="book-count">1,650 books</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-landmark"></i>
+                    </div>
+                    <h3>History</h3>
+                    <p>World history, biographies, and culture</p>
+                    <span class="book-count">1,340 books</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <h3>Business</h3>
+                    <p>Management, entrepreneurship, and finance</p>
+                    <span class="book-count">980 books</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3>Health & Wellness</h3>
+                    <p>Medicine, fitness, and mental health</p>
+                    <span class="book-count">750 books</span>
                 </div>
             </div>
         </div>
-        <div class="footer-main">
-            <div class="footer-section">
-                <h3>About Pustak</h3>
-                <ul>
-                    <li><a href="#">Our history</a></li>
-                    <li><a href="#">Contact us</a></li>
-                    <li><a href="#">Careers</a></li>
-                </ul>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-header">
+                <h2>All Books</h2>
+                <p>Filter and discover your next favorite read</p>
             </div>
-            <div class="footer-section">
-                <h3>Vision &amp; Values</h3>
-                <ul>
-                    <li><a href="#">Our commitment to access</a></li>
-                    <li><a href="#">Our impact</a></li>
-                    <li><a href="#">Governance</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Support us</h3>
-                <ul>
-                    <li><a href="#">Membership</a></li>
-                    <li><a href="#">Donations</a></li>
-                    <li><a href="#">Sustainability</a></li>
-                    <li><a href="#">See how to help</a></li>
-                </ul>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="category">Category:</label>
+                    <select id="category">
+                        <option value="">All Categories</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                        <option value="science">Science</option>
+                        <option value="technology">Technology</option>
+                        <option value="history">History</option>
+                        <option value="business">Business</option>
+                        <option value="health">Health & Wellness</option>
+                        <option value="biography">Biography</option>
+                        <option value="self-help">Self Help</option>
+                        <option value="romance">Romance</option>
+                        <option value="mystery">Mystery & Thriller</option>
+                        <option value="fantasy">Fantasy</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="author">Author:</label>
+                    <select id="author">
+                        <option value="">All Authors</option>
+                        <option value="stephen-king">Stephen King</option>
+                        <option value="agatha-christie">Agatha Christie</option>
+                        <option value="dan-brown">Dan Brown</option>
+                        <option value="j-k-rowling">J.K. Rowling</option>
+                        <option value="malcolm-gladwell">Malcolm Gladwell</option>
+                        <option value="yuval-harari">Yuval Noah Harari</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="price-range">Price Range:</label>
+                    <select id="price-range">
+                        <option value="">All Prices</option>
+                        <option value="0-299">Under ₹300</option>
+                        <option value="300-599">₹300 - ₹599</option>
+                        <option value="600-999">₹600 - ₹999</option>
+                        <option value="1000-1499">₹1000 - ₹1499</option>
+                        <option value="1500+">₹1500+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort by:</label>
+                    <select id="sort">
+                        <option value="featured">Featured</option>
+                        <option value="newest">Newest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="title">Title A-Z</option>
+                    </select>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid"><i class="fa-solid fa-grip"></i></button>
+                    <button class="view-btn" data-view="list"><i class="fa-solid fa-list"></i></button>
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>The Pustak • 08 Krishna, Shivpuram • Satbari Road  • Kanpur</p>
-            <p style="margin-top: 10px;">By offering a proper venue for socio-cultural activities, the Pustak library attends to the recreational requirements of its patrons in order to unlock their latent potential</p>
-            <p style="margin-top: 20px;">&copy; pustak.org • Terms and conditions • Web accessibility • Privacy • Safeguarding</p>
+    </section>
+
+    <!-- Books Grid Section -->
+    <section class="books-grid">
+        <div class="container">
+            <div class="results-info">
+                <p>Showing <span id="results-count">1-24</span> of <span id="total-results">8,940</span> results</p>
+            </div>
+            
+            <div class="books-container" id="booksContainer">
+                <div class="book-card">
+                    <div class="book-badge">Bestseller</div>
+                    <div class="book-img" style="background-image: url('images/sapiens.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Sapiens: A Brief History of Humankind</h3>
+                        <p class="author">by Yuval Noah Harari</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.9)</span>
+                        </div>
+                        <div class="price">₹599 <span class="original-price">₹799</span></div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-badge">New</div>
+                    <div class="book-img" style="background-image: url('images/atomic-habits.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Atomic Habits</h3>
+                        <p class="author">by James Clear</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹549</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/thinking-fast-slow.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Thinking, Fast and Slow</h3>
+                        <p class="author">by Daniel Kahneman</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.6)</span>
+                        </div>
+                        <div class="price">₹699</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-badge">Popular</div>
+                    <div class="book-img" style="background-image: url('images/educated.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Educated</h3>
+                        <p class="author">by Tara Westover</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.7)</span>
+                        </div>
+                        <div class="price">₹499 <span class="original-price">₹649</span></div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/becoming.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Becoming</h3>
+                        <p class="author">by Michelle Obama</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹749</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/da-vinci-code.jpg')"></div>
+                    <div class="book-content">
+                        <h3>The Da Vinci Code</h3>
+                        <p class="author">by Dan Brown</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.5)</span>
+                        </div>
+                        <div class="price">₹399</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-badge">Sale</div>
+                    <div class="book-img" style="background-image: url('images/1984.jpg')"></div>
+                    <div class="book-content">
+                        <h3>1984</h3>
+                        <p class="author">by George Orwell</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.9)</span>
+                        </div>
+                        <div class="price">₹299 <span class="original-price">₹449</span></div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/harry-potter.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Harry Potter and the Philosopher's Stone</h3>
+                        <p class="author">by J.K. Rowling</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹449</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/clean-code.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Clean Code</h3>
+                        <p class="author">by Robert C. Martin</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.6)</span>
+                        </div>
+                        <div class="price">₹899</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/girl-dragon-tattoo.jpg')"></div>
+                    <div class="book-content">
+                        <h3>The Girl with the Dragon Tattoo</h3>
+                        <p class="author">by Stieg Larsson</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.4)</span>
+                        </div>
+                        <div class="price">₹529</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-img" style="background-image: url('images/lean-startup.jpg')"></div>
+                    <div class="book-content">
+                        <h3>The Lean Startup</h3>
+                        <p class="author">by Eric Ries</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.3)</span>
+                        </div>
+                        <div class="price">₹649</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="book-badge">Trending</div>
+                    <div class="book-img" style="background-image: url('images/psychology-money.jpg')"></div>
+                    <div class="book-content">
+                        <h3>The Psychology of Money</h3>
+                        <p class="author">by Morgan Housel</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.7)</span>
+                        </div>
+                        <div class="price">₹399 <span class="original-price">₹499</span></div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="load-more-section">
+                <button class="btn-load-more">Load More Books</button>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn" disabled>Previous</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
+                <span class="page-dots">...</span>
+                <button class="page-btn">372</button>
+                <button class="page-btn">Next</button>
+            </div>
         </div>
-    </div>
-</footer>
+    </section>
 
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="newsletter">
+                    <span>Subscribe to the Pustak newsletter</span>
+                    <input type="email" placeholder="Your email">
+                    <a href="#" class="card-btn">Submit</a>
+                    <div class="social-icons">
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-facebook"></i>
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-main">
+                <div class="footer-section">
+                    <h3>About Pustak</h3>
+                    <ul>
+                        <li><a href="#">Our history</a></li>
+                        <li><a href="#">Contact us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Vision &amp; Values</h3>
+                    <ul>
+                        <li><a href="#">Our commitment to access</a></li>
+                        <li><a href="#">Our impact</a></li>
+                        <li><a href="#">Governance</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support us</h3>
+                    <ul>
+                        <li><a href="#">Membership</a></li>
+                        <li><a href="#">Donations</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">See how to help</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>The Pustak • 08 Krishna, Shivpuram • Satbari Road • Kanpur</p>
+                <p style="margin-top: 10px;">By offering a proper venue for socio-cultural activities, the Pustak library attends to the recreational requirements of its patrons in order to unlock their latent potential</p>
+                <p style="margin-top: 20px;">&copy; pustak.org • Terms and conditions • Web accessibility • Privacy • Safeguarding</p>
+            </div>
+        </div>
+    </footer>
 
-    <script src="app.js"></script>
+    <script src="books.js"></script>
 </body>
-
 
 </html>
