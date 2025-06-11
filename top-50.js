@@ -458,38 +458,53 @@ function renderPagination() {
     let paginationHTML = '';
     
     // Previous button
-    if (currentPage > 1) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" title="Previous Page">‹</button>`;
-    }
+    const prevDisabled = currentPage === 1 ? 'disabled' : '';
+    paginationHTML += `<button class="page-btn" ${prevDisabled} data-page="${currentPage - 1}" title="Previous Page">Previous</button>`;
     
     // Page numbers
     const startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, currentPage + 2);
     
     if (startPage > 1) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
+        paginationHTML += `<button class="page-btn" data-page="1">1</button>`;
         if (startPage > 2) {
             paginationHTML += `<span class="pagination-dots">...</span>`;
         }
     }
     
     for (let i = startPage; i <= endPage; i++) {
-        paginationHTML += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        const activeClass = i === currentPage ? 'active' : '';
+        paginationHTML += `<button class="page-btn ${activeClass}" data-page="${i}">${i}</button>`;
     }
     
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
             paginationHTML += `<span class="pagination-dots">...</span>`;
         }
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        paginationHTML += `<button class="page-btn" data-page="${totalPages}">${totalPages}</button>`;
     }
     
     // Next button
-    if (currentPage < totalPages) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" title="Next Page">›</button>`;
-    }
+    const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+    paginationHTML += `<button class="page-btn" ${nextDisabled} data-page="${currentPage + 1}" title="Next Page">Next</button>`;
     
     paginationContainer.innerHTML = paginationHTML;
+    
+    // Add event listeners to pagination buttons
+    addPaginationEventListeners();
+}
+
+function addPaginationEventListeners() {
+    const paginationBtns = document.querySelectorAll('.page-btn:not([disabled])');
+    
+    paginationBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const page = parseInt(this.getAttribute('data-page'));
+            if (page && page !== currentPage) {
+                goToPage(page);
+            }
+        });
+    });
 }
 
 // FIXED: Update results counter with proper information
@@ -678,10 +693,17 @@ function closeMobileMenu() {
 }
 
 function goToPage(page) {
+    const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+    
+    // Validate page number
+    if (page < 1 || page > totalPages) return;
+    
     currentPage = page;
     renderBooks();
     renderPagination();
     updateResultsCounter();
+    
+    // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
