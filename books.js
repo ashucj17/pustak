@@ -17,7 +17,8 @@ class BookStore {
     this.setupEventListeners();
     this.renderBooks();
     this.updateResultsCount();
-    this.renderPagination(); // ADD THIS LINE
+    this.renderPagination();
+    this.debugImageLoading();
 }
 
     async loadBooks() {
@@ -41,132 +42,131 @@ class BookStore {
 
     getFallbackData() {
         return [
-            {
-                title: "Visual Mathematics",
-                author: "John Derbyshire",
-                category: "science",
-                rating: 4.9,
-                price: 599,
-                image: "images/mathematics.jpg",
-                releaseDate: "2024-01-15",
-                popularity: 95,
-                badge: "New"
-            },
-            {
-                title: "The Art of Fiction",
-                author: "Jane Austen",
-                category: "fiction",
-                rating: 4.7,
-                price: 450,
-                image: "images/art_fiction.jpg",
-                releaseDate: "2023-11-20",
-                popularity: 88,
-                badge: "Popular"
-            },
-            {
-                title: "Modern Physics Explained",
-                author: "Dr. Sarah Chen",
-                category: "science",
-                rating: 4.8,
-                price: 750,
-                image: "images/modern_physics.jpg",
-                releaseDate: "2024-03-10",
-                popularity: 92,
-                badge: "Bestseller"
-            },
-            {
-                title: "Digital Marketing Mastery",
-                author: "Michael Rodriguez",
-                category: "business",
-                rating: 4.6,
-                price: 520,
-                image: "images/digital_marketing.jpg",
-                releaseDate: "2023-12-05",
-                popularity: 85
-            },
-            {
-                title: "Ancient Civilizations",
-                author: "Prof. Elizabeth Harper",
-                category: "history",
-                rating: 4.5,
-                price: 680,
-                image: "images/ancient_civilizations.jpg",
-                releaseDate: "2024-02-18",
-                popularity: 78
-            },
-            {
-                title: "The Psychology of Success",
-                author: "Dr. Robert Williams",
-                category: "self-help",
-                rating: 4.4,
-                price: 390,
-                image: "images/psychology_success.jpg",
-                releaseDate: "2023-10-12",
-                popularity: 82
-            },
-            {
-                title: "Quantum Computing Revolution",
-                author: "Dr. Alan Turing Jr.",
-                category: "technology",
-                rating: 4.9,
-                price: 850,
-                image: "images/quantum_computing.jpg",
-                releaseDate: "2024-01-08",
-                popularity: 96,
-                badge: "Trending"
-            },
-            {
-                title: "Financial Independence",
-                author: "Warren Smith",
-                category: "business",
-                rating: 4.7,
-                price: 560,
-                image: "images/financial_independence.jpg",
-                releaseDate: "2024-01-30",
-                popularity: 89
-            },
-            {
-                title: "Machine Learning Fundamentals",
-                author: "Dr. Lisa Zhang",
-                category: "technology",
-                rating: 4.8,
-                price: 720,
-                image: "images/ml_fundamentals.jpg",
-                releaseDate: "2024-02-22",
-                popularity: 93
-            },
-            {
-                title: "Mindfulness and Meditation",
-                author: "Dr. Sarah Peaceful",
-                category: "self-help",
-                rating: 4.5,
-                price: 350,
-                image: "images/mindfulness.jpg",
-                releaseDate: "2024-01-12",
-                popularity: 79,
-                badge: "Sale"
-            },
-            {
-                title: "The Entrepreneur's Guide",
-                author: "Steve Innovation",
-                category: "business",
-                rating: 4.7,
-                price: 490,
-                image: "images/entrepreneur_guide.jpg",
-                releaseDate: "2024-03-05",
-                popularity: 87
-            },
-            {
-                title: "Data Science Handbook",
-                author: "Dr. Big Data",
-                category: "technology",
-                rating: 4.9,
-                price: 820,
-                image: "images/data_science.jpg",
-                releaseDate: "2024-03-12",
-                popularity: 97,
-                badge: "Bestseller"
-            }
+          {
+            title: "Visual Mathematics",
+            author: "John Derbyshire",
+            category: "science",
+            rating: 4.9,
+            price: 599,
+            image: "images/mathematics.jpg",
+            releaseDate: "2024-01-15",
+            popularity: 95,
+            badge: "New",
+          },
+          {
+            title: "The Art of Fiction",
+            author: "Jane Austen",
+            category: "fiction",
+            rating: 4.7,
+            price: 450,
+            image: "images/art_fiction.jpg",
+            releaseDate: "2023-11-20",
+            popularity: 88,
+            badge: "Popular",
+          },
+          {
+            title: "Modern Physics Explained",
+            author: "Dr. Sarah Chen",
+            category: "science",
+            rating: 4.8,
+            price: 750,
+            image: "images/modern_physics.jpg",
+            releaseDate: "2024-03-10",
+            popularity: 92,
+            badge: "Bestseller",
+          },
+          {
+            title: "Digital Marketing Mastery",
+            author: "Michael Rodriguez",
+            category: "business",
+            rating: 4.6,
+            price: 520,
+            image: "images/digital_marketing.jpg",
+            releaseDate: "2023-12-05",
+            popularity: 85,
+          },
+          {
+            title: "Ancient Civilizations",
+            author: "Prof. Elizabeth Harper",
+            category: "history",
+            rating: 4.5,
+            price: 680,
+            image: "images/ancient_civilizations.jpg",
+            releaseDate: "2024-02-18",
+            popularity: 78,
+          },
+          {
+            title: "The Psychology of Success",
+            author: "Dr. Robert Williams",
+            category: "self-help",
+            rating: 4.4,
+            price: 390,
+            image: "images/psychology_success.jpg",
+            releaseDate: "2023-10-12",
+            popularity: 82,
+          },
+          {
+            title: "Quantum Computing Revolution",
+            author: "Dr. Alan Turing Jr.",
+            category: "technology",
+            rating: 4.9,
+            price: 850,
+            image: "images/quantum_computing.jpg",
+            releaseDate: "2024-01-08",
+            popularity: 96,
+            badge: "Trending",
+          },
+          {
+            title: "Financial Independence",
+            author: "Warren Smith",
+            category: "finance",
+            rating: 4.7,
+            price: 560,
+            image: "images/financial_independence.jpg",
+            releaseDate: "2024-01-30",
+            popularity: 89,
+          },
+          {
+            title: "The Great Gatsby Revisited",
+            author: "F. Scott Modern",
+            category: "literature",
+            rating: 4.2,
+            price: 380,
+            image: "images/gatsby_revisited.jpg",
+            releaseDate: "2023-08-15",
+            popularity: 71,
+          },
+          {
+            title: "Machine Learning Fundamentals",
+            author: "Dr. Lisa Zhang",
+            category: "technology",
+            rating: 4.8,
+            price: 720,
+            image: "images/ml_fundamentals.jpg",
+            releaseDate: "2024-02-22",
+            popularity: 93,
+          },
+          {
+            title: "The Entrepreneur's Guide",
+            author: "Steve Innovation",
+            category: "business",
+            rating: 4.7,
+            price: 490,
+            image: "images/entrepreneur_guide.jpg",
+            releaseDate: "2024-03-05",
+            popularity: 87,
+          },
+          {
+            title: "Data Science Handbook",
+            author: "Dr. Big Data",
+            category: "technology",
+            rating: 4.9,
+            price: 820,
+            image: "images/data_science.jpg",
+            releaseDate: "2024-03-12",
+            popularity: 97,
+            badge: "Bestseller",
+          },
         ];
     }
 
@@ -378,47 +378,95 @@ class BookStore {
     }
 }
 
+// Add this method to your BookStore class to debug image loading
+debugImageLoading() {
+    console.log('Debugging image loading...');
+    this.books.forEach((book, index) => {
+        const img = new Image();
+        img.onload = () => {
+            console.log(`✅ Image loaded successfully: ${book.image}`);
+        };
+        img.onerror = () => {
+            console.error(`❌ Failed to load image: ${book.image}`);
+            console.log(`Book: ${book.title}`);
+            console.log(`Expected path: ${book.image}`);
+            console.log(`Full URL would be: ${window.location.origin}/${book.image}`);
+        };
+        img.src = book.image;
+    });
+}
+
     createBookCard(book) {
-        const card = document.createElement('div');
-        card.className = 'book-card';
-        
-        const isFavorite = this.favorites.includes(book.title);
-        const heartClass = isFavorite ? 'fa-solid' : 'fa-regular';
-        
-        // Generate star rating
-        const stars = this.generateStarRating(book.rating);
-        
-        // Generate badge if exists
-        const badge = book.badge ? `<div class="book-badge">${book.badge}</div>` : '';
-        
-        // Calculate discount if any
-        const originalPrice = book.originalPrice ? 
-            `<span class="original-price">₹${book.originalPrice}</span>` : '';
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    
+    const isFavorite = this.favorites.includes(book.title);
+    const heartClass = isFavorite ? 'fa-solid' : 'fa-regular';
+    
+    // Generate star rating
+    const stars = this.generateStarRating(book.rating);
+    
+    // Generate badge if exists
+    const badge = book.badge ? `<div class="book-badge">${book.badge}</div>` : '';
+    
+    // Calculate discount if any
+    const originalPrice = book.originalPrice ? 
+        `<span class="original-price">₹${book.originalPrice}</span>` : '';
 
-        card.innerHTML = `
-            ${badge}
-            <div class="book-img" style="background-image: url('${book.image}')"></div>
-            <div class="book-content">
-                <h3>${book.title}</h3>
-                <p class="author">by ${book.author}</p>
-                <div class="rating">
-                    ${stars}
-                    <span>(${book.rating})</span>
-                </div>
-                <div class="price">₹${book.price} ${originalPrice}</div>
-                <div class="book-actions">
-                    <button class="btn-primary" onclick="bookStore.addToCart('${book.title}')">
-                        Add to Cart
-                    </button>
-                    <button class="btn-secondary" onclick="bookStore.toggleFavorite('${book.title}')">
-                        <i class="${heartClass} fa-heart"></i>
-                    </button>
-                </div>
+    card.innerHTML = `
+        ${badge}
+        <div class="book-img" data-image="${book.image}">
+            <div class="image-loading">Loading...</div>
+            <div class="image-error" style="display: none;">
+                <i class="fa-solid fa-image"></i>
+                <p>Image not found</p>
             </div>
-        `;
+        </div>
+        <div class="book-content">
+            <h3>${book.title}</h3>
+            <p class="author">by ${book.author}</p>
+            <div class="rating">
+                ${stars}
+                <span>(${book.rating})</span>
+            </div>
+            <div class="price">₹${book.price} ${originalPrice}</div>
+            <div class="book-actions">
+                <button class="btn-primary" onclick="bookStore.addToCart('${book.title}')">
+                    Add to Cart
+                </button>
+                <button class="btn-secondary" onclick="bookStore.toggleFavorite('${book.title}')">
+                    <i class="${heartClass} fa-heart"></i>
+                </button>
+            </div>
+        </div>
+    `;
 
-        return card;
-    }
+    // Handle image loading
+    const bookImgDiv = card.querySelector('.book-img');
+    const loadingDiv = card.querySelector('.image-loading');
+    const errorDiv = card.querySelector('.image-error');
+    
+    const img = new Image();
+    img.onload = () => {
+        bookImgDiv.style.backgroundImage = `url('${book.image}')`;
+        bookImgDiv.style.backgroundSize = 'cover';
+        bookImgDiv.style.backgroundPosition = 'center';
+        bookImgDiv.style.backgroundRepeat = 'no-repeat';
+        loadingDiv.style.display = 'none';
+    };
+    
+    img.onerror = () => {
+        console.error(`Failed to load image: ${book.image}`);
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = 'flex';
+        bookImgDiv.style.backgroundColor = '#f8f9fa';
+        bookImgDiv.style.border = '2px dashed #dee2e6';
+    };
+    
+    img.src = book.image;
+
+    return card;
+}
 
     generateStarRating(rating) {
         const fullStars = Math.floor(rating);
