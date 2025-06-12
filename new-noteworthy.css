@@ -396,11 +396,11 @@ body {
     color: #666;
 }
 
-.view-btn:hover,
+/* .view-btn:hover,
 .view-btn.active {
     background-color: #ad0b0b;
     color: white;
-}
+} */
 
 /* Featured Books */
 .featured-books {
