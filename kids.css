@@ -898,26 +898,8 @@
     transform: translateY(-2px) scale(1.1);
     box-shadow: 0 6px 20px rgba(78,205,196,0.4);
     background: linear-gradient(135deg, #6bcf7f, #4ecdc4);
-}{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Comic Sans MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
+}
 
-        body {
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f8f8;
-        }
-
-        /* Header Styles */
-        .small-container {
-            padding: 20px 80px 10px;
-            background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4);
-            background-size: 400% 400%;
-            animation: gradientShift 8s ease infinite;
-        }
 
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
