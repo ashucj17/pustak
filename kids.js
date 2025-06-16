@@ -1,318 +1,379 @@
-// Kids Books Store - Optimized for Dynamic Data Loading
-
+// Optimized Kids Books Store - Database Driven
 class KidsBooksStore {
-    constructor() {
-        this.kidsBooks = [];
+    constructor(config = {}) {
+        this.config = {
+            apiEndpoint: config.apiEndpoint || 'kids.json',
+            fallbackEndpoint: config.fallbackEndpoint || null,
+            booksPerPage: config.booksPerPage || 12,
+            enableCache: config.enableCache !== false,
+            cacheExpiry: config.cacheExpiry || 5 * 60 * 1000 // 5 minutes
+        };
+        
+        this.allBooks = [];
         this.filteredBooks = [];
         this.currentPage = 1;
-        this.booksPerPage = 12;
-        this.currentView = 'grid';
         this.isLoading = false;
+        this.cache = new Map();
         
         this.initializeElements();
         this.bindEvents();
-        this.loadData();
+        this.loadBooks();
     }
 
-    // Initialize DOM elements
+    // Initialize DOM elements with error handling
     initializeElements() {
         this.elements = {
-            booksContainer: document.getElementById('booksContainer'),
-            resultsCount: document.getElementById('results-count'),
-            totalResults: document.getElementById('total-results'),
-            paginationContainer: document.querySelector('.pagination'),
-            searchInput: document.querySelector('.search-bar input'),
-            loadingIndicator: this.createLoadingIndicator(),
-            
-            // Filter elements
-            ageGroupFilter: document.getElementById('age-group'),
-            categoryFilter: document.getElementById('category'),
-            authorFilter: document.getElementById('author'),
-            priceRangeFilter: document.getElementById('price-range'),
-            sortFilter: document.getElementById('sort'),
-            viewButtons: document.querySelectorAll('.view-btn'),
-            
-            // Mobile menu elements
-            mobileMenuBtn: document.querySelector('.fa-bars'),
-            mobileMenuContainer: document.querySelector('.mobile-menu-container'),
-            closeMenuBtn: document.querySelector('.close-menu'),
-            mobileMenuOverlay: document.querySelector('.mobile-menu-overlay')
+            booksContainer: this.getElement('booksContainer'),
+            resultsCount: this.getElement('results-count'),
+            totalResults: this.getElement('total-results'),
+            paginationContainer: this.getElement('.pagination'),
+            loadMoreBtn: this.getElement('.btn-load-more'),
+            searchInput: this.getElement('.search-bar input'),
+            sortFilter: this.getElement('#sort'),
+            ageGroupFilter: this.getElement('#age-group'),
+            categoryFilter: this.getElement('#category'),
+            errorContainer: this.getElement('#error-container')
         };
     }
 
-    // Create loading indicator
-    createLoadingIndicator() {
-        const loader = document.createElement('div');
-        loader.className = 'loading-indicator';
-        loader.innerHTML = `
-            <div class="spinner"></div>
-            <p>Loading books...</p>
-        `;
-        loader.style.cssText = `
-            display: none;
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        `;
-        
-        // Add spinner styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .spinner {
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #ff6b6b;
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 10px;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        return loader;
+    getElement(selector) {
+        return selector.startsWith('#') || selector.startsWith('.') 
+            ? document.querySelector(selector) 
+            : document.getElementById(selector);
     }
 
-    // Load data dynamically
-    async loadData() {
+    // Enhanced book loading with proper error handling and caching
+    async loadBooks(forceRefresh = false) {
+        this.showLoading(true);
+        
         try {
-            this.showLoading(true);
+            // Check cache first
+            if (!forceRefresh && this.config.enableCache && this.isCacheValid()) {
+                const cachedData = this.cache.get('books');
+                this.allBooks = cachedData.books;
+                this.processLoadedBooks();
+                return;
+            }
+
+            // Fetch from primary endpoint
+            const books = await this.fetchBooks(this.config.apiEndpoint);
             
-            // Try to fetch from kids.json file first
-            const data = await this.fetchBooksData();
-            this.kidsBooks = data.kids || data || [];
-            
-            if (this.kidsBooks.length === 0) {
-                throw new Error('No books data found');
+            // Cache the data
+            if (this.config.enableCache) {
+                this.cache.set('books', {
+                    books,
+                    timestamp: Date.now()
+                });
             }
             
-            this.filteredBooks = [...this.kidsBooks];
-            this.populateFilterOptions();
-            this.applyFilters();
+            this.allBooks = books;
+            this.processLoadedBooks();
             
         } catch (error) {
-            console.error('Error loading books data:', error);
-            this.handleDataLoadError();
+            await this.handleLoadError(error);
         } finally {
             this.showLoading(false);
         }
     }
 
-    // Fetch books data with multiple fallback strategies
-    async fetchBooksData() {
-        const dataSources = [
-            'kids.json',
-            './kids.json',
-            '/kids.json',
-            'data/kids.json'
-        ];
-
-        // Try each data source
-        for (const source of dataSources) {
-            try {
-                const response = await fetch(source);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`Successfully loaded data from: ${source}`);
-                    return data;
-                }
-            } catch (error) {
-                console.warn(`Failed to load from ${source}:`, error);
+    // Fetch books from API with proper error handling
+    async fetchBooks(endpoint) {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        // Fallback to hardcoded data if file loading fails
-        console.warn('Using fallback data - could not load from JSON file');
-        return this.getFallbackData();
+        const data = await response.json();
+        
+        // Handle different API response formats
+        if (Array.isArray(data)) {
+            return data;
+        } else if (data.books && Array.isArray(data.books)) {
+            return data.books;
+        } else if (data.kids && Array.isArray(data.kids)) {
+            return data.kids;
+        } else if (data.data && Array.isArray(data.data)) {
+            return data.data;
+        }
+        
+        throw new Error('Invalid API response format');
     }
 
-    // Fallback data (subset of original data)
-    getFallbackData() {
+    // Handle loading errors with fallback options
+    async handleLoadError(error) {
+        console.error('Failed to load books:', error);
+        
+        // Try fallback endpoint if available
+        if (this.config.fallbackEndpoint) {
+            try {
+                const books = await this.fetchBooks(this.config.fallbackEndpoint);
+                this.allBooks = books;
+                this.processLoadedBooks();
+                this.showNotification('Loaded from backup source', 'warning');
+                return;
+            } catch (fallbackError) {
+                console.error('Fallback also failed:', fallbackError);
+            }
+        }
+        
+        // Show error message
+        this.showError('Failed to load books. Please try again later.', error.message);
+        this.allBooks = [];
+        this.processLoadedBooks();
+    }
+
+    // Check if cached data is still valid
+    isCacheValid() {
+        const cached = this.cache.get('books');
+        if (!cached) return false;
+        
+        return (Date.now() - cached.timestamp) < this.config.cacheExpiry;
+    }
+
+    // Process loaded books (validation, filtering, rendering)
+    processLoadedBooks() {
+        // Validate and sanitize book data
+        this.allBooks = this.validateBooksData(this.allBooks);
+        
+        this.filteredBooks = [...this.allBooks];
+        this.populateFilterOptions();
+        this.renderBooks();
+        this.updatePagination();
+        this.updateResultsInfo();
+        
+        // Trigger custom event for external listeners
+        this.dispatchEvent('booksLoaded', { books: this.allBooks });
+    }
+
+    // Validate and sanitize book data
+    validateBooksData(books) {
+        return books.filter(book => {
+            // Required fields validation
+            if (!book.title || !book.author) {
+                console.warn('Book missing required fields:', book);
+                return false;
+            }
+            
+            // Sanitize and set defaults
+            book.id = book.id || this.generateBookId(book);
+            book.rating = Math.max(0, Math.min(5, parseFloat(book.rating) || 0));
+            book.price = Math.max(0, parseInt(book.price) || 0);
+            book.category = book.category || 'Uncategorized';
+            book.ageGroup = book.ageGroup || 'All Ages';
+            book.image = book.image || 'images/default-book.jpg';
+            book.popularity = Math.max(0, Math.min(100, parseInt(book.popularity) || 50));
+            book.releaseDate = book.releaseDate || new Date().toISOString().split('T')[0];
+            
+            return true;
+        });
+    }
+
+    // Generate unique book ID if missing
+    generateBookId(book) {
+        return btoa(`${book.title}-${book.author}`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
+    }
+
+    // Populate filter options dynamically from loaded data
+    populateFilterOptions() {
+        if (this.allBooks.length === 0) return;
+
+        // Age groups
+        const ageGroups = [...new Set(this.allBooks.map(book => book.ageGroup))].filter(Boolean);
+        if (this.elements.ageGroupFilter) {
+            this.populateSelectOptions(this.elements.ageGroupFilter, ageGroups, 'All Ages');
+        }
+
+        // Categories
+        const categories = [...new Set(this.allBooks.map(book => book.category))].filter(Boolean);
+        if (this.elements.categoryFilter) {
+            this.populateSelectOptions(this.elements.categoryFilter, categories, 'All Categories');
+        }
+    }
+
+    populateSelectOptions(selectElement, options, defaultText) {
+        const currentValue = selectElement.value;
+        selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+        
+        options.sort().forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            optionElement.textContent = option;
+            selectElement.appendChild(optionElement);
+        });
+        
+        // Restore previous selection if still valid
+        if (currentValue && options.includes(currentValue)) {
+            selectElement.value = currentValue;
+        }
+    }
+
+    // Enhanced filtering with better performance
+    applyFilters() {
+        const filters = this.getActiveFilters();
+        
+        this.filteredBooks = this.allBooks.filter(book => {
+            // Search filter
+            if (filters.search && !this.matchesSearch(book, filters.search)) {
+                return false;
+            }
+            
+            // Age group filter
+            if (filters.ageGroup && book.ageGroup !== filters.ageGroup) {
+                return false;
+            }
+            
+            // Category filter
+            if (filters.category && book.category !== filters.category) {
+                return false;
+            }
+            
+            return true;
+        });
+
+        // Apply sorting
+        this.sortBooks(this.filteredBooks, filters.sort);
+
+        this.currentPage = 1;
+        this.renderBooks();
+        this.updatePagination();
+        this.updateResultsInfo();
+        
+        // Trigger custom event
+        this.dispatchEvent('booksFiltered', { 
+            filteredBooks: this.filteredBooks, 
+            filters 
+        });
+    }
+
+    // Get active filters
+    getActiveFilters() {
         return {
-            kids: [
-                {
-                    "title": "The Very Hungry Caterpillar",
-                    "author": "Eric Carle",
-                    "category": "picture book",
-                    "rating": 4.8,
-                    "price": 320,
-                    "image": "images/hungry_caterpillar.jpg",
-                    "releaseDate": "2023-03-15",
-                    "popularity": 98,
-                    "ageGroup": "0-5",
-                    "pages": 22
-                },
-                {
-                    "title": "Where the Wild Things Are",
-                    "author": "Maurice Sendak",
-                    "category": "adventure",
-                    "rating": 4.7,
-                    "price": 385,
-                    "image": "images/wild_things.jpg",
-                    "releaseDate": "2023-05-10",
-                    "popularity": 94,
-                    "ageGroup": "3-8",
-                    "pages": 48
-                },
-                {
-                    "title": "Goodnight Moon",
-                    "author": "Margaret Wise Brown",
-                    "category": "bedtime",
-                    "rating": 4.9,
-                    "price": 295,
-                    "image": "images/goodnight_moon.jpg",
-                    "releaseDate": "2023-02-20",
-                    "popularity": 96,
-                    "ageGroup": "0-4",
-                    "pages": 32
-                },
-                {
-                    "title": "The Cat in the Hat",
-                    "author": "Dr. Seuss",
-                    "category": "early reader",
-                    "rating": 4.8,
-                    "price": 340,
-                    "image": "images/cat_in_hat.jpg",
-                    "releaseDate": "2023-04-12",
-                    "popularity": 97,
-                    "ageGroup": "4-8",
-                    "pages": 62
-                }
-            ]
+            search: this.elements.searchInput?.value.toLowerCase().trim() || '',
+            ageGroup: this.elements.ageGroupFilter?.value || '',
+            category: this.elements.categoryFilter?.value || '',
+            sort: this.elements.sortFilter?.value || 'popularity'
         };
     }
 
-    // Show/hide loading indicator
-    showLoading(show) {
-        this.isLoading = show;
+    // Enhanced search matching
+    matchesSearch(book, searchTerm) {
+        const searchFields = [
+            book.title,
+            book.author,
+            book.category,
+            book.ageGroup
+        ];
         
-        if (show) {
-            this.elements.booksContainer.appendChild(this.elements.loadingIndicator);
-            this.elements.loadingIndicator.style.display = 'block';
-        } else {
-            this.elements.loadingIndicator.style.display = 'none';
-            if (this.elements.loadingIndicator.parentNode) {
-                this.elements.loadingIndicator.parentNode.removeChild(this.elements.loadingIndicator);
-            }
-        }
+        return searchFields.some(field => 
+            field && field.toLowerCase().includes(searchTerm)
+        );
     }
 
-    // Handle data loading errors
-    handleDataLoadError() {
-        this.elements.booksContainer.innerHTML = `
-            <div class="error-message" style="text-align: center; padding: 40px; color: #e74c3c;">
-                <h3>Oops! Something went wrong</h3>
-                <p>We couldn't load the books data. Please try refreshing the page.</p>
-                <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    Refresh Page
+    // Enhanced sorting with more options
+    sortBooks(books, sortBy) {
+        const sortFunctions = {
+            'title': (a, b) => a.title.localeCompare(b.title),
+            'author': (a, b) => a.author.localeCompare(b.author),
+            'price-low': (a, b) => a.price - b.price,
+            'price-high': (a, b) => b.price - a.price,
+            'rating': (a, b) => b.rating - a.rating,
+            'newest': (a, b) => new Date(b.releaseDate) - new Date(a.releaseDate),
+            'oldest': (a, b) => new Date(a.releaseDate) - new Date(b.releaseDate),
+            'popularity': (a, b) => b.popularity - a.popularity
+        };
+
+        const sortFunction = sortFunctions[sortBy] || sortFunctions.popularity;
+        books.sort(sortFunction);
+    }
+
+    // Render books with error handling
+    renderBooks() {
+        if (!this.elements.booksContainer) return;
+
+        const startIndex = (this.currentPage - 1) * this.config.booksPerPage;
+        const endIndex = startIndex + this.config.booksPerPage;
+        const booksToShow = this.filteredBooks.slice(startIndex, endIndex);
+
+        if (booksToShow.length === 0) {
+            this.elements.booksContainer.innerHTML = this.getEmptyStateHTML();
+            return;
+        }
+
+        this.elements.booksContainer.innerHTML = booksToShow
+            .map(book => this.createBookCard(book))
+            .join('');
+    }
+
+    // Empty state HTML
+    getEmptyStateHTML() {
+        return `
+            <div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                <div style="font-size: 4em; margin-bottom: 20px;">📚</div>
+                <h3>No books found</h3>
+                <p>Try adjusting your search or filter criteria</p>
+                <button class="btn-primary" onclick="bookStore.clearFilters()" style="margin-top: 20px;">
+                    Clear Filters
                 </button>
             </div>
         `;
     }
 
-    // Dynamically populate filter options based on loaded data
-    populateFilterOptions() {
-        this.populateAuthors();
-        this.populateCategories();
-        this.populateAgeGroups();
-    }
+    // Create book card with improved error handling
+    createBookCard(book) {
+        try {
+            const stars = this.generateStars(book.rating);
+            const priceHTML = book.originalPrice 
+                ? `₹${book.price} <span class="original-price">₹${book.originalPrice}</span>`
+                : `₹${book.price}`;
 
-    populateAuthors() {
-        const authors = [...new Set(this.kidsBooks.map(book => book.author))].sort();
-        const authorFilter = this.elements.authorFilter;
-        
-        // Clear existing options except the first one
-        while (authorFilter.children.length > 1) {
-            authorFilter.removeChild(authorFilter.lastChild);
+            return `
+                <div class="book-card" data-book-id="${book.id}">
+                    ${book.badge ? `<div class="book-badge">${this.escapeHtml(book.badge)}</div>` : ''}
+                    <div class="age-badge">${this.escapeHtml(book.ageGroup)} Years</div>
+                    <div class="book-img" style="background-image: url('${book.image}')" 
+                         onerror="this.style.backgroundImage='url(images/default-book.jpg)'"></div>
+                    <div class="book-content">
+                        <h3>${this.escapeHtml(book.title)}</h3>
+                        <p class="author">by ${this.escapeHtml(book.author)}</p>
+                        <div class="rating">
+                            ${stars}
+                            <span>(${book.rating})</span>
+                        </div>
+                        <div class="price">${priceHTML}</div>
+                        <div class="book-actions">
+                            <button class="btn-primary" onclick="bookStore.addToCart('${book.id}')">Add to Cart</button>
+                            <button class="btn-secondary" onclick="bookStore.toggleWishlist('${book.id}')">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error rendering book card:', book, error);
+            return '';
         }
-        
-        authors.forEach(author => {
-            const option = document.createElement('option');
-            option.value = author.toLowerCase();
-            option.textContent = author;
-            authorFilter.appendChild(option);
-        });
     }
 
-    populateCategories() {
-        const categories = [...new Set(this.kidsBooks.map(book => book.category))].sort();
-        const categoryFilter = this.elements.categoryFilter;
-        
-        // Clear existing options except the first one
-        while (categoryFilter.children.length > 1) {
-            categoryFilter.removeChild(categoryFilter.lastChild);
-        }
-        
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.toLowerCase();
-            option.textContent = this.capitalizeWords(category);
-            categoryFilter.appendChild(option);
-        });
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
-    populateAgeGroups() {
-        const ageGroups = [...new Set(this.kidsBooks.map(book => book.ageGroup))].sort();
-        const ageGroupFilter = this.elements.ageGroupFilter;
-        
-        // Clear existing options except the first one
-        while (ageGroupFilter.children.length > 1) {
-            ageGroupFilter.removeChild(ageGroupFilter.lastChild);
-        }
-        
-        ageGroups.forEach(ageGroup => {
-            const option = document.createElement('option');
-            option.value = ageGroup;
-            option.textContent = `${ageGroup} Years`;
-            ageGroupFilter.appendChild(option);
-        });
-    }
-
-    // Utility function to capitalize words
-    capitalizeWords(str) {
-        return str.replace(/\b\w/g, l => l.toUpperCase());
-    }
-
-    // Utility functions
-    parseAgeGroup(ageGroup) {
-        if (!ageGroup) return { min: 0, max: 20 };
-        
-        const parts = ageGroup.split('-');
-        if (parts.length === 2) {
-            return {
-                min: parseInt(parts[0]),
-                max: parseInt(parts[1])
-            };
-        }
-        return { min: 0, max: 20 };
-    }
-
-    matchesAgeGroup(bookAgeGroup, filterAgeGroup) {
-        if (!filterAgeGroup) return true;
-        
-        const bookAge = this.parseAgeGroup(bookAgeGroup);
-        const filterAge = this.parseAgeGroup(filterAgeGroup);
-        
-        return bookAge.min <= filterAge.max && bookAge.max >= filterAge.min;
-    }
-
-    getBookBadge(book, index) {
-        if (book.popularity >= 95) return 'Bestseller';
-        if (book.popularity >= 90) return 'Popular';
-        if (new Date(book.releaseDate) > new Date('2024-01-01')) return 'New';
-        if (index % 7 === 0) return 'Sale';
-        if (index % 5 === 0) return 'Trending';
-        return '';
-    }
-
+    // Generate star ratings
     generateStars(rating) {
         let stars = '';
         const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
+        const hasHalfStar = rating % 1 >= 0.5;
         
         for (let i = 0; i < fullStars; i++) {
             stars += '<i class="fa-solid fa-star"></i>';
@@ -330,402 +391,414 @@ class KidsBooksStore {
         return stars;
     }
 
-    formatPrice(price) {
-        const originalPrice = Math.floor(price * 1.2);
-        const hasDiscount = Math.random() > 0.7;
-        
-        if (hasDiscount) {
-            return `₹${price} <span class="original-price">₹${originalPrice}</span>`;
-        }
-        return `₹${price}`;
-    }
+    // Enhanced pagination
+    updatePagination() {
+        if (!this.elements.paginationContainer) return;
 
-    // Filter and sort functions
-    applyFilters() {
-        if (this.isLoading) return;
-        
-        this.filteredBooks = this.kidsBooks.filter(book => {
-            // Search filter
-            const searchTerm = this.elements.searchInput.value.toLowerCase();
-            const matchesSearch = !searchTerm || 
-                book.title.toLowerCase().includes(searchTerm) ||
-                book.author.toLowerCase().includes(searchTerm) ||
-                book.category.toLowerCase().includes(searchTerm);
-
-            // Age group filter
-            const selectedAgeGroup = this.elements.ageGroupFilter.value;
-            const matchesAge = !selectedAgeGroup || this.matchesAgeGroup(book.ageGroup, selectedAgeGroup);
-
-            // Category filter
-            const selectedCategory = this.elements.categoryFilter.value;
-            const matchesCategory = !selectedCategory || 
-                book.category.toLowerCase().includes(selectedCategory.toLowerCase());
-
-            // Author filter
-            const selectedAuthor = this.elements.authorFilter.value;
-            const matchesAuthor = !selectedAuthor || 
-                book.author.toLowerCase().includes(selectedAuthor.toLowerCase());
-
-            // Price range filter
-            const selectedPriceRange = this.elements.priceRangeFilter.value;
-            let matchesPrice = true;
-            if (selectedPriceRange) {
-                const [min, max] = selectedPriceRange.split('-').map(p => p.replace('+', ''));
-                const minPrice = parseInt(min) || 0;
-                const maxPrice = max ? parseInt(max) : Infinity;
-                matchesPrice = book.price >= minPrice && book.price <= maxPrice;
-            }
-
-            return matchesSearch && matchesAge && matchesCategory && matchesAuthor && matchesPrice;
-        });
-
-        // Apply sorting
-        this.applySorting();
-        
-        this.currentPage = 1;
-        this.renderBooks();
-        this.renderPagination();
-        this.updateResultsInfo();
-    }
-
-    applySorting() {
-        const sortValue = this.elements.sortFilter.value;
-        
-        switch (sortValue) {
-            case 'newest':
-                this.filteredBooks.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
-                break;
-            case 'popular':
-                this.filteredBooks.sort((a, b) => b.popularity - a.popularity);
-                break;
-            case 'rating':
-                this.filteredBooks.sort((a, b) => b.rating - a.rating);
-                break;
-            case 'price-low':
-                this.filteredBooks.sort((a, b) => a.price - b.price);
-                break;
-            case 'price-high':
-                this.filteredBooks.sort((a, b) => b.price - a.price);
-                break;
-            case 'title':
-                this.filteredBooks.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-            case 'age':
-                this.filteredBooks.sort((a, b) => {
-                    const ageA = this.parseAgeGroup(a.ageGroup);
-                    const ageB = this.parseAgeGroup(b.ageGroup);
-                    return ageA.min - ageB.min;
-                });
-                break;
-            default: // featured
-                this.filteredBooks.sort((a, b) => b.popularity - a.popularity);
-        }
-    }
-
-    // Render functions
-    renderBooks() {
-        if (this.isLoading) return;
-        
-        const startIndex = (this.currentPage - 1) * this.booksPerPage;
-        const endIndex = startIndex + this.booksPerPage;
-        const booksToShow = this.filteredBooks.slice(startIndex, endIndex);
-
-        this.elements.booksContainer.innerHTML = booksToShow.map((book, index) => {
-            const badge = this.getBookBadge(book, startIndex + index);
-            const stars = this.generateStars(book.rating);
-            const price = this.formatPrice(book.price);
-            
-            return `
-                <div class="book-card ${this.currentView === 'list' ? 'list-view' : ''}">
-                    ${badge ? `<div class="book-badge">${badge}</div>` : ''}
-                    <div class="age-badge">${book.ageGroup} Years</div>
-                    <div class="book-img" style="background-image: url('${book.image}')"></div>
-                    <div class="book-content">
-                        <h3>${book.title}</h3>
-                        <p class="author">by ${book.author}</p>
-                        <div class="rating">
-                            ${stars}
-                            <span>(${book.rating})</span>
-                        </div>
-                        <div class="price">${price}</div>
-                        <div class="book-actions">
-                            <button class="btn-primary" onclick="bookStore.addToCart('${book.title}')">Add to Cart</button>
-                            <button class="btn-secondary" onclick="bookStore.toggleWishlist('${book.title}')">
-                                <i class="fa-solid fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    renderPagination() {
-        const totalPages = Math.ceil(this.filteredBooks.length / this.booksPerPage);
+        const totalPages = Math.ceil(this.filteredBooks.length / this.config.booksPerPage);
         
         if (totalPages <= 1) {
             this.elements.paginationContainer.innerHTML = '';
             return;
         }
 
-        let paginationHTML = '';
+        const paginationHTML = this.generatePaginationHTML(totalPages);
+        this.elements.paginationContainer.innerHTML = paginationHTML;
+        
+        if (this.elements.loadMoreBtn) {
+            this.elements.loadMoreBtn.style.display = 'none';
+        }
+    }
+
+    generatePaginationHTML(totalPages) {
+        let html = '';
         
         // Previous button
-        paginationHTML += `
+        html += `
             <button class="page-btn" ${this.currentPage === 1 ? 'disabled' : ''} 
-                    onclick="bookStore.changePage(${this.currentPage - 1})">Previous</button>
+                    onclick="bookStore.goToPage(${this.currentPage - 1})" 
+                    aria-label="Previous page">Previous</button>
         `;
         
-        // Page numbers
-        const startPage = Math.max(1, this.currentPage - 2);
-        const endPage = Math.min(totalPages, this.currentPage + 2);
+        // Smart page number generation
+        const { startPage, endPage, showStartEllipsis, showEndEllipsis } = 
+            this.calculatePageRange(totalPages);
         
-        if (startPage > 1) {
-            paginationHTML += `<button class="page-btn" onclick="bookStore.changePage(1)">1</button>`;
-            if (startPage > 2) {
-                paginationHTML += `<span class="page-dots">...</span>`;
-            }
+        if (showStartEllipsis) {
+            html += `<button class="page-btn" onclick="bookStore.goToPage(1)">1</button>`;
+            html += `<span class="page-dots">...</span>`;
         }
         
         for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += `
+            html += `
                 <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
-                        onclick="bookStore.changePage(${i})">${i}</button>
+                        onclick="bookStore.goToPage(${i})" 
+                        aria-label="Page ${i}">${i}</button>
             `;
         }
         
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                paginationHTML += `<span class="page-dots">...</span>`;
-            }
-            paginationHTML += `<button class="page-btn" onclick="bookStore.changePage(${totalPages})">${totalPages}</button>`;
+        if (showEndEllipsis) {
+            html += `<span class="page-dots">...</span>`;
+            html += `<button class="page-btn" onclick="bookStore.goToPage(${totalPages})">${totalPages}</button>`;
         }
         
         // Next button
-        paginationHTML += `
+        html += `
             <button class="page-btn" ${this.currentPage === totalPages ? 'disabled' : ''} 
-                    onclick="bookStore.changePage(${this.currentPage + 1})">Next</button>
+                    onclick="bookStore.goToPage(${this.currentPage + 1})" 
+                    aria-label="Next page">Next</button>
         `;
         
-        this.elements.paginationContainer.innerHTML = paginationHTML;
+        return html;
     }
 
-    updateResultsInfo() {
-        const startIndex = (this.currentPage - 1) * this.booksPerPage + 1;
-        const endIndex = Math.min(this.currentPage * this.booksPerPage, this.filteredBooks.length);
+    calculatePageRange(totalPages) {
+        const maxVisiblePages = 5;
+        const halfVisible = Math.floor(maxVisiblePages / 2);
         
-        this.elements.resultsCount.textContent = `${startIndex}-${endIndex}`;
+        let startPage = Math.max(1, this.currentPage - halfVisible);
+        let endPage = Math.min(totalPages, this.currentPage + halfVisible);
+        
+        // Adjust if we're near the beginning or end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+        }
+        
+        const showStartEllipsis = startPage > 1;
+        const showEndEllipsis = endPage < totalPages;
+        
+        return { startPage, endPage, showStartEllipsis, showEndEllipsis };
+    }
+
+    // Update results info
+    updateResultsInfo() {
+        if (!this.elements.resultsCount || !this.elements.totalResults) return;
+
+        const startIndex = (this.currentPage - 1) * this.config.booksPerPage + 1;
+        const endIndex = Math.min(this.currentPage * this.config.booksPerPage, this.filteredBooks.length);
+        
+        this.elements.resultsCount.textContent = this.filteredBooks.length > 0 
+            ? `${startIndex}-${endIndex}` 
+            : '0';
         this.elements.totalResults.textContent = this.filteredBooks.length.toLocaleString();
     }
 
-    // Event handlers
-    changePage(page) {
-        this.currentPage = page;
-        this.renderBooks();
-        this.renderPagination();
-        this.updateResultsInfo();
-        
-        // Scroll to top of books section
-        document.querySelector('.books-grid')?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
-    }
-
-    toggleView(view) {
-        this.currentView = view;
-        
-        // Update active view button
-        this.elements.viewButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.view === view);
-        });
-        
-        // Update books container class
-        this.elements.booksContainer.classList.toggle('list-view', view === 'list');
-        
-        this.renderBooks();
-    }
-
-    addToCart(bookTitle) {
-        const book = this.kidsBooks.find(b => b.title === bookTitle);
-        if (book) {
-            // Here you could integrate with a real cart system
-            alert(`"${book.title}" has been added to your cart!`);
+    // Navigation
+    goToPage(page) {
+        const totalPages = Math.ceil(this.filteredBooks.length / this.config.booksPerPage);
+        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
+            this.currentPage = page;
+            this.renderBooks();
+            this.updatePagination();
+            this.updateResultsInfo();
             
-            // Example of how you might handle this in a real app:
-            // this.cartService.addItem(book);
-            // this.updateCartUI();
+            this.elements.booksContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            this.dispatchEvent('pageChanged', { page, totalPages });
         }
     }
 
-    toggleWishlist(bookTitle) {
-        const book = this.kidsBooks.find(b => b.title === bookTitle);
-        if (book) {
-            // Here you could integrate with a real wishlist system
-            alert(`"${book.title}" has been added to your wishlist!`);
-            
-            // Example of how you might handle this in a real app:
-            // this.wishlistService.toggleItem(book);
-            // this.updateWishlistUI();
+    // Show loading state
+    showLoading(show) {
+        this.isLoading = show;
+        
+        if (show && this.elements.booksContainer) {
+            this.elements.booksContainer.innerHTML = `
+                <div class="loading-message" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading amazing books for kids...</p>
+                </div>
+            `;
         }
     }
 
-    filterByAgeGroup(ageRange) {
-        this.elements.ageGroupFilter.value = ageRange;
+    // Show error message
+    showError(message, details = '') {
+        const errorHTML = `
+            <div class="error-message" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                <div style="font-size: 3em; margin-bottom: 20px; color: #ff6b6b;">⚠️</div>
+                <h3>Oops! Something went wrong</h3>
+                <p>${message}</p>
+                ${details ? `<details><summary>Technical details</summary><pre>${details}</pre></details>` : ''}
+                <button class="btn-primary" onclick="bookStore.refresh()" style="margin-top: 20px;">
+                    Try Again
+                </button>
+            </div>
+        `;
+        
+        if (this.elements.booksContainer) {
+            this.elements.booksContainer.innerHTML = errorHTML;
+        }
+    }
+
+    // User actions
+    async addToCart(bookId) {
+        const book = this.allBooks.find(b => b.id === bookId);
+        if (!book) return;
+
+        try {
+            // Call API to add to cart
+            const response = await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookId, quantity: 1 })
+            });
+
+            if (response.ok) {
+                this.showNotification(`"${book.title}" added to cart!`, 'success');
+                this.dispatchEvent('bookAddedToCart', { book });
+            } else {
+                throw new Error('Failed to add to cart');
+            }
+        } catch (error) {
+            console.error('Add to cart error:', error);
+            this.showNotification('Failed to add to cart. Please try again.', 'error');
+        }
+    }
+
+    async toggleWishlist(bookId) {
+        const book = this.allBooks.find(b => b.id === bookId);
+        if (!book) return;
+
+        try {
+            // Call API to toggle wishlist
+            const response = await fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookId })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const action = result.added ? 'added to' : 'removed from';
+                this.showNotification(`"${book.title}" ${action} wishlist!`, 'info');
+                this.dispatchEvent('bookWishlistToggled', { book, added: result.added });
+            } else {
+                throw new Error('Failed to update wishlist');
+            }
+        } catch (error) {
+            console.error('Wishlist error:', error);
+            this.showNotification('Failed to update wishlist. Please try again.', 'error');
+        }
+    }
+
+    // Utility methods
+    clearFilters() {
+        if (this.elements.searchInput) this.elements.searchInput.value = '';
+        if (this.elements.ageGroupFilter) this.elements.ageGroupFilter.value = '';
+        if (this.elements.categoryFilter) this.elements.categoryFilter.value = '';
+        if (this.elements.sortFilter) this.elements.sortFilter.value = 'popularity';
+        
         this.applyFilters();
-        
-        document.querySelector('.books-grid')?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
     }
 
-    filterByCategory(category) {
-        const categoryMap = {
-            'Picture Books': 'picture',
-            'Adventure & Fantasy': 'adventure',
-            'Educational': 'educational',
-            'Bedtime Stories': 'bedtime',
-            'Animals & Nature': 'animals',
-            'Activity Books': 'activity'
+    refresh() {
+        this.cache.clear();
+        this.loadBooks(true);
+    }
+
+    // Event system
+    dispatchEvent(eventName, data) {
+        const event = new CustomEvent(`bookstore:${eventName}`, { detail: data });
+        document.dispatchEvent(event);
+    }
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const colors = {
+            success: '#4CAF50',
+            error: '#f44336',
+            warning: '#ff9800',
+            info: '#2196F3'
         };
         
-        const filterValue = categoryMap[category] || category.toLowerCase();
-        this.elements.categoryFilter.value = filterValue;
-        this.applyFilters();
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background: ${colors[type] || colors.info}; color: white;
+            padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease-out;
+            max-width: 300px;
+        `;
+        notification.textContent = message;
         
-        document.querySelector('.books-grid')?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 
-    toggleMobileMenu() {
-        this.elements.mobileMenuContainer?.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-    }
-
-    closeMobileMenu() {
-        this.elements.mobileMenuContainer?.classList.remove('active');
-        document.body.classList.remove('menu-open');
-    }
-
-    // Bind all event listeners
+    // Bind events with proper cleanup
     bindEvents() {
-        // Search functionality with debounce
-        let searchTimeout;
-        this.elements.searchInput?.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => this.applyFilters(), 300);
-        });
+        // Search with debounce
+        if (this.elements.searchInput) {
+            this.debounceSearch = this.debounce(() => this.applyFilters(), 300);
+            this.elements.searchInput.addEventListener('input', this.debounceSearch);
+        }
+
+        // Filter changes
+        const filterElements = [
+            this.elements.ageGroupFilter, 
+            this.elements.categoryFilter, 
+            this.elements.sortFilter
+        ];
         
-        // Filter event listeners
-        this.elements.ageGroupFilter?.addEventListener('change', () => this.applyFilters());
-        this.elements.categoryFilter?.addEventListener('change', () => this.applyFilters());
-        this.elements.authorFilter?.addEventListener('change', () => this.applyFilters());
-        this.elements.priceRangeFilter?.addEventListener('change', () => this.applyFilters());
-        this.elements.sortFilter?.addEventListener('change', () => this.applyFilters());
-        
-        // View toggle buttons
-        this.elements.viewButtons.forEach(btn => {
-            btn.addEventListener('click', () => this.toggleView(btn.dataset.view));
-        });
-        
-        // Mobile menu
-        this.elements.mobileMenuBtn?.addEventListener('click', () => this.toggleMobileMenu());
-        this.elements.closeMenuBtn?.addEventListener('click', () => this.closeMobileMenu());
-        this.elements.mobileMenuOverlay?.addEventListener('click', () => this.closeMobileMenu());
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeMobileMenu();
+        filterElements.forEach(element => {
+            if (element) {
+                element.addEventListener('change', () => this.applyFilters());
             }
+        });
+
+        // Keyboard navigation
+        this.keydownHandler = (e) => {
+            const totalPages = Math.ceil(this.filteredBooks.length / this.config.booksPerPage);
             
             if (e.key === 'ArrowLeft' && this.currentPage > 1) {
-                this.changePage(this.currentPage - 1);
-            } else if (e.key === 'ArrowRight') {
-                const totalPages = Math.ceil(this.filteredBooks.length / this.booksPerPage);
-                if (this.currentPage < totalPages) {
-                    this.changePage(this.currentPage + 1);
-                }
+                e.preventDefault();
+                this.goToPage(this.currentPage - 1);
+            } else if (e.key === 'ArrowRight' && this.currentPage < totalPages) {
+                e.preventDefault();
+                this.goToPage(this.currentPage + 1);
             }
-        });
-
-        // Age group and category cards (setup after data loads)
-        setTimeout(() => this.setupCardClickHandlers(), 1000);
-    }
-
-    setupCardClickHandlers() {
-        // Age group cards
-        const ageGroupCards = document.querySelectorAll('.age-group-card');
-        const ageRanges = ['0-2', '3-5', '6-8', '9-12'];
+        };
         
-        ageGroupCards.forEach((card, index) => {
-            if (ageRanges[index]) {
-                card.addEventListener('click', () => this.filterByAgeGroup(ageRanges[index]));
-                card.style.cursor = 'pointer';
-            }
-        });
+        document.addEventListener('keydown', this.keydownHandler);
+    }
+
+    // Debounce utility
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Cleanup method
+    destroy() {
+        // Remove event listeners
+        if (this.debounceSearch) {
+            this.elements.searchInput?.removeEventListener('input', this.debounceSearch);
+        }
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+        }
         
-        // Category cards
-        document.querySelectorAll('.category-card').forEach(card => {
-            const categoryTitle = card.querySelector('h3')?.textContent;
-            if (categoryTitle) {
-                card.addEventListener('click', () => this.filterByCategory(categoryTitle));
-                card.style.cursor = 'pointer';
-            }
-        });
+        // Clear cache
+        this.cache.clear();
+        
+        // Clear DOM references
+        this.elements = {};
     }
 
-    // Method to refresh data (can be called externally)
-    async refreshData() {
-        await this.loadData();
+    // Public API methods
+    setFilter(filterType, value) {
+        const filterMap = {
+            ageGroup: this.elements.ageGroupFilter,
+            category: this.elements.categoryFilter,
+            search: this.elements.searchInput,
+            sort: this.elements.sortFilter
+        };
+        
+        const element = filterMap[filterType];
+        if (element) {
+            element.value = value;
+            this.applyFilters();
+        }
     }
 
-    // Method to update data source (for dynamic API endpoints)
-    setDataSource(source) {
-        this.dataSource = source;
-        return this.loadData();
+    getBooks() {
+        return [...this.allBooks];
+    }
+
+    getFilteredBooks() {
+        return [...this.filteredBooks];
+    }
+
+    getCurrentPage() {
+        return this.currentPage;
+    }
+
+    getTotalPages() {
+        return Math.ceil(this.filteredBooks.length / this.config.booksPerPage);
     }
 }
 
-// Initialize the store when DOM is ready
+// Initialize the store
 let bookStore;
 
 document.addEventListener('DOMContentLoaded', function() {
-    bookStore = new KidsBooksStore();
+    // Configuration can be customized
+    const config = {
+        apiEndpoint: 'kids.json',
+        fallbackEndpoint: null, // Add fallback URL if needed
+        booksPerPage: 12,
+        enableCache: true,
+        cacheExpiry: 5 * 60 * 1000 // 5 minutes
+    };
     
-    // Make bookStore globally accessible for onclick handlers
+    bookStore = new KidsBooksStore(config);
     window.bookStore = bookStore;
     
-    // Hide load more button if it exists
-    const loadMoreBtn = document.querySelector('.btn-load-more');
-    if (loadMoreBtn) {
-        loadMoreBtn.style.display = 'none';
-    }
+    // Add CSS for loading spinner and animations
+    const style = document.createElement('style');
+    style.textContent = `
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .empty-state h3 { margin-bottom: 10px; color: #666; }
+        .empty-state p { color: #999; }
+        .error-message h3 { margin-bottom: 10px; color: #666; }
+        .error-message details { margin-top: 20px; text-align: left; }
+        .error-message pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    `;
+    document.head.appendChild(style);
     
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
+    console.log('Kids Books Store initialized - Database driven');
 });
 
-// Legacy function support for existing onclick handlers
+// Legacy support
 function changePage(page) {
-    bookStore?.changePage(page);
+    if (bookStore) bookStore.goToPage(page);
 }
 
-function addToCart(bookTitle) {
-    bookStore?.addToCart(bookTitle);
+function addToCart(bookId) {
+    if (bookStore) bookStore.addToCart(bookId);
 }
 
-function toggleWishlist(bookTitle) {
-    bookStore?.toggleWishlist(bookTitle);
+function toggleWishlist(bookId) {
+    if (bookStore) bookStore.toggleWishlist(bookId);
 }
