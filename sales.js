@@ -2,135 +2,268 @@
 let timerInterval;
 let targetDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (32 * 60 * 1000) + (45 * 1000);
 
-function updateTimer() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
+// Global variables for data management
+let allSaleItems = [];
+let filteredItems = [];
+let currentPage = 1;
+const itemsPerPage = 12;
 
-    if (distance < 0) {
-        clearInterval(timerInterval);
-        document.getElementById('days').innerHTML = '00';
-        document.getElementById('hours').innerHTML = '00';
-        document.getElementById('minutes').innerHTML = '00';
-        document.getElementById('seconds').innerHTML = '00';
-        return;
+// JSON data sources configuration
+const DATA_SOURCES = {
+    books: 'books.json',
+    kids: 'kids.json',
+    stationery: 'stationery.json',
+    'toys-games': 'toys-games.json'
+};
+
+// Sale configuration for different categories
+const SALE_CONFIG = {
+    books: { minDiscount: 30, maxDiscount: 85 },
+    kids: { minDiscount: 20, maxDiscount: 70 },
+    stationery: { minDiscount: 25, maxDiscount: 60 },
+    'toys-games': { minDiscount: 35, maxDiscount: 80 }
+};
+
+// Utility function to fetch JSON data
+async function fetchJSONData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching data from ${url}:`, error);
+        return null;
     }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    document.getElementById('days').innerHTML = days.toString().padStart(2, '0');
-    document.getElementById('hours').innerHTML = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').innerHTML = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').innerHTML = seconds.toString().padStart(2, '0');
 }
 
-function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    targetDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (32 * 60 * 1000) + (45 * 1000);
-    timerInterval = setInterval(updateTimer, 1000);
-    updateTimer();
-}
-
-function resetTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    document.getElementById('days').innerHTML = '03';
-    document.getElementById('hours').innerHTML = '14';
-    document.getElementById('minutes').innerHTML = '32';
-    document.getElementById('seconds').innerHTML = '45';
-}
-
-// Flash Sale Navigation
-function setupFlashSaleNavigation() {
-    const flashSaleCards = document.querySelectorAll('.flash-sale-section .category-card');
+// Load all data from JSON files
+async function loadAllData() {
+    const loadingIndicator = showLoadingIndicator();
     
-    flashSaleCards.forEach(card => {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', function() {
-            const cardTitle = this.querySelector('h3').textContent.trim();
-            
-            // Navigation mapping based on card titles
-            const navigationMap = {
-                'Fiction Books': 'books.html?category=fiction',
-                'Toys & Games': 'toys-games.html',
-                'Stationery': 'stationery-gifts.html',
-                'Kids Books': 'kids.html'
-            };
-            
-            const targetPage = navigationMap[cardTitle];
-            if (targetPage) {
-                window.location.href = targetPage;
+    try {
+        const dataPromises = Object.entries(DATA_SOURCES).map(async ([category, url]) => {
+            const data = await fetchJSONData(url);
+            return { category, data };
+        });
+
+        const results = await Promise.all(dataPromises);
+        
+        // Process and combine all data
+        allSaleItems = [];
+        
+        results.forEach(({ category, data }) => {
+            if (data) {
+                const categoryKey = Object.keys(data)[0]; // Get the main key (books, kids, etc.)
+                const items = data[categoryKey];
+                
+                if (Array.isArray(items)) {
+                    const processedItems = items.map((item, index) => 
+                        processItemForSale(item, category, index)
+                    );
+                    allSaleItems.push(...processedItems);
+                }
             }
         });
+
+        // Sort by popularity initially
+        allSaleItems.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
         
-        // Add hover effect
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.transition = 'transform 0.3s ease';
+        // Initialize filtered items
+        filteredItems = [...allSaleItems];
+        
+        // Display items
+        displayItems();
+        updatePagination();
+        updateResultsInfo();
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showErrorMessage('Failed to load sale items. Please refresh the page.');
+    } finally {
+        hideLoadingIndicator(loadingIndicator);
+    }
+}
+
+// Process individual item for sale display
+function processItemForSale(item, category, index) {
+    const saleConfig = SALE_CONFIG[category] || { minDiscount: 30, maxDiscount: 70 };
+    
+    // Calculate sale prices
+    const originalPrice = item.originalPrice || item.price;
+    const discountPercent = generateRandomDiscount(saleConfig.minDiscount, saleConfig.maxDiscount);
+    const salePrice = Math.round(originalPrice * (1 - discountPercent / 100));
+    
+    // Generate sale badge
+    const badge = generateSaleBadge(discountPercent, item.badge);
+    
+    return {
+        id: `${category}-${index}`,
+        title: item.title,
+        author: item.author || item.brand || item.manufacturer || 'Unknown',
+        category: category,
+        rating: item.rating || 4.0,
+        price: salePrice,
+        originalPrice: originalPrice,
+        discountPercent: discountPercent,
+        image: item.image || `images/placeholder-${category}.jpg`,
+        badge: badge,
+        popularity: item.popularity || 50,
+        isNew: isNewItem(item.releaseDate),
+        ageGroup: item.ageGroup || null,
+        color: item.color || null,
+        size: item.size || null,
+        savings: originalPrice - salePrice
+    };
+}
+
+// Generate random discount within range
+function generateRandomDiscount(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate appropriate sale badge
+function generateSaleBadge(discountPercent, originalBadge) {
+    if (discountPercent >= 80) return '80% OFF';
+    if (discountPercent >= 70) return '70% OFF';
+    if (discountPercent >= 60) return '60% OFF';
+    if (discountPercent >= 50) return '50% OFF';
+    if (discountPercent >= 40) return '40% OFF';
+    if (originalBadge && originalBadge.toLowerCase().includes('bestseller')) return 'BESTSELLER';
+    return `${discountPercent}% OFF`;
+}
+
+// Check if item is new (released within last 3 months)
+function isNewItem(releaseDate) {
+    if (!releaseDate) return false;
+    const release = new Date(releaseDate);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    return release > threeMonthsAgo;
+}
+
+// Create book card element
+function createBookCard(item) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'book-card';
+    cardDiv.innerHTML = `
+        <div class="discount-badge">${item.badge}</div>
+        <div class="book-img" style="background-image: url('${item.image}')"></div>
+        <div class="book-content">
+            <h3>${item.title}${item.isNew ? ' <span class="new-badge">NEW</span>' : ''}</h3>
+            <p class="author">by ${item.author}</p>
+            <div class="rating">
+                ${generateStarRating(item.rating)}
+                <span>(${item.rating})</span>
+            </div>
+            <div class="price">₹${item.price.toLocaleString()} <span class="original-price">₹${item.originalPrice.toLocaleString()}</span></div>
+            <div class="savings">You save: ₹${item.savings.toLocaleString()}</div>
+            ${item.ageGroup ? `<div class="age-group">Age: ${item.ageGroup}</div>` : ''}
+            ${item.color ? `<div class="item-color">Color: ${item.color}</div>` : ''}
+            ${item.size ? `<div class="item-size">Size: ${item.size}</div>` : ''}
+            <div class="book-actions">
+                <button class="btn-primary" data-item-id="${item.id}">Add to Cart</button>
+                <button class="btn-secondary" data-item-id="${item.id}"><i class="fa-regular fa-heart"></i></button>
+            </div>
+        </div>
+    `;
+    return cardDiv;
+}
+
+// Generate star rating HTML
+function generateStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    let starsHTML = '';
+    
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<i class="fa-solid fa-star"></i>';
+    }
+    
+    // Half star
+    if (hasHalfStar) {
+        starsHTML += '<i class="fa-solid fa-star-half-stroke"></i>';
+    }
+    
+    // Empty stars
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<i class="fa-regular fa-star"></i>';
+    }
+    
+    return starsHTML;
+}
+
+// Display items based on current page and filters
+function displayItems() {
+    const container = document.getElementById('saleContainer');
+    if (!container) return;
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const itemsToShow = filteredItems.slice(startIndex, endIndex);
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Check view mode
+    const isListView = document.querySelector('.view-btn[data-view="list"]')?.classList.contains('active');
+    
+    if (isListView) {
+        container.classList.add('list-view');
+    } else {
+        container.classList.remove('list-view');
+    }
+    
+    // Add items to container
+    itemsToShow.forEach(item => {
+        const itemElement = createBookCard(item);
+        container.appendChild(itemElement);
+    });
+    
+    // Add event listeners to new elements
+    setupCardEventListeners();
+}
+
+// Setup event listeners for card buttons
+function setupCardEventListeners() {
+    const addToCartBtns = document.querySelectorAll('.btn-primary[data-item-id]');
+    const wishlistBtns = document.querySelectorAll('.btn-secondary[data-item-id]');
+    
+    addToCartBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemId = this.getAttribute('data-item-id');
+            const item = allSaleItems.find(item => item.id === itemId);
+            if (item) addToCart(item);
         });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
+    });
+    
+    wishlistBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemId = this.getAttribute('data-item-id');
+            const item = allSaleItems.find(item => item.id === itemId);
+            if (item) toggleWishlist(item, this);
         });
     });
 }
 
-// Sample data for filtering and pagination
-const saleItems = Array.from(document.querySelectorAll('.book-card')).map((card, index) => {
-    const title = card.querySelector('h3').textContent.trim();
-    const author = card.querySelector('.author').textContent.trim();
-    const priceText = card.querySelector('.price').textContent.trim();
-    const originalPriceText = card.querySelector('.original-price')?.textContent.trim() || '';
-    const discountBadge = card.querySelector('.discount-badge').textContent.trim();
-    const rating = card.querySelectorAll('.fa-solid.fa-star').length + (card.querySelectorAll('.fa-regular.fa-star').length * 0.5);
-    
-    // Extract prices
-    const price = parseInt(priceText.replace(/[^\d]/g, ''));
-    const originalPrice = originalPriceText ? parseInt(originalPriceText.replace(/[^\d]/g, '')) : price * 2;
-    
-    // Determine category
-    let category = 'books';
-    if (title.includes('Notebook') || title.includes('Planner')) category = 'stationery';
-    if (title.includes('Puzzle') || title.includes('Educational')) category = 'toys';
-    if (title.includes('Gift Card')) category = 'gift-cards';
-    if (discountBadge.includes('Kids') || title.includes('Harry Potter')) category = 'kids';
-    
-    // Calculate discount percentage
-    const discountPercent = Math.round(((originalPrice - price) / originalPrice) * 100);
-    
-    return {
-        id: index,
-        element: card.cloneNode(true),
-        title,
-        author,
-        price,
-        originalPrice,
-        discountPercent,
-        category,
-        rating,
-        isPopular: rating >= 4.7,
-        isNew: index < 3 // First 3 items are considered new
-    };
-});
-
-// Pagination variables
-let currentPage = 1;
-const itemsPerPage = 12;
-let filteredItems = [...saleItems];
-
 // Filter functionality
 function applyFilters() {
-    const categoryFilter = document.getElementById('sale-category').value;
-    const discountFilter = document.getElementById('discount').value;
-    const priceFilter = document.getElementById('price-range').value;
-    const sortFilter = document.getElementById('sort').value;
+    const categoryFilter = document.getElementById('sale-category')?.value;
+    const discountFilter = document.getElementById('discount')?.value;
+    const priceFilter = document.getElementById('price-range')?.value;
+    const sortFilter = document.getElementById('sort')?.value;
     
     // Reset filtered items
-    filteredItems = [...saleItems];
+    filteredItems = [...allSaleItems];
     
     // Apply category filter
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all') {
         filteredItems = filteredItems.filter(item => item.category === categoryFilter);
     }
     
@@ -162,11 +295,17 @@ function applyFilters() {
             filteredItems.sort((a, b) => b.price - a.price);
             break;
         case 'popular':
-            filteredItems.sort((a, b) => b.rating - a.rating);
+            filteredItems.sort((a, b) => b.popularity - a.popularity);
             break;
         case 'newest':
             filteredItems.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
             break;
+        case 'rating':
+            filteredItems.sort((a, b) => b.rating - a.rating);
+            break;
+        default:
+            // Default sorting by popularity
+            filteredItems.sort((a, b) => b.popularity - a.popularity);
     }
     
     // Reset to first page after filtering
@@ -176,62 +315,110 @@ function applyFilters() {
     updateResultsInfo();
 }
 
-// Display items based on current page and view mode
-function displayItems() {
-    const container = document.getElementById('saleContainer');
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const itemsToShow = filteredItems.slice(startIndex, endIndex);
-    
-    // Clear container
-    container.innerHTML = '';
-    
-    // Check view mode
-    const isListView = document.querySelector('.view-btn[data-view="list"]').classList.contains('active');
-    
-    if (isListView) {
-        container.classList.add('list-view');
-    } else {
-        container.classList.remove('list-view');
+// Search functionality
+function setupSearch() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                if (searchTerm) {
+                    filteredItems = allSaleItems.filter(item => 
+                        item.title.toLowerCase().includes(searchTerm) ||
+                        item.author.toLowerCase().includes(searchTerm) ||
+                        item.category.toLowerCase().includes(searchTerm)
+                    );
+                } else {
+                    filteredItems = [...allSaleItems];
+                }
+                
+                currentPage = 1;
+                displayItems();
+                updatePagination();
+                updateResultsInfo();
+            }, 300);
+        });
     }
-    
-    // Add items to container
-    itemsToShow.forEach(item => {
-        const itemElement = item.element.cloneNode(true);
-        
-        // Add click handlers for buttons
-        const addToCartBtn = itemElement.querySelector('.btn-primary');
-        const wishlistBtn = itemElement.querySelector('.btn-secondary');
-        
-        addToCartBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            addToCart(item);
-        });
-        
-        wishlistBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleWishlist(item);
-        });
-        
-        container.appendChild(itemElement);
-    });
 }
 
-// View toggle functionality
-function setupViewToggle() {
-    const viewButtons = document.querySelectorAll('.view-btn');
-    
-    viewButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remove active class from all buttons
-            viewButtons.forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Re-display items with new view
-            displayItems();
-        });
-    });
+// Loading indicator functions
+function showLoadingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'loading-indicator';
+    indicator.innerHTML = `
+        <div class="spinner"></div>
+        <p>Loading sale items...</p>
+    `;
+    indicator.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 1000;
+        text-align: center;
+    `;
+    document.body.appendChild(indicator);
+    return indicator;
+}
+
+function hideLoadingIndicator(indicator) {
+    if (indicator && indicator.parentNode) {
+        indicator.parentNode.removeChild(indicator);
+    }
+}
+
+// Error message function
+function showErrorMessage(message) {
+    const container = document.getElementById('saleContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="error-message" style="text-align: center; padding: 40px; color: #e74c3c;">
+                <i class="fa-solid fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                <h3>Oops! Something went wrong</h3>
+                <p>${message}</p>
+                <button onclick="location.reload()" class="btn-primary" style="margin-top: 20px;">Refresh Page</button>
+            </div>
+        `;
+    }
+}
+
+// Timer functions
+function updateTimer() {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance < 0) {
+        clearInterval(timerInterval);
+        document.getElementById('days').innerHTML = '00';
+        document.getElementById('hours').innerHTML = '00';
+        document.getElementById('minutes').innerHTML = '00';
+        document.getElementById('seconds').innerHTML = '00';
+        return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById('days').innerHTML = days.toString().padStart(2, '0');
+    document.getElementById('hours').innerHTML = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').innerHTML = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').innerHTML = seconds.toString().padStart(2, '0');
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    targetDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (32 * 60 * 1000) + (45 * 1000);
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
 }
 
 // Pagination functionality
@@ -239,7 +426,11 @@ function updatePagination() {
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
     const paginationContainer = document.querySelector('.pagination');
     
+    if (!paginationContainer) return;
+    
     paginationContainer.innerHTML = '';
+    
+    if (totalPages <= 1) return;
     
     // Previous button
     if (currentPage > 1) {
@@ -297,7 +488,7 @@ function createPaginationButton(text, page) {
         updateResultsInfo();
         
         // Scroll to top of results
-        document.querySelector('.books-grid').scrollIntoView({ behavior: 'smooth' });
+        document.querySelector('.books-grid')?.scrollIntoView({ behavior: 'smooth' });
     });
     return button;
 }
@@ -307,50 +498,48 @@ function updateResultsInfo() {
     const startIndex = (currentPage - 1) * itemsPerPage + 1;
     const endIndex = Math.min(currentPage * itemsPerPage, filteredItems.length);
     
-    document.getElementById('results-count').textContent = `${startIndex}-${endIndex}`;
-    document.getElementById('total-results').textContent = filteredItems.length.toLocaleString();
+    const resultsCountEl = document.getElementById('results-count');
+    const totalResultsEl = document.getElementById('total-results');
+    
+    if (resultsCountEl) resultsCountEl.textContent = `${startIndex}-${endIndex}`;
+    if (totalResultsEl) totalResultsEl.textContent = filteredItems.length.toLocaleString();
 }
 
 // Add to cart functionality
 function addToCart(item) {
     // Add animation to the button
-    const buttons = document.querySelectorAll('.btn-primary');
-    buttons.forEach(btn => {
-        if (btn.textContent === 'Add to Cart') {
-            btn.style.transform = 'scale(0.95)';
-            btn.style.transition = 'transform 0.1s ease';
-            setTimeout(() => {
-                btn.style.transform = 'scale(1)';
-            }, 100);
-        }
-    });
+    const button = document.querySelector(`[data-item-id="${item.id}"].btn-primary`);
+    if (button) {
+        button.style.transform = 'scale(0.95)';
+        button.style.transition = 'transform 0.1s ease';
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 100);
+    }
     
-    // Show notification (you can customize this)
+    // Show notification
     showNotification(`${item.title} added to cart!`, 'success');
 }
 
 // Toggle wishlist functionality
-function toggleWishlist(item) {
-    const wishlistBtns = document.querySelectorAll('.btn-secondary i');
-    wishlistBtns.forEach(icon => {
-        if (icon.classList.contains('fa-heart')) {
-            if (icon.classList.contains('fa-solid')) {
-                icon.classList.remove('fa-solid');
-                icon.classList.add('fa-regular');
-                showNotification(`${item.title} removed from wishlist`, 'info');
-            } else {
-                icon.classList.remove('fa-regular');
-                icon.classList.add('fa-solid');
-                icon.style.color = '#e74c3c';
-                showNotification(`${item.title} added to wishlist!`, 'success');
-            }
-        }
-    });
+function toggleWishlist(item, buttonElement) {
+    const heartIcon = buttonElement.querySelector('i');
+    
+    if (heartIcon.classList.contains('fa-solid')) {
+        heartIcon.classList.remove('fa-solid');
+        heartIcon.classList.add('fa-regular');
+        heartIcon.style.color = '';
+        showNotification(`${item.title} removed from wishlist`, 'info');
+    } else {
+        heartIcon.classList.remove('fa-regular');
+        heartIcon.classList.add('fa-solid');
+        heartIcon.style.color = '#e74c3c';
+        showNotification(`${item.title} added to wishlist!`, 'success');
+    }
 }
 
 // Notification system
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
@@ -359,17 +548,16 @@ function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
-        <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+        <i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
         <span>${message}</span>
         <i class="fa-solid fa-times close-notification"></i>
     `;
     
-    // Add styles
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#27ae60' : '#3498db'};
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
         color: white;
         padding: 15px 20px;
         border-radius: 5px;
@@ -384,11 +572,9 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Close notification
     const closeBtn = notification.querySelector('.close-notification');
     closeBtn.addEventListener('click', () => notification.remove());
     
-    // Auto remove after 3 seconds
     setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'slideOut 0.3s ease';
@@ -397,7 +583,20 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Mobile menu functionality
+// Setup view toggle functionality
+function setupViewToggle() {
+    const viewButtons = document.querySelectorAll('.view-btn');
+    
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            viewButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            displayItems();
+        });
+    });
+}
+
+// Setup mobile menu functionality
 function setupMobileMenu() {
     const mobileMenuBtn = document.querySelector('.fa-bars');
     const mobileMenuContainer = document.querySelector('.mobile-menu-container');
@@ -422,36 +621,8 @@ function setupMobileMenu() {
     }
 }
 
-// Newsletter subscription
-function setupNewsletterSubscription() {
-    const newsletterForms = document.querySelectorAll('input[type="email"]');
-    const submitButtons = document.querySelectorAll('.card-btn, .btn-primary');
-    
-    newsletterForms.forEach((input, index) => {
-        const submitBtn = submitButtons[index];
-        if (submitBtn && (submitBtn.textContent.includes('Submit') || submitBtn.textContent.includes('Subscribe'))) {
-            submitBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const email = input.value.trim();
-                
-                if (email && validateEmail(email)) {
-                    showNotification('Successfully subscribed to newsletter!', 'success');
-                    input.value = '';
-                } else {
-                    showNotification('Please enter a valid email address', 'error');
-                }
-            });
-        }
-    });
-}
-
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 // Initialize all functionality
-function initializePage() {
+async function initializePage() {
     // Set up filter event listeners
     const filterSelects = document.querySelectorAll('#sale-category, #discount, #price-range, #sort');
     filterSelects.forEach(select => {
@@ -459,27 +630,24 @@ function initializePage() {
     });
     
     // Initialize components
-    setupFlashSaleNavigation();
     setupViewToggle();
     setupMobileMenu();
-    setupNewsletterSubscription();
+    setupSearch();
     
-    // Initial display
-    displayItems();
-    updatePagination();
-    updateResultsInfo();
+    // Load data and display
+    await loadAllData();
     
     // Initialize timer
-    updateTimer();
+    startTimer();
     
-    // Remove load more button since we're using pagination
+    // Remove/hide load more button since we're using pagination
     const loadMoreBtn = document.querySelector('.btn-load-more');
     if (loadMoreBtn) {
         loadMoreBtn.style.display = 'none';
     }
 }
 
-// Add CSS animations
+// Add required CSS styles
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
@@ -490,6 +658,36 @@ style.textContent = `
     @keyframes slideOut {
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .new-badge {
+        background: #ff4757;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-left: 5px;
+    }
+    
+    .age-group, .item-color, .item-size {
+        font-size: 12px;
+        color: #666;
+        margin: 2px 0;
     }
     
     .books-container.list-view {
@@ -556,10 +754,6 @@ style.textContent = `
         color: #666;
     }
     
-    .mobile-menu-container.active {
-        display: block;
-    }
-    
     .close-notification {
         cursor: pointer;
         margin-left: auto;
@@ -598,8 +792,3 @@ if (document.readyState === 'loading') {
 } else {
     initializePage();
 }
-
-// Initialize timer on page load
-window.addEventListener('load', function() {
-    updateTimer();
-});
