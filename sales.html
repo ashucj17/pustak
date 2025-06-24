@@ -90,7 +90,7 @@
     </section>
 
     <!-- Sale Hero Section -->
-    <section class="sale-hero">
+   <section class="sale-hero">
         <div class="container">
             <h1>🔥 MEGA SALE 🔥</h1>
             <p>Unbeatable deals on books, gifts, and more! Limited time offers you can't miss.</p>
@@ -113,7 +113,12 @@
                 </div>
             </div>
         </div>
+    <div class="demo-controls">
+        <button class="demo-btn" onclick="startTimer()">Start Live Timer</button>
+        <button class="demo-btn" onclick="resetTimer()">Reset Timer</button>
+    </div>
     </section>
+
 
     <!-- Gift Cards Section -->
     <section class="categories-section sale-categories">
@@ -123,21 +128,28 @@
             <div class="categories-grid">
                 <div class="gift-card">
                     <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                    <h3>Pustak Gift Card</h3>
+                    <h3>Birthday Gift Card</h3>
                     <div class="gift-card-amount">₹500</div>
-                    <p>Perfect for any book lover</p>
+                    <p>Ultimate reading experience</p>
                     <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
                 </div>
                 <div class="gift-card">
                     <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                    <h3>Pustak Gift Card</h3>
+                    <h3>Festive Gift Card</h3>
                     <div class="gift-card-amount">₹1000</div>
-                    <p>For the avid reader</p>
+                    <p>Ultimate reading experience</p>
                     <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
                 </div>
                 <div class="gift-card">
                     <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
                     <h3>Pustak Gift Card</h3>
+                    <div class="gift-card-amount">₹2000</div>
+                    <p>Ultimate reading experience</p>
+                    <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
+                </div>
+                <div class="gift-card">
+                    <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <h3>Festive Gift Card</h3>
                     <div class="gift-card-amount">₹2000</div>
                     <p>Ultimate reading experience</p>
                     <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
@@ -175,6 +187,15 @@
                     <p>Premium stationery items</p>
                     <span class="book-count">Buy 2 Get 1 Free</span>
                 </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-pen"></i>
+                    </div>
+                    <h3>Kids Books</h3>
+                    <p>Upto 50% off</p>
+                    <span class="book-count">Buy 2 Get 1 Free</span>
+                </div>
+            </div>
             </div>
         </div>
     </section>
@@ -646,103 +667,7 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        // Timer countdown functionality
-        function updateTimer() {
-            const days = document.getElementById('days');
-            const hours = document.getElementById('hours');
-            const minutes = document.getElementById('minutes');
-            const seconds = document.getElementById('seconds');
-            
-            setInterval(() => {
-                let currentSeconds = parseInt(seconds.textContent);
-                let currentMinutes = parseInt(minutes.textContent);
-                let currentHours = parseInt(hours.textContent);
-                let currentDays = parseInt(days.textContent);
-                
-                currentSeconds--;
-                
-                if (currentSeconds < 0) {
-                    currentSeconds = 59;
-                    currentMinutes--;
-                    
-                    if (currentMinutes < 0) {
-                        currentMinutes = 59;
-                        currentHours--;
-                        
-                        if (currentHours < 0) {
-                            currentHours = 23;
-                            currentDays--;
-                            
-                            if (currentDays < 0) {
-                                currentDays = 0;
-                                currentHours = 0;
-                                currentMinutes = 0;
-                                currentSeconds = 0;
-                            }
-                        }
-                    }
-                }
-                
-                days.textContent = currentDays.toString().padStart(2, '0');
-                hours.textContent = currentHours.toString().padStart(2, '0');
-                minutes.textContent = currentMinutes.toString().padStart(2, '0');
-                seconds.textContent = currentSeconds.toString().padStart(2, '0');
-            }, 1000);
-        }
-        
-        // Mobile menu functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuIcon = document.querySelector('.fa-bars');
-            const mobileMenuContainer = document.querySelector('.mobile-menu-container');
-            const closeMenu = document.querySelector('.close-menu');
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            
-            menuIcon.addEventListener('click', function() {
-                mobileMenuContainer.classList.add('active');
-            });
-            
-            closeMenu.addEventListener('click', function() {
-                mobileMenuContainer.classList.remove('active');
-            });
-            
-            mobileMenuOverlay.addEventListener('click', function() {
-                mobileMenuContainer.classList.remove('active');
-            });
-            
-            // View toggle functionality
-            const viewBtns = document.querySelectorAll('.view-btn');
-            const saleContainer = document.getElementById('saleContainer');
-            
-            viewBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    viewBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const view = this.getAttribute('data-view');
-                    if (view === 'list') {
-                        saleContainer.classList.add('list-view');
-                    } else {
-                        saleContainer.classList.remove('list-view');
-                    }
-                });
-            });
-            
-            // Load more functionality
-            const loadMoreBtn = document.querySelector('.btn-load-more');
-            loadMoreBtn.addEventListener('click', function() {
-                this.textContent = 'Loading...';
-                setTimeout(() => {
-                    this.textContent = 'Load More Sale Items';
-                    // Here you would typically load more items
-                }, 1000);
-            });
-            
-            // Start the timer
-            updateTimer();
-        });
-    </script>
+    <script src="sales.js"></script>
 </body>
 
 </html>
