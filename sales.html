@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="sales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <title>Sales - Pustak</title>
+</head>
+
+<body>
+
+    <div class="mobile-menu-container">
+        <div class="mobile-menu">
+            <div class="mobile-menu-header">
+                <img class="mobile-logo" src="./images/Pustak logo.png" alt="Pustak-logo">
+                <i class="fa-solid fa-xmark close-menu"></i>
+            </div>
+            <ul class="mobile-menu-items">
+                <li><a href="new-noteworthy.html">NEW & NOTEWORTHY</a></li>
+                <li><a href="top-50.html">TOP 50</a></li>
+                <li><a href="books.html">BOOKS</a></li>
+                <li><a href="kids.html">KIDS BOOKS</a></li>
+                <li><a href="toys-games.html">TOYS & GAMES</a></li>
+                <li><a href="stationery-gifts.html">STATIONERY & GIFTS</a></li>
+                <li><a href="sales.html" class="active">SALES</a></li>
+            </ul>
+        </div>
+        <div class="mobile-menu-overlay"></div>
+    </div>
+    
+    <div class="main-container">
+        <div class="small-container">
+            <div class="row">
+                <div class="left-icons">
+                    <i class="fa-solid fa-bars"></i>
+                    <a href="./index.html"><img class="Pustak-logo" src="./images/Pustak logo.png"
+                            alt="Pustak-logo"></a>
+                </div>
+                <div class="social-icons">
+                    <i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="search" placeholder="Search by Title,Author">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+        <div class="header-menu">
+            <ul class="menu">
+                <a class="list-item" href="new-noteworthy.html">
+                    <li class="menu-items">NEW & NOTEWORTHY</li>
+                </a>
+                <a class="list-item" href="top-50.html">
+                    <li class="menu-items">TOP 50</li>
+                </a>
+                <a class="list-item" href="books.html">
+                    <li class="menu-items">BOOKS</li>
+                </a>
+                <a class="list-item" href="kids.html">
+                    <li class="menu-items">KIDS BOOKS</li>
+                </a>
+                <a class="list-item" href="toys-games.html">
+                    <li class="menu-items">TOYS & GAMES</li>
+                </a>
+                <a class="list-item" href="stationery-gifts.html">
+                    <li class="menu-items">STATIONERY & GIFTS</li>
+                </a>
+                <a class="list-item active" href="sales.html">
+                    <li class="menu-items">SALES</li>
+                </a>
+            </ul>
+        </div>
+        <div class="shipping">
+            <p>Free Shipping on orders above Rs.500</p>
+            <i class="fa-solid fa-truck-fast"></i>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav>
+                <a href="index.html">Home</a> > <span>Sales</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Sale Hero Section -->
+    <section class="sale-hero">
+        <div class="container">
+            <h1>🔥 MEGA SALE 🔥</h1>
+            <p>Unbeatable deals on books, gifts, and more! Limited time offers you can't miss.</p>
+            <div class="sale-timer">
+                <div class="timer-item">
+                    <span class="timer-number" id="days">03</span>
+                    <span class="timer-label">Days</span>
+                </div>
+                <div class="timer-item">
+                    <span class="timer-number" id="hours">14</span>
+                    <span class="timer-label">Hours</span>
+                </div>
+                <div class="timer-item">
+                    <span class="timer-number" id="minutes">32</span>
+                    <span class="timer-label">Minutes</span>
+                </div>
+                <div class="timer-item">
+                    <span class="timer-number" id="seconds">45</span>
+                    <span class="timer-label">Seconds</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gift Cards Section -->
+    <section class="categories-section sale-categories">
+        <div class="container">
+            <h2>Digital Gift Cards</h2>
+            <p style="text-align: center; margin-bottom: 30px;">Perfect for book lovers! Instant delivery via email.</p>
+            <div class="categories-grid">
+                <div class="gift-card">
+                    <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <h3>Pustak Gift Card</h3>
+                    <div class="gift-card-amount">₹500</div>
+                    <p>Perfect for any book lover</p>
+                    <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
+                </div>
+                <div class="gift-card">
+                    <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <h3>Pustak Gift Card</h3>
+                    <div class="gift-card-amount">₹1000</div>
+                    <p>For the avid reader</p>
+                    <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
+                </div>
+                <div class="gift-card">
+                    <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <h3>Pustak Gift Card</h3>
+                    <div class="gift-card-amount">₹2000</div>
+                    <p>Ultimate reading experience</p>
+                    <button class="btn-primary" style="margin-top: 15px;">Buy Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flash Sale Section -->
+    <section class="flash-sale-section">
+        <div class="container">
+            <h2><i class="fa-solid fa-bolt"></i> Flash Sale - Limited Time Only!</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h3>Fiction Books</h3>
+                    <p>Up to 70% off on bestsellers</p>
+                    <span class="book-count">Starting ₹99</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <h3>Toys & Games</h3>
+                    <p>Educational toys at mega discounts</p>
+                    <span class="book-count">Up to 80% off</span>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-pen"></i>
+                    </div>
+                    <h3>Stationery</h3>
+                    <p>Premium stationery items</p>
+                    <span class="book-count">Buy 2 Get 1 Free</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-header">
+                <h2>Sale Items</h2>
+                <p>Find incredible deals across all categories</p>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="sale-category">Category:</label>
+                    <select id="sale-category">
+                        <option value="">All Sale Items</option>
+                        <option value="books">Books</option>
+                        <option value="gift-cards">Gift Cards</option>
+                        <option value="toys">Toys & Games</option>
+                        <option value="stationery">Stationery & Gifts</option>
+                        <option value="kids">Kids Books</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="discount">Discount:</label>
+                    <select id="discount">
+                        <option value="">All Discounts</option>
+                        <option value="10-25">10% - 25% Off</option>
+                        <option value="25-50">25% - 50% Off</option>
+                        <option value="50-75">50% - 75% Off</option>
+                        <option value="75+">75%+ Off</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="price-range">Price Range:</label>
+                    <select id="price-range">
+                        <option value="">All Prices</option>
+                        <option value="0-199">Under ₹200</option>
+                        <option value="200-499">₹200 - ₹499</option>
+                        <option value="500-999">₹500 - ₹999</option>
+                        <option value="1000+">₹1000+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort by:</label>
+                    <select id="sort">
+                        <option value="discount-high">Highest Discount</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="newest">Newest Deals</option>
+                    </select>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid"><i class="fa-solid fa-grip"></i></button>
+                    <button class="view-btn" data-view="list"><i class="fa-solid fa-list"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sale Items Grid -->
+    <section class="books-grid">
+        <div class="container">
+            <div class="results-info">
+                <p>Showing <span id="results-count">1-24</span> of <span id="total-results">2,540</span> sale items</p>
+            </div>
+            
+            <div class="books-container" id="saleContainer">
+                <div class="book-card">
+                    <div class="discount-badge">75% OFF</div>
+                    <div class="book-img" style="background-image: url('images/sapiens.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Sapiens: A Brief History of Humankind</h3>
+                        <p class="author">by Yuval Noah Harari</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.9)</span>
+                        </div>
+                        <div class="price">₹199 <span class="original-price">₹799</span></div>
+                        <div class="savings">You save: ₹600</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">60% OFF</div>
+                    <div class="book-img" style="background-image: url('images/atomic-habits.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Atomic Habits</h3>
+                        <p class="author">by James Clear</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹219 <span class="original-price">₹549</span></div>
+                        <div class="savings">You save: ₹330</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">50% OFF</div>
+                    <div class="book-img" style="background-image: url('images/thinking-fast-slow.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Thinking, Fast and Slow</h3>
+                        <p class="author">by Daniel Kahneman</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.6)</span>
+                        </div>
+                        <div class="price">₹349 <span class="original-price">₹699</span></div>
+                        <div class="savings">You save: ₹350</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">80% OFF</div>
+                    <div class="book-img" style="background-image: url('images/1984.jpg')"></div>
+                    <div class="book-content">
+                        <h3>1984</h3>
+                        <p class="author">by George Orwell</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.9)</span>
+                        </div>
+                        <div class="price">₹89 <span class="original-price">₹449</span></div>
+                        <div class="savings">You save: ₹360</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">45% OFF</div>
+                    <div class="book-img" style="background-image: url('images/harry-potter.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Harry Potter Complete Set <span class="limited-time">LIMITED</span></h3>
+                        <p class="author">by J.K. Rowling</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹1,999 <span class="original-price">₹3,649</span></div>
+                        <div class="savings">You save: ₹1,650</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">70% OFF</div>
+                    <div class="book-img" style="background-image: url('images/psychology-money.jpg')"></div>
+                    <div class="book-content">
+                        <h3>The Psychology of Money</h3>
+                        <p class="author">by Morgan Housel</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.7)</span>
+                        </div>
+                        <div class="price">₹149 <span class="original-price">₹499</span></div>
+                        <div class="savings">You save: ₹350</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">BUY 2 GET 1</div>
+                    <div class="book-img" style="background: linear-gradient(135deg, #ff9a9e, #fecfef); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-pen" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    <div class="book-content">
+                        <h3>Premium Notebook Set</h3>
+                        <p class="author">Hardcover Journals</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.5)</span>
+                        </div>
+                        <div class="price">₹299 <span class="original-price">₹599</span></div>
+                        <div class="savings">Special Offer!</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">85% OFF</div>
+                    <div class="book-img" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-puzzle-piece" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    <div class="book-content">
+                        <h3>Educational Puzzle Set</h3>
+                        <p class="author">Ages 6-12</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.6)</span>
+                        </div>
+                        <div class="price">₹199 <span class="original-price">₹1,299</span></div>
+                        <div class="savings">You save: ₹1,100</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">CLEARANCE</div>
+                    <div class="book-img" style="background-image: url('images/becoming.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Becoming</h3>
+                        <p class="author">by Michelle Obama</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.8)</span>
+                        </div>
+                        <div class="price">₹299 <span class="original-price">₹749</span></div>
+                        <div class="savings">Final Stock!</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">55% OFF</div>
+                    <div class="book-img" style="background-image: url('images/clean-code.jpg')"></div>
+                    <div class="book-content">
+                        <h3>Clean Code</h3>
+                        <p class="author">by Robert C. Martin</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.6)</span>
+                        </div>
+                        <div class="price">₹404 <span class="original-price">₹899</span></div>
+                        <div class="savings">You save: ₹495</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">FLASH DEAL</div>
+                    <div class="book-img" style="background: linear-gradient(135deg, #f093fb, #f5576c); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-gift" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    <div class="book-content">
+                        <h3>Mystery Book Bundle</h3>
+                        <p class="author">5 Random Bestsellers</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <span>(4.7)</span>
+                        </div>
+                        <div class="price">₹999 <span class="original-price">₹2,499</span></div>
+                        <div class="savings">Surprise Inside!</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-card">
+                    <div class="discount-badge">90% OFF</div>
+                    <div class="book-img" style="background: linear-gradient(135deg, #4facfe, #00f2fe); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-calendar" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    <div class="book-content">
+                        <h3>2025 Planner Set</h3>
+                        <p class="author">Weekly & Monthly Planners</p>
+                        <div class="rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <span>(4.4)</span>
+                        </div>
+                        <div class="price">₹99 <span class="original-price">₹999</span></div>
+                        <div class="savings">You save: ₹900</div>
+                        <div class="book-actions">
+                            <button class="btn-primary">Add to Cart</button>
+                            <button class="btn-secondary"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="load-more-section">
+                <button class="btn-load-more">Load More Sale Items</button>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                <!-- Pagination will be added here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section class="categories-section" style="background: #f8f9fa; padding: 60px 0;">
+        <div class="container">
+            <h2>Special Offers</h2>
+            <div class="categories-grid">
+                <div class="category-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <h3>Free Shipping</h3>
+                    <p>On orders above ₹299 during sale</p>
+                    <span class="book-count">No minimum for members</span>
+                </div>
+                <div class="category-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <h3>Easy Returns</h3>
+                    <p>15-day hassle-free returns</p>
+                    <span class="book-count">Even on sale items</span>
+                </div>
+                <div class="category-card" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3>Secure Payment</h3>
+                    <p>Multiple payment options</p>
+                    <span class="book-count">100% secure checkout</span>
+                </div>
+                <div class="category-card" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <div class="category-icon">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Customer service always available</p>
+                    <span class="book-count">Chat, call, or email</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Signup for Sale Updates -->
+    <section style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 60px 0; text-align: center;">
+        <div class="container">
+            <h2>Never Miss a Deal!</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">Subscribe to get exclusive sale notifications and early access to deals</p>
+            <div style="max-width: 500px; margin: 0 auto; display: flex; gap: 10px;">
+                <input type="email" placeholder="Enter your email" style="flex: 1; padding: 15px; border: none; border-radius: 5px; font-size: 1rem;">
+                <button class="btn-primary" style="padding: 15px 30px; white-space: nowrap;">Subscribe Now</button>
+            </div>
+            <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.8;">Get up to 90% off deals directly in your inbox!</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="newsletter">
+                    <span>Subscribe to the Pustak newsletter</span>
+                    <input type="email" placeholder="Your email">
+                    <a href="#" class="card-btn">Submit</a>
+                    <div class="social-icons">
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-facebook"></i>
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-main">
+                <div class="footer-section">
+                    <h3>About Pustak</h3>
+                    <ul>
+                        <li><a href="#">Our history</a></li>
+                        <li><a href="#">Contact us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Vision &amp; Values</h3>
+                    <ul>
+                        <li><a href="#">Our commitment to access</a></li>
+                        <li><a href="#">Our impact</a></li>
+                        <li><a href="#">Governance</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support us</h3>
+                    <ul>
+                        <li><a href="#">Membership</a></li>
+                        <li><a href="#">Donations</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">See how to help</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>The Pustak • 08 Krishna, Shivpuram • Satbari Road • Kanpur</p>
+                <p style="margin-top: 10px;">By offering a proper venue for socio-cultural activities, the Pustak library attends to the recreational requirements of its patrons in order to unlock their latent potential</p>
+                <p style="margin-top: 20px;">&copy; pustak.org • Terms and conditions • Web accessibility • Privacy • Safeguarding</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Timer countdown functionality
+        function updateTimer() {
+            const days = document.getElementById('days');
+            const hours = document.getElementById('hours');
+            const minutes = document.getElementById('minutes');
+            const seconds = document.getElementById('seconds');
+            
+            setInterval(() => {
+                let currentSeconds = parseInt(seconds.textContent);
+                let currentMinutes = parseInt(minutes.textContent);
+                let currentHours = parseInt(hours.textContent);
+                let currentDays = parseInt(days.textContent);
+                
+                currentSeconds--;
+                
+                if (currentSeconds < 0) {
+                    currentSeconds = 59;
+                    currentMinutes--;
+                    
+                    if (currentMinutes < 0) {
+                        currentMinutes = 59;
+                        currentHours--;
+                        
+                        if (currentHours < 0) {
+                            currentHours = 23;
+                            currentDays--;
+                            
+                            if (currentDays < 0) {
+                                currentDays = 0;
+                                currentHours = 0;
+                                currentMinutes = 0;
+                                currentSeconds = 0;
+                            }
+                        }
+                    }
+                }
+                
+                days.textContent = currentDays.toString().padStart(2, '0');
+                hours.textContent = currentHours.toString().padStart(2, '0');
+                minutes.textContent = currentMinutes.toString().padStart(2, '0');
+                seconds.textContent = currentSeconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+        
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuIcon = document.querySelector('.fa-bars');
+            const mobileMenuContainer = document.querySelector('.mobile-menu-container');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            
+            menuIcon.addEventListener('click', function() {
+                mobileMenuContainer.classList.add('active');
+            });
+            
+            closeMenu.addEventListener('click', function() {
+                mobileMenuContainer.classList.remove('active');
+            });
+            
+            mobileMenuOverlay.addEventListener('click', function() {
+                mobileMenuContainer.classList.remove('active');
+            });
+            
+            // View toggle functionality
+            const viewBtns = document.querySelectorAll('.view-btn');
+            const saleContainer = document.getElementById('saleContainer');
+            
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const view = this.getAttribute('data-view');
+                    if (view === 'list') {
+                        saleContainer.classList.add('list-view');
+                    } else {
+                        saleContainer.classList.remove('list-view');
+                    }
+                });
+            });
+            
+            // Load more functionality
+            const loadMoreBtn = document.querySelector('.btn-load-more');
+            loadMoreBtn.addEventListener('click', function() {
+                this.textContent = 'Loading...';
+                setTimeout(() => {
+                    this.textContent = 'Load More Sale Items';
+                    // Here you would typically load more items
+                }, 1000);
+            });
+            
+            // Start the timer
+            updateTimer();
+        });
+    </script>
+</body>
+
+</html>
