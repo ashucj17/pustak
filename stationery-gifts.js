@@ -84,10 +84,10 @@ class StationeryStore {
     // Enhanced fetch with multiple fallback strategies
     async fetchProductData() {
         const possiblePaths = [
-            './data/stationery-gifts.json',
-            './stationery-gifts.json',
-            '../data/stationery-gifts.json',
-            '/data/stationery-gifts.json'
+            './stationery.json',
+            './stationery.json',
+            '../stationery.json',
+            '/stationery.json'
         ];
 
         // Check cache first
