@@ -8,16 +8,16 @@ let filteredItems = [];
 let currentPage = 1;
 const itemsPerPage = 12;
 
-// JSON data sources configuration - Added gift-cards
+// JSON data sources configuration - Fixed toys-games URL
 const DATA_SOURCES = {
     books: 'books.json',
     kids: 'kids.json',
     stationery: 'stationery.json',
-    'toygames': 'toys-games.json',
+    'toys-games': 'toys-games.json',
     'gift-cards': 'gift-cards.json'
 };
 
-// Sale configuration for different categories - Added gift-cards
+// Sale configuration for different categories
 const SALE_CONFIG = {
     books: { minDiscount: 30, maxDiscount: 85 },
     kids: { minDiscount: 20, maxDiscount: 70 },
@@ -29,18 +29,21 @@ const SALE_CONFIG = {
 // Utility function to fetch JSON data
 async function fetchJSONData(url) {
     try {
+        console.log(`Fetching data from: ${url}`);
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return await response.json();
+        const data = await response.json();
+        console.log(`Successfully loaded data from ${url}:`, data);
+        return data;
     } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
         return null;
     }
 }
 
-// Load all data from JSON files
+// Load all data from JSON files - Fixed data processing
 async function loadAllData() {
     const loadingIndicator = showLoadingIndicator();
     
@@ -57,17 +60,42 @@ async function loadAllData() {
         
         results.forEach(({ category, data }) => {
             if (data) {
-                const categoryKey = Object.keys(data)[0]; // Get the main key (books, kids, gift-cards, etc.)
-                const items = data[categoryKey];
+                console.log(`Processing category: ${category}`, data);
                 
-                if (Array.isArray(items)) {
+                // Handle different data structures
+                let items = [];
+                
+                // Check if data has the category as key (like toys-games.json)
+                if (data[category]) {
+                    items = data[category];
+                } else if (data['toys-games'] && category === 'toys-games') {
+                    items = data['toys-games'];
+                } else if (data['gift-cards'] && category === 'gift-cards') {
+                    items = data['gift-cards'];
+                } else {
+                    // Try to find items by looking for arrays in the data
+                    const keys = Object.keys(data);
+                    for (const key of keys) {
+                        if (Array.isArray(data[key])) {
+                            items = data[key];
+                            break;
+                        }
+                    }
+                }
+                
+                console.log(`Found ${items.length} items for category ${category}`);
+                
+                if (Array.isArray(items) && items.length > 0) {
                     const processedItems = items.map((item, index) => 
                         processItemForSale(item, category, index)
                     );
                     allSaleItems.push(...processedItems);
+                    console.log(`Added ${processedItems.length} processed items for ${category}`);
                 }
             }
         });
+
+        console.log(`Total items loaded: ${allSaleItems.length}`);
 
         // Sort by popularity initially
         allSaleItems.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
@@ -88,7 +116,7 @@ async function loadAllData() {
     }
 }
 
-// Process individual item for sale display - Enhanced for gift cards
+// Process individual item for sale display - Fixed for all categories
 function processItemForSale(item, category, index) {
     const saleConfig = SALE_CONFIG[category] || { minDiscount: 30, maxDiscount: 70 };
     
@@ -100,10 +128,16 @@ function processItemForSale(item, category, index) {
     // Generate sale badge
     const badge = generateSaleBadge(discountPercent, item.badge);
     
-    // Enhanced author/manufacturer handling for gift cards
-    let authorOrManufacturer = item.author || item.brand || item.manufacturer || 'Unknown';
-    if (category === 'gift-cards' && item.manufacturer) {
+    // Enhanced author/manufacturer handling for different categories
+    let authorOrManufacturer = 'Unknown';
+    if (item.author) {
+        authorOrManufacturer = item.author;
+    } else if (item.manufacturer) {
         authorOrManufacturer = item.manufacturer;
+    } else if (item.brand) {
+        authorOrManufacturer = item.brand;
+    } else if (category === 'toys-games') {
+        authorOrManufacturer = item.manufacturer || item.brand || 'Generic';
     }
     
     return {
@@ -124,9 +158,11 @@ function processItemForSale(item, category, index) {
         color: item.color || null,
         size: item.size || null,
         savings: originalPrice - salePrice,
-        // Gift card specific properties
+        // Category specific properties
         isGiftCard: category === 'gift-cards',
-        giftCardCategory: item.category || null
+        giftCardCategory: item.category || null,
+        isToyGame: category === 'toys-games',
+        toyCategory: category === 'toys-games' ? (item.category || 'General') : null
     };
 }
 
@@ -147,7 +183,7 @@ function generateRandomDiscount(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Generate appropriate sale badge - Enhanced for gift cards
+// Generate appropriate sale badge
 function generateSaleBadge(discountPercent, originalBadge) {
     if (discountPercent >= 80) return '80% OFF';
     if (discountPercent >= 70) return '70% OFF';
@@ -155,6 +191,7 @@ function generateSaleBadge(discountPercent, originalBadge) {
     if (discountPercent >= 50) return '50% OFF';
     if (discountPercent >= 40) return '40% OFF';
     if (originalBadge && originalBadge.toLowerCase().includes('bestseller')) return 'BESTSELLER';
+    if (originalBadge && originalBadge.toLowerCase().includes('best seller')) return 'BEST SELLER';
     if (originalBadge && originalBadge.toLowerCase().includes('most popular')) return 'MOST POPULAR';
     return `${discountPercent}% OFF`;
 }
@@ -168,20 +205,32 @@ function isNewItem(releaseDate) {
     return release > threeMonthsAgo;
 }
 
-// Create item card element - Enhanced for gift cards
+// Create item card element - Enhanced for all categories
 function createBookCard(item) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = `book-card ${item.isGiftCard ? 'gift-card-item' : ''}`;
+    cardDiv.className = `book-card ${item.isGiftCard ? 'gift-card-item' : ''} ${item.isToyGame ? 'toy-game-item' : ''}`;
     
-    // Different layout for gift cards
-    const authorLabel = item.isGiftCard ? 'by' : 'by';
-    const categoryInfo = item.isGiftCard && item.giftCardCategory ? 
-        `<div class="gift-card-category">Category: ${item.giftCardCategory}</div>` : '';
+    // Different layouts for different categories
+    const authorLabel = item.isGiftCard ? 'by' : (item.isToyGame ? 'by' : 'by');
+    
+    let categoryInfo = '';
+    if (item.isGiftCard && item.giftCardCategory) {
+        categoryInfo = `<div class="gift-card-category">Category: ${item.giftCardCategory}</div>`;
+    } else if (item.isToyGame && item.toyCategory) {
+        categoryInfo = `<div class="toy-category">Category: ${item.toyCategory}</div>`;
+    }
+    
+    let specialOverlay = '';
+    if (item.isGiftCard) {
+        specialOverlay = '<div class="gift-card-overlay">GIFT CARD</div>';
+    } else if (item.isToyGame) {
+        specialOverlay = '<div class="toy-game-overlay">TOY & GAME</div>';
+    }
     
     cardDiv.innerHTML = `
         <div class="discount-badge">${item.badge}</div>
         <div class="book-img" style="background-image: url('${item.image}')">
-            ${item.isGiftCard ? '<div class="gift-card-overlay">GIFT CARD</div>' : ''}
+            ${specialOverlay}
         </div>
         <div class="book-content">
             <h3>${item.title}${item.isNew ? ' <span class="new-badge">NEW</span>' : ''}</h3>
@@ -236,11 +285,17 @@ function generateStarRating(rating) {
 // Display items based on current page and filters
 function displayItems() {
     const container = document.getElementById('saleContainer');
-    if (!container) return;
+    if (!container) {
+        console.error('Sale container not found!');
+        return;
+    }
     
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const itemsToShow = filteredItems.slice(startIndex, endIndex);
+    
+    console.log(`Displaying items ${startIndex}-${endIndex} of ${filteredItems.length} filtered items`);
+    console.log('Items to show:', itemsToShow);
     
     // Clear container
     container.innerHTML = '';
@@ -255,16 +310,26 @@ function displayItems() {
     }
     
     // Add items to container
-    itemsToShow.forEach(item => {
-        const itemElement = createBookCard(item);
-        container.appendChild(itemElement);
-    });
+    if (itemsToShow.length === 0) {
+        container.innerHTML = `
+            <div class="no-items-message" style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                <i class="fa-solid fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                <h3>No items found</h3>
+                <p>Try adjusting your filters or search terms</p>
+            </div>
+        `;
+    } else {
+        itemsToShow.forEach(item => {
+            const itemElement = createBookCard(item);
+            container.appendChild(itemElement);
+        });
+    }
     
     // Add event listeners to new elements
     setupCardEventListeners();
 }
 
-// Setup event listeners for card buttons - Enhanced for gift cards
+// Setup event listeners for card buttons
 function setupCardEventListeners() {
     const addToCartBtns = document.querySelectorAll('.btn-primary[data-item-id]');
     const wishlistBtns = document.querySelectorAll('.btn-secondary[data-item-id]');
@@ -294,19 +359,28 @@ function setupCardEventListeners() {
     });
 }
 
-// Filter functionality - Enhanced for gift cards
+// Filter functionality - Fixed for better debugging
 function applyFilters() {
     const categoryFilter = document.getElementById('sale-category')?.value;
     const discountFilter = document.getElementById('discount')?.value;
     const priceFilter = document.getElementById('price-range')?.value;
     const sortFilter = document.getElementById('sort')?.value;
     
+    console.log('Applying filters:', {
+        category: categoryFilter,
+        discount: discountFilter,
+        price: priceFilter,
+        sort: sortFilter
+    });
+    
     // Reset filtered items
     filteredItems = [...allSaleItems];
+    console.log(`Starting with ${filteredItems.length} items`);
     
     // Apply category filter
     if (categoryFilter && categoryFilter !== 'all') {
         filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+        console.log(`After category filter (${categoryFilter}): ${filteredItems.length} items`);
     }
     
     // Apply discount filter
@@ -315,6 +389,7 @@ function applyFilters() {
         filteredItems = filteredItems.filter(item => {
             return item.discountPercent >= min && (max ? item.discountPercent <= max : true);
         });
+        console.log(`After discount filter (${discountFilter}): ${filteredItems.length} items`);
     }
     
     // Apply price filter
@@ -323,6 +398,7 @@ function applyFilters() {
         filteredItems = filteredItems.filter(item => {
             return item.price >= min && (max !== Infinity ? item.price <= max : true);
         });
+        console.log(`After price filter (${priceFilter}): ${filteredItems.length} items`);
     }
     
     // Apply sorting
@@ -350,6 +426,8 @@ function applyFilters() {
             filteredItems.sort((a, b) => b.popularity - a.popularity);
     }
     
+    console.log(`Final filtered items: ${filteredItems.length}`);
+    
     // Reset to first page after filtering
     currentPage = 1;
     displayItems();
@@ -357,7 +435,7 @@ function applyFilters() {
     updateResultsInfo();
 }
 
-// Search functionality - Enhanced for gift cards
+// Search functionality - Enhanced for all categories
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
@@ -373,7 +451,8 @@ function setupSearch() {
                         item.author.toLowerCase().includes(searchTerm) ||
                         item.category.toLowerCase().includes(searchTerm) ||
                         item.categoryDisplay.toLowerCase().includes(searchTerm) ||
-                        (item.giftCardCategory && item.giftCardCategory.toLowerCase().includes(searchTerm))
+                        (item.giftCardCategory && item.giftCardCategory.toLowerCase().includes(searchTerm)) ||
+                        (item.toyCategory && item.toyCategory.toLowerCase().includes(searchTerm))
                     );
                 } else {
                     filteredItems = [...allSaleItems];
@@ -452,10 +531,15 @@ function updateTimer() {
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById('days').innerHTML = days.toString().padStart(2, '0');
-    document.getElementById('hours').innerHTML = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').innerHTML = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').innerHTML = seconds.toString().padStart(2, '0');
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+
+    if (daysEl) daysEl.innerHTML = days.toString().padStart(2, '0');
+    if (hoursEl) hoursEl.innerHTML = hours.toString().padStart(2, '0');
+    if (minutesEl) minutesEl.innerHTML = minutes.toString().padStart(2, '0');
+    if (secondsEl) secondsEl.innerHTML = seconds.toString().padStart(2, '0');
 }
 
 function startTimer() {
@@ -565,7 +649,7 @@ function addToCart(item) {
     showNotification(`${item.title} added to cart!`, 'success');
 }
 
-// Buy gift card functionality - NEW
+// Buy gift card functionality
 function buyGiftCard(item) {
     // Add animation to the button
     const button = document.querySelector(`[data-item-id="${item.id}"].btn-primary`);
@@ -677,677 +761,415 @@ function setupMobileMenu() {
             mobileMenuContainer.classList.add('active');
             document.body.style.overflow = 'hidden';
         });
-        
-        closeMenuBtn?.addEventListener('click', function() {
+    }
+    
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', function() {
             mobileMenuContainer.classList.remove('active');
             document.body.style.overflow = '';
         });
-        
-        menuOverlay?.addEventListener('click', function() {
+    }
+    
+    if (menuOverlay) {
+        menuOverlay.addEventListener('click', function() {
             mobileMenuContainer.classList.remove('active');
             document.body.style.overflow = '';
         });
     }
-}
-
-// Initialize all functionality
-async function initializePage() {
-    // Set up filter event listeners
-    const filterSelects = document.querySelectorAll('#sale-category, #discount, #price-range, #sort');
-    filterSelects.forEach(select => {
-        select.addEventListener('change', applyFilters);
-    });
     
-    // Initialize components
-    setupViewToggle();
-    setupMobileMenu();
-    setupSearch();
-    
-    // Load data and display
-    await loadAllData();
-    
-    // Initialize timer
-    startTimer();
-    
-    // Remove/hide load more button since we're using pagination
-    const loadMoreBtn = document.querySelector('.btn-load-more');
-    if (loadMoreBtn) {
-        loadMoreBtn.style.display = 'none';
-    }
-}
-
-// Add required CSS styles - Enhanced for gift cards
-// Add required CSS styles - Enhanced for gift cards
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    
-    @keyframes giftCardGlow {
-        0%, 100% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.3); }
-        50% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); }
-    }
-    
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #007bff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 15px;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .new-badge {
-        background: #ff4757;
-        color: white;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 3px;
-        margin-left: 5px;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    
-    .age-group, .item-color, .item-size {
-        font-size: 12px;
-        color: #666;
-        margin: 2px 0;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .age-group::before {
-        content: "👶";
-        font-size: 10px;
-    }
-    
-    .item-color::before {
-        content: "🎨";
-        font-size: 10px;
-    }
-    
-    .item-size::before {
-        content: "📏";
-        font-size: 10px;
-    }
-    
-    /* Gift Card Specific Styles */
-    .gift-card-item {
-        border: 2px solid #f39c12;
-        position: relative;
-        overflow: hidden;
-        animation: giftCardGlow 3s ease-in-out infinite;
-        background: linear-gradient(135deg, #fff 0%, #fff9e6 100%);
-    }
-    
-    .gift-card-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #f39c12, #e67e22, #d35400, #f39c12);
-        background-size: 200% 100%;
-        animation: shimmer 2s linear infinite;
-        z-index: 1;
-    }
-    
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-    
-    .gift-card-overlay {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        color: white;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: bold;
-        z-index: 2;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        transform: rotate(-2deg);
-    }
-    
-    .gift-card-overlay::before {
-        content: "🎁";
-        margin-right: 4px;
-    }
-    
-    .gift-card-category {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        color: #495057;
-        font-size: 12px;
-        border: 1px solid #dee2e6;
-        margin: 4px 0;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .gift-card-category::before {
-        content: "🏷️";
-        font-size: 10px;
-    }
-    
-    .gift-card-value {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-        margin: 4px 0;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
-    }
-    
-    .gift-card-value::before {
-        content: "💳 ";
-    }
-    
-    .gift-card-expiry {
-        font-size: 11px;
-        color: #6c757d;
-        font-style: italic;
-        margin: 2px 0;
-    }
-    
-    .gift-card-expiry::before {
-        content: "⏰ ";
-    }
-    
-    /* Enhanced button styles for gift cards */
-    .gift-card-item .btn-primary {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        border: none;
-        color: white;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
-    }
-    
-    .gift-card-item .btn-primary:hover {
-        background: linear-gradient(135deg, #e67e22, #d35400);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(243, 156, 18, 0.4);
-    }
-    
-    .gift-card-item .btn-primary::before {
-        content: "🎁 ";
-        margin-right: 4px;
-    }
-    
-    /* Gift card list view styles */
-    .books-container.list-view .gift-card-item {
-        border-left: 6px solid #f39c12;
-        background: linear-gradient(90deg, #fff9e6 0%, #fff 100%);
-    }
-    
-    .books-container.list-view .gift-card-item .book-img {
-        border: 2px solid #f39c12;
-        border-radius: 8px;
-    }
-    
-    /* Gift card filter highlight */
-    #sale-category option[value="gift-cards"] {
-        background: linear-gradient(135deg, #fff9e6, #f8f9fa);
-        font-weight: bold;
-        color: #f39c12;
-    }
-    
-    /* Special gift card discount badges */
-    .gift-card-item .discount-badge {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-        color: white;
-        font-weight: bold;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(238, 90, 36, 0.4);
-    }
-    
-    /* Gift card specific savings display */
-    .gift-card-item .savings {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        margin: 4px 0;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
-    }
-    
-    .gift-card-item .savings::before {
-        content: "💰 ";
-    }
-    
-    /* Loading state for gift cards */
-    .gift-card-loading {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .gift-card-loading::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(243, 156, 18, 0.2), transparent);
-        animation: cardLoading 1.5s infinite;
-    }
-    
-    @keyframes cardLoading {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-    
-    /* Responsive gift card styles */
-    @media (max-width: 768px) {
-        .gift-card-item {
-            margin-bottom: 15px;
-        }
-        
-        .gift-card-overlay {
-            top: 5px;
-            left: 5px;
-            padding: 4px 6px;
-            font-size: 10px;
-        }
-        
-        .gift-card-category {
-            padding: 4px 6px;
-            font-size: 11px;
-        }
-    }
-    
-    /* Gift card notification styles */
-    .notification.notification-gift-card {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        border-left: 4px solid #d35400;
-    }
-    
-    .notification.notification-gift-card::before {
-        content: "🎁";
-        margin-right: 8px;
-        font-size: 16px;
-    }
-`;
-document.head.appendChild(style);
-
-// Enhanced gift card data processing with validation
-function processGiftCardData(giftCard, index) {
-    // Validate required gift card fields
-    const requiredFields = ['title', 'manufacturer', 'price'];
-    const missingFields = requiredFields.filter(field => !giftCard[field]);
-    
-    if (missingFields.length > 0) {
-        console.warn(`Gift card missing required fields: ${missingFields.join(', ')}`, giftCard);
-        return null;
-    }
-    
-    const saleConfig = SALE_CONFIG['gift-cards'];
-    const originalPrice = giftCard.price;
-    const discountPercent = generateRandomDiscount(saleConfig.minDiscount, saleConfig.maxDiscount);
-    const salePrice = Math.round(originalPrice * (1 - discountPercent / 100));
-    
-    // Generate gift card specific badge
-    const badge = generateGiftCardBadge(discountPercent, giftCard.badge, giftCard.category);
-    
-    // Calculate expiry date (typically 1-5 years for gift cards)
-    const expiryMonths = Math.floor(Math.random() * 48) + 12; // 1-4 years
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + expiryMonths);
-    
-    return {
-        id: `gift-cards-${index}`,
-        title: giftCard.title,
-        author: giftCard.manufacturer,
-        category: 'gift-cards',
-        categoryDisplay: 'Gift Cards',
-        rating: giftCard.rating || 4.5,
-        price: salePrice,
-        originalPrice: originalPrice,
-        discountPercent: discountPercent,
-        image: giftCard.image || 'images/placeholder-gift-card.jpg',
-        badge: badge,
-        popularity: giftCard.popularity || 75,
-        isNew: isNewItem(giftCard.releaseDate),
-        ageGroup: giftCard.ageGroup || 'All Ages',
-        savings: originalPrice - salePrice,
-        
-        // Gift card specific properties
-        isGiftCard: true,
-        giftCardCategory: giftCard.category || 'General',
-        manufacturer: giftCard.manufacturer,
-        expiryDate: expiryDate,
-        giftCardValue: originalPrice,
-        isDigital: giftCard.isDigital !== false, // Default to digital
-        deliveryTime: giftCard.deliveryTime || 'Instant',
-        termsUrl: giftCard.termsUrl || '#',
-        validRegions: giftCard.validRegions || ['India']
-    };
-}
-
-// Enhanced gift card badge generation
-function generateGiftCardBadge(discountPercent, originalBadge, category) {
-    // Category-specific badges
-    const categoryBadges = {
-        'E-commerce': '🛒 E-COMMERCE',
-        'Food & Dining': '🍽️ FOOD & DINING',
-        'Fashion': '👕 FASHION',
-        'Entertainment': '🎬 ENTERTAINMENT',
-        'Travel': '✈️ TRAVEL',
-        'Gaming': '🎮 GAMING',
-        'Books': '📚 BOOKS',
-        'Music': '🎵 MUSIC'
-    };
-    
-    if (categoryBadges[category]) {
-        return categoryBadges[category];
-    }
-    
-    if (discountPercent >= 40) return `${discountPercent}% OFF GIFT CARD`;
-    if (discountPercent >= 30) return `${discountPercent}% BONUS VALUE`;
-    if (originalBadge && originalBadge.toLowerCase().includes('most popular')) return '⭐ MOST POPULAR';
-    if (originalBadge && originalBadge.toLowerCase().includes('bestseller')) return '🏆 BESTSELLER';
-    
-    return `${discountPercent}% OFF`;
-}
-
-// Enhanced gift card creation with detailed information
-function createGiftCardElement(item) {
-    const cardDiv = document.createElement('div');
-    cardDiv.className = 'book-card gift-card-item';
-    
-    // Format expiry date
-    const expiryDateFormatted = item.expiryDate.toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    cardDiv.innerHTML = `
-        <div class="discount-badge">${item.badge}</div>
-        <div class="book-img" style="background-image: url('${item.image}')">
-            <div class="gift-card-overlay">GIFT CARD</div>
-        </div>
-        <div class="book-content">
-            <h3>${item.title}${item.isNew ? ' <span class="new-badge">NEW</span>' : ''}</h3>
-            <p class="author">by ${item.manufacturer}</p>
-            <div class="rating">
-                ${generateStarRating(item.rating)}
-                <span>(${item.rating})</span>
-            </div>
-            <div class="gift-card-category">Category: ${item.giftCardCategory}</div>
-            <div class="gift-card-value">Value: ₹${item.giftCardValue.toLocaleString()}</div>
-            <div class="price">₹${item.price.toLocaleString()} <span class="original-price">₹${item.originalPrice.toLocaleString()}</span></div>
-            <div class="savings">You save: ₹${item.savings.toLocaleString()}</div>
-            <div class="gift-card-expiry">Valid until: ${expiryDateFormatted}</div>
-            <div class="age-group">Age: ${item.ageGroup}</div>
-            <div class="item-color">Delivery: ${item.deliveryTime}</div>
-            <div class="book-actions">
-                <button class="btn-primary" data-item-id="${item.id}" data-gift-card="true">
-                    Buy Gift Card
-                </button>
-                <button class="btn-secondary" data-item-id="${item.id}">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
-            </div>
-        </div>
-    `;
-    return cardDiv;
-}
-
-// Enhanced gift card purchase functionality
-function buyGiftCard(item) {
-    // Show loading state
-    const button = document.querySelector(`[data-item-id="${item.id}"].btn-primary`);
-    if (button) {
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-        button.disabled = true;
-        
-        // Simulate purchase processing
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-            
-            // Show success animation
-            button.style.transform = 'scale(0.95)';
-            button.style.transition = 'transform 0.1s ease';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 100);
-            
-            // Show detailed notification
-            showGiftCardNotification(item);
-            
-            // Log purchase details
-            logGiftCardPurchase(item);
-            
-        }, 1500);
-    }
-}
-
-// Specialized gift card notification
-function showGiftCardNotification(item) {
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    const notification = document.createElement('div');
-    notification.className = 'notification notification-gift-card';
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-gift" style="font-size: 20px;"></i>
-            <div>
-                <div style="font-weight: bold; margin-bottom: 4px;">Gift Card Purchased!</div>
-                <div style="font-size: 12px; opacity: 0.9;">${item.title} - ₹${item.price.toLocaleString()}</div>
-                <div style="font-size: 11px; opacity: 0.8;">Check your email for delivery details</div>
-            </div>
-        </div>
-        <i class="fa-solid fa-times close-notification" style="cursor: pointer; margin-left: auto;"></i>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 8px 25px rgba(243, 156, 18, 0.3);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideIn 0.3s ease;
-        max-width: 350px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    `;
-    
-    document.body.appendChild(notification);
-    
-    const closeBtn = notification.querySelector('.close-notification');
-    closeBtn.addEventListener('click', () => notification.remove());
-    
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000); // Longer display time for gift cards
-}
-
-// Log gift card purchase for analytics
-function logGiftCardPurchase(item) {
-    const purchaseData = {
-        timestamp: new Date().toISOString(),
-        itemId: item.id,
-        title: item.title,
-        manufacturer: item.manufacturer,
-        category: item.giftCardCategory,
-        purchasePrice: item.price,
-        originalValue: item.giftCardValue,
-        savings: item.savings,
-        discountPercent: item.discountPercent,
-        expiryDate: item.expiryDate.toISOString(),
-        deliveryTime: item.deliveryTime,
-        isDigital: item.isDigital
-    };
-    
-    console.log('Gift Card Purchase:', purchaseData);
-    
-    // Here you would typically send this data to your analytics service
-    // Example: analytics.track('gift_card_purchased', purchaseData);
-}
-
-// Enhanced search functionality for gift cards
-function searchGiftCards(searchTerm) {
-    const term = searchTerm.toLowerCase().trim();
-    
-    return allSaleItems.filter(item => {
-        if (!item.isGiftCard) return false;
-        
-        return (
-            item.title.toLowerCase().includes(term) ||
-            item.manufacturer.toLowerCase().includes(term) ||
-            item.giftCardCategory.toLowerCase().includes(term) ||
-            item.categoryDisplay.toLowerCase().includes(term)
-        );
+    // Close menu when clicking on menu items
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            mobileMenuContainer.classList.remove('active');
+            document.body.style.overflow = '';
+        });
     });
 }
 
-// Gift card specific filtering
-function filterGiftCardsByCategory(category) {
-    return allSaleItems.filter(item => 
-        item.isGiftCard && 
-        (category === 'all' || item.giftCardCategory.toLowerCase() === category.toLowerCase())
-    );
-}
-
-// Enhanced initialization to handle gift card data
-async function loadGiftCardData() {
-    try {
-        const giftCardData = await fetchJSONData('gift-cards.json');
-        
-        if (giftCardData && giftCardData['gift-cards']) {
-            const giftCards = giftCardData['gift-cards'];
-            
-            const processedGiftCards = giftCards
-                .map((card, index) => processGiftCardData(card, index))
-                .filter(card => card !== null); // Remove invalid cards
-            
-            return processedGiftCards;
-        }
-        
-        return [];
-    } catch (error) {
-        console.error('Error loading gift card data:', error);
-        return [];
-    }
-}
-
-// Enhanced main initialization with gift card support
-async function initializeGiftCardSystem() {
-    try {
-        // Load gift card data separately for better error handling
-        const giftCards = await loadGiftCardData();
-        console.log(`Loaded ${giftCards.length} gift cards`);
-        
-        // Add gift cards to the main items array
-        allSaleItems.push(...giftCards);
-        
-        // Update filtered items
-        filteredItems = [...allSaleItems];
-        
-        // Re-display items
-        displayItems();
-        updatePagination();
-        updateResultsInfo();
-        
-        return giftCards.length;
-    } catch (error) {
-        console.error('Error initializing gift card system:', error);
-        showErrorMessage('Failed to load gift cards. Some items may not be available.');
-        return 0;
-    }
-}
-
-// Enhanced event listener setup for gift cards
-function setupGiftCardEventListeners() {
-    // Handle gift card purchase buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.matches('[data-gift-card="true"]') || 
-            e.target.closest('[data-gift-card="true"]')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const button = e.target.closest('[data-item-id]');
-            const itemId = button.getAttribute('data-item-id');
-            const item = allSaleItems.find(item => item.id === itemId);
-            
-            if (item && item.isGiftCard) {
-                buyGiftCard(item);
-            }
-        }
-    });
-    
-    // Add gift card category filter change handler
+// Setup filter event listeners
+function setupFilterListeners() {
     const categoryFilter = document.getElementById('sale-category');
+    const discountFilter = document.getElementById('discount');
+    const priceFilter = document.getElementById('price-range');
+    const sortFilter = document.getElementById('sort');
+    
     if (categoryFilter) {
-        categoryFilter.addEventListener('change', function() {
-            if (this.value === 'gift-cards') {
-                // Add special styling for gift card view
-                document.body.classList.add('viewing-gift-cards');
-            } else {
-                document.body.classList.remove('viewing-gift-cards');
-            }
+        categoryFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (discountFilter) {
+        discountFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (priceFilter) {
+        priceFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (sortFilter) {
+        sortFilter.addEventListener('change', applyFilters);
+    }
+}
+
+// Setup clear filters functionality
+function setupClearFilters() {
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            // Reset all filter dropdowns
+            const categoryFilter = document.getElementById('sale-category');
+            const discountFilter = document.getElementById('discount');
+            const priceFilter = document.getElementById('price-range');
+            const sortFilter = document.getElementById('sort');
+            const searchInput = document.getElementById('search-input');
+            
+            if (categoryFilter) categoryFilter.value = 'all';
+            if (discountFilter) discountFilter.value = '';
+            if (priceFilter) priceFilter.value = '';
+            if (sortFilter) sortFilter.value = 'popular';
+            if (searchInput) searchInput.value = '';
+            
+            // Reset filtered items and apply filters
+            filteredItems = [...allSaleItems];
+            currentPage = 1;
+            applyFilters();
+            
+            showNotification('Filters cleared successfully!', 'info');
         });
     }
 }
 
-// Initialize everything including gift cards
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Initializing sale system with gift card support...');
+// Setup responsive functionality
+function setupResponsive() {
+    function handleResize() {
+        const width = window.innerWidth;
+        const container = document.getElementById('saleContainer');
+        
+        if (container) {
+            // Adjust grid columns based on screen size
+            if (width <= 768) {
+                container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+            } else if (width <= 1024) {
+                container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            } else {
+                container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
+            }
+        }
+    }
     
-    // Initialize basic system first
-    await initializePage();
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once on load
+}
+
+// Setup scroll to top functionality
+function setupScrollToTop() {
+    const scrollToTopBtn = document.querySelector('.scroll-to-top');
     
-    // Then initialize gift card specific features
-    await initializeGiftCardSystem();
+    if (scrollToTopBtn) {
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.style.display = 'block';
+            } else {
+                scrollToTopBtn.style.display = 'none';
+            }
+        });
+        
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+}
+
+// Setup keyboard shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // ESC key to close modals/notifications
+        if (e.key === 'Escape') {
+            const notification = document.querySelector('.notification');
+            const mobileMenu = document.querySelector('.mobile-menu-container.active');
+            
+            if (notification) {
+                notification.remove();
+            }
+            
+            if (mobileMenu) {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Ctrl/Cmd + F to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+    });
+}
+
+// Setup intersection observer for lazy loading images
+function setupLazyLoading() {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const imgDiv = img.closest('.book-img');
+                
+                if (imgDiv) {
+                    const actualImg = new Image();
+                    actualImg.onload = function() {
+                        imgDiv.style.backgroundImage = `url('${this.src}')`;
+                        imgDiv.classList.add('loaded');
+                    };
+                    actualImg.onerror = function() {
+                        imgDiv.style.backgroundImage = `url('images/placeholder-generic.jpg')`;
+                        imgDiv.classList.add('loaded');
+                    };
+                    actualImg.src = imgDiv.style.backgroundImage.slice(5, -2);
+                }
+                
+                observer.unobserve(img);
+            }
+        });
+    });
     
-    // Setup gift card event listeners
-    setupGiftCardEventListeners();
+    // Observer will be applied when items are displayed
+    return imageObserver;
+}
+
+// Enhanced error handling
+function handleGlobalErrors() {
+    window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        
+        // Don't show notification for resource loading errors
+        if (e.error && e.error.message && !e.error.message.includes('Loading')) {
+            showNotification('An unexpected error occurred. Please refresh the page.', 'error');
+        }
+    });
     
-    console.log('Gift card system initialization complete!');
-});
+    window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+        e.preventDefault();
+    });
+}
+
+// Performance monitoring
+function setupPerformanceMonitoring() {
+    let startTime = performance.now();
+    
+    function measurePerformance(label) {
+        const endTime = performance.now();
+        console.log(`${label}: ${(endTime - startTime).toFixed(2)}ms`);
+        startTime = endTime;
+    }
+    
+    return measurePerformance;
+}
+
+// Analytics and tracking (placeholder)
+function trackEvent(category, action, label, value) {
+    console.log('Event tracked:', { category, action, label, value });
+    
+    // Here you would integrate with your analytics service
+    // For example: gtag('event', action, { event_category: category, event_label: label, value: value });
+}
+
+// Add CSS animations dynamically
+function addDynamicStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .book-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .book-card:hover {
+            animation: pulse 0.3s ease;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .mobile-menu-container {
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-container.active {
+            transform: translateX(0);
+        }
+        
+        .loaded {
+            transition: opacity 0.3s ease;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Main initialization function
+async function initializeSalePage() {
+    console.log('Initializing sale page...');
+    
+    try {
+        // Add dynamic styles
+        addDynamicStyles();
+        
+        // Setup error handling
+        handleGlobalErrors();
+        
+        // Setup performance monitoring
+        const measurePerf = setupPerformanceMonitoring();
+        
+        // Start timer
+        startTimer();
+        measurePerf('Timer started');
+        
+        // Setup event listeners
+        setupFilterListeners();
+        setupClearFilters();
+        setupSearch();
+        setupViewToggle();
+        setupMobileMenu();
+        setupScrollToTop();
+        setupKeyboardShortcuts();
+        setupResponsive();
+        measurePerf('Event listeners setup');
+        
+        // Load and display data
+        await loadAllData();
+        measurePerf('Data loaded and displayed');
+        
+        // Setup lazy loading
+        setupLazyLoading();
+        
+        console.log('Sale page initialization complete!');
+        
+        // Track page load
+        trackEvent('Sale Page', 'Load', 'Complete', allSaleItems.length);
+        
+    } catch (error) {
+        console.error('Error initializing sale page:', error);
+        showErrorMessage('Failed to initialize the sale page. Please refresh and try again.');
+    }
+}
+
+// Utility function to debounce frequent function calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Utility function to throttle function calls
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Enhanced search with debouncing
+const debouncedSearch = debounce(function(searchTerm) {
+    if (searchTerm) {
+        filteredItems = allSaleItems.filter(item => 
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.author.toLowerCase().includes(searchTerm) ||
+            item.category.toLowerCase().includes(searchTerm) ||
+            item.categoryDisplay.toLowerCase().includes(searchTerm) ||
+            (item.giftCardCategory && item.giftCardCategory.toLowerCase().includes(searchTerm)) ||
+            (item.toyCategory && item.toyCategory.toLowerCase().includes(searchTerm))
+        );
+    } else {
+        filteredItems = [...allSaleItems];
+    }
+    
+    currentPage = 1;
+    displayItems();
+    updatePagination();
+    updateResultsInfo();
+    
+    // Track search
+    trackEvent('Sale Page', 'Search', searchTerm, filteredItems.length);
+}, 300);
+
+// Export functions for global access (if needed)
+window.salePageFunctions = {
+    initializeSalePage,
+    applyFilters,
+    addToCart,
+    toggleWishlist,
+    buyGiftCard,
+    showNotification,
+    trackEvent
+};
+
+// Auto-initialize when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSalePage);
+} else {
+    // DOM is already loaded
+    initializeSalePage();
+}
