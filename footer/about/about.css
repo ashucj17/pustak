@@ -222,7 +222,7 @@
   opacity: 1;
 }
 
-/* Hero Section */
+/* Hero Section - Updated for better text visibility */
 .hero {
   position: relative;
   height: 600px;
@@ -230,7 +230,7 @@
   display: flex;
   align-items: center;
   background-size: cover;
-  background-position: center;
+  background-position: center left; /* Better alignment for Pustak visibility */
   background-image: url('/images/about.jpg');
   color: #fff;
 }
@@ -242,7 +242,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%); /* Gradient overlay for better text visibility */
   z-index: 1;
 }
 
@@ -258,13 +258,16 @@
   font-weight: bold;
   margin-bottom: 20px;
   line-height: 1.2;
+  color: #efe117; /* Changed to yellow for better visibility */
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); /* Added text shadow */
 }
 
 .hero__text {
   font-size: 1.2rem;
   margin-bottom: 30px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #ffffff; /* Changed to pure white for better contrast */
   line-height: 1.6;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Added text shadow */
 }
 
 .hero__cta {
@@ -276,6 +279,7 @@
   border-radius: 4px;
   font-weight: bold;
   transition: background-color 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Added shadow for better visibility */
 }
 
 .hero__cta:hover {
@@ -322,8 +326,15 @@
 .event-card {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better visibility */
   background-color: #fff;
+  border: 2px solid rgba(173, 11, 11, 0.1); /* Added subtle border */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
 }
 
 .event-img {
@@ -367,6 +378,23 @@
   gap: 20px;
 }
 
+/* Apply Now button styling for Why Work at Pustak section */
+.explore-science .card-btn {
+  display: block;
+  width: fit-content;
+  margin: 20px auto 0;
+  text-align: center;
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(173, 11, 11, 0.3);
+}
+
+.explore-science .card-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(173, 11, 11, 0.4);
+}
+
 /* Learning Section (Mission & Values) */
 .learning {
   padding: 50px 80px;
@@ -379,43 +407,76 @@
   gap: 20px;
 }
 
-/* Support Section (Contact Us) */
+/* Support Section (Contact Us) - Updated layout */
 .support {
   padding: 50px 80px;
   background-color: #ffffff;
+}
+
+.support-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.support-header h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.support-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
-  align-items: center;
+  align-items: start;
 }
 
 .support-content {
   padding-right: 30px;
 }
 
-.support-content h2 {
-  font-size: 28px;
+.contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   margin-bottom: 20px;
-  color: #333;
 }
 
-.support-content h3 {
-  font-size: 20px;
+.contact-info-item {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(173, 11, 11, 0.1);
+}
+
+.contact-info-item h3 {
+  font-size: 18px;
   margin-bottom: 10px;
   color: #333;
 }
 
-.support-content p {
+.contact-info-item p {
   color: #666;
   line-height: 1.6;
-  margin-bottom: 15px;
+  margin-bottom: 0;
+}
+
+.contact-info-item i {
+  color: #e74c3c;
+  font-size: 24px;
+  margin-bottom: 10px;
+  display: block;
 }
 
 .support-img {
   height: 400px;
   background-size: cover;
   background-position: center;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(173, 11, 11, 0.1);
 }
 
 /* Button Styles */
@@ -427,11 +488,14 @@
   padding: 10px 20px;
   border-radius: 4px;
   font-weight: bold;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(173, 11, 11, 0.3);
 }
 
 .card-btn:hover {
   background-color: #111;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.4);
 }
 
 /* Tag Styles */
@@ -607,6 +671,16 @@ footer {
     grid-template-columns: repeat(2, 1fr);
     text-align: center;
   }
+
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .support-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -647,6 +721,14 @@ footer {
 
   .newsletter input {
     width: 90%;
+  }
+
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -739,21 +821,26 @@ footer {
   
   /* Fix support section layout */
   .support {
-    display: flex;
-    flex-direction: column;
     padding: 30px 15px;
   }
   
   .support-content {
     padding-right: 0;
-    order: 1;
   }
   
   .support-img {
     width: 100%;
     height: 300px;
-    order: 0;
     margin-bottom: 15px;
+  }
+
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .contact-info-item {
+    padding: 15px;
   }
   
   /* Fix newsletter and footer */
@@ -875,17 +962,6 @@ footer {
 /* Special styling for careers section grid */
 .explore-science .explore-cards .event-card {
   background-color: #fff;
-}
-
-/* Contact section specific styling */
-.support-content h3 {
-  color: #333;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.support-content i {
-  color: #e74c3c;
 }
 
 /* Careers section benefits grid */
