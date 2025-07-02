@@ -1,4 +1,4 @@
-// Enhanced Stationery Store JavaScript with Pagination and Optimized JSON Data Fetching
+// Optimized Stationery Store JavaScript with Proper Card Alignment and Database Integration
 class StationeryStore {
     constructor() {
         this.allProducts = [];
@@ -10,10 +10,26 @@ class StationeryStore {
         this.categories = [];
         this.brands = [];
         this.isLoading = false;
-        this.cache = new Map(); // For caching API responses
-        this.wishlist = new Set(); // Track wishlist items
+        this.cache = new Map();
+        this.wishlist = new Set();
         
-        // DOM elements - will be initialized after DOM loads
+        // API Configuration
+        this.apiConfig = {
+            baseUrl: 'http://127.0.0.1:5502/stationery-gifts.html', // Replace with your API URL
+            endpoints: {
+                products: '/stationery',
+                categories: '/categories',
+                brands: '/brands'
+            },
+            fallbackPaths: [
+                './stationery.json',
+                '/stationery.json',
+                '../stationery.json',
+                '/stationery.json'
+            ]
+        };
+        
+        // DOM elements
         this.elements = {};
         
         // Initialize when DOM is ready
@@ -48,14 +64,13 @@ class StationeryStore {
     // Initialize DOM elements
     initializeElements() {
         this.elements = {
-            productsContainer: document.getElementById('productsContainer'),
+            productsContainer: document.getElementById('productsContainer') || document.querySelector('.books-container'),
             categoryFilter: document.getElementById('category'),
             brandFilter: document.getElementById('brand'),
             priceFilter: document.getElementById('price-range'),
             sortSelect: document.getElementById('sort'),
             resultsCount: document.getElementById('results-count'),
             totalResults: document.getElementById('total-results'),
-            loadMoreBtn: document.querySelector('.btn-load-more'),
             viewButtons: document.querySelectorAll('.view-btn'),
             searchInput: document.querySelector('input[type="search"]'),
             categoriesGrid: document.querySelector('.categories-grid'),
@@ -73,7 +88,6 @@ class StationeryStore {
             this.elements.paginationContainer = document.createElement('div');
             this.elements.paginationContainer.className = 'pagination';
             
-            // Insert after products container or at the end of main content
             const insertAfter = this.elements.productsContainer?.parentNode || document.querySelector('.main-content');
             if (insertAfter) {
                 insertAfter.appendChild(this.elements.paginationContainer);
@@ -81,26 +95,61 @@ class StationeryStore {
         }
     }
 
-    // Enhanced fetch with multiple fallback strategies
+    // Enhanced fetch with API and fallback support
     async fetchProductData() {
-        const possiblePaths = [
-            './stationery.json',
-            './stationery.json',
-            '../stationery.json',
-            '/stationery.json'
-        ];
-
-        // Check cache first
         const cacheKey = 'stationery-products';
+        
+        // Check cache first
         if (this.cache.has(cacheKey)) {
             this.allProducts = this.cache.get(cacheKey);
             console.log('📦 Loaded products from cache');
             return;
         }
 
+        // Try API first, then fallback to JSON files
+        try {
+            await this.fetchFromAPI();
+        } catch (apiError) {
+            console.warn('⚠️ API fetch failed, trying fallback files:', apiError.message);
+            await this.fetchFromFallbackFiles();
+        }
+    }
+
+    // Fetch from API endpoint
+    async fetchFromAPI() {
+        const apiUrl = `${this.apiConfig.baseUrl}${this.apiConfig.endpoints.products}`;
+        
+        console.log(`🌐 Attempting to fetch from API: ${apiUrl}`);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const products = this.extractProductsFromResponse(data);
+        
+        if (products.length === 0) {
+            throw new Error('No products found in API response');
+        }
+
+        this.allProducts = products;
+        this.cache.set('stationery-products', products);
+        console.log(`✅ Successfully loaded ${products.length} products from API`);
+    }
+
+    // Fallback to JSON files
+    async fetchFromFallbackFiles() {
         let lastError = null;
 
-        for (const path of possiblePaths) {
+        for (const path of this.apiConfig.fallbackPaths) {
             try {
                 console.log(`🔍 Attempting to fetch from: ${path}`);
                 const response = await fetch(path);
@@ -110,25 +159,14 @@ class StationeryStore {
                 }
                 
                 const data = await response.json();
-                
-                // Handle multiple JSON structures
-                let products = [];
-                if (Array.isArray(data)) {
-                    products = data;
-                } else if (data.stationery && Array.isArray(data.stationery)) {
-                    products = data.stationery;
-                } else if (data.products && Array.isArray(data.products)) {
-                    products = data.products;
-                } else if (data.items && Array.isArray(data.items)) {
-                    products = data.items;
-                }
+                const products = this.extractProductsFromResponse(data);
                 
                 if (products.length === 0) {
                     throw new Error('No products found in JSON structure');
                 }
                 
                 this.allProducts = products;
-                this.cache.set(cacheKey, products); // Cache the results
+                this.cache.set('stationery-products', products);
                 console.log(`✅ Successfully loaded ${products.length} products from ${path}`);
                 return;
                 
@@ -139,7 +177,7 @@ class StationeryStore {
             }
         }
 
-        // If all paths failed, use fallback data
+        // If all attempts failed, use fallback data
         console.warn('🔄 All fetch attempts failed, using fallback data');
         this.allProducts = this.getSampleData();
         
@@ -148,7 +186,30 @@ class StationeryStore {
         }
     }
 
-    // Process and normalize product data with enhanced error handling
+    // Extract products from various response formats
+    extractProductsFromResponse(data) {
+        if (Array.isArray(data)) {
+            return data;
+        }
+        
+        // Check various possible structures
+        const possibleKeys = ['stationery', 'products', 'items', 'data', 'results'];
+        
+        for (const key of possibleKeys) {
+            if (data[key] && Array.isArray(data[key])) {
+                return data[key];
+            }
+        }
+        
+        // If single product object
+        if (data.title || data.name) {
+            return [data];
+        }
+        
+        return [];
+    }
+
+    // Process and normalize product data
     processProductData() {
         if (!Array.isArray(this.allProducts)) {
             console.error('❌ Product data is not an array:', this.allProducts);
@@ -156,596 +217,141 @@ class StationeryStore {
             return;
         }
 
-        // Normalize product data and add missing fields
         this.allProducts = this.allProducts.map((product, index) => {
             try {
                 return {
                     id: product.id || index + 1,
-                    name: product.title || product.name || `Product ${index + 1}`,
-                    author: product.brand || 'Unknown Brand',
-                    category: this.mapCategory(product.category),
-                    brand: (product.brand || 'unknown').toLowerCase().replace(/\s+/g, '-'),
+                    title: product.title || product.name || `Product ${index + 1}`,
+                    brand: product.brand || 'Unknown Brand',
+                    category: this.normalizeCategory(product.category),
+                    rating: parseFloat(product.rating) || 4.0,
                     price: parseFloat(product.price) || 0,
                     originalPrice: product.originalPrice ? parseFloat(product.originalPrice) : null,
-                    rating: parseFloat(product.rating) || 4.0,
-                    badge: product.badge || null,
-                    icon: this.getIconForCategory(product.category || 'office'),
-                    gradient: this.getGradientForCategory(product.category || 'office'),
-                    isPopular: (product.popularity && product.popularity > 90) || product.badge === 'Bestseller',
-                    dateAdded: product.releaseDate ? new Date(product.releaseDate) : new Date(),
                     image: product.image || null,
                     color: product.color || 'Default',
-                    size: product.size || null,
-                    count: product.count || null,
-                    
-                    // Additional fields from your JSON
+                    badge: product.badge || null,
                     popularity: product.popularity || 0,
                     releaseDate: product.releaseDate || null,
-                    inkType: product.inkType || null,
-                    leadSize: product.leadSize || null,
-                    nibSize: product.nibSize || null,
-                    tipType: product.tipType || null,
-                    year: product.year || null,
-                    includes: product.includes || null
+                    size: product.size || null,
+                    
+                    // Additional normalized fields
+                    author: product.brand || 'Unknown Brand', // For compatibility
+                    isPopular: (product.popularity && product.popularity > 90) || product.badge === 'Bestseller',
+                    dateAdded: product.releaseDate ? new Date(product.releaseDate) : new Date(),
+                    
+                    // Category-specific styling
+                    icon: this.getIconForCategory(product.category),
+                    gradient: this.getGradientForCategory(product.category)
                 };
             } catch (error) {
                 console.warn(`⚠️ Error processing product at index ${index}:`, error);
                 return null;
             }
-        }).filter(Boolean); // Remove any null entries
+        }).filter(Boolean);
 
-        // Extract unique categories and brands with error handling
-        try {
-            this.categories = [...new Set(this.allProducts.map(p => p.category))].filter(Boolean).sort();
-            this.brands = [...new Set(this.allProducts.map(p => p.brand))].filter(Boolean).sort();
-        } catch (error) {
-            console.error('❌ Error extracting categories/brands:', error);
-            this.categories = [];
-            this.brands = [];
-        }
-
-        // Initialize filtered products
+        // Extract unique categories and brands
+        this.categories = [...new Set(this.allProducts.map(p => p.category))].filter(Boolean).sort();
+        this.brands = [...new Set(this.allProducts.map(p => p.brand))].filter(Boolean).sort();
+        
         this.filteredProducts = [...this.allProducts];
-
-        // Populate filter dropdowns
         this.populateFilterDropdowns();
 
         console.log(`📊 Processed ${this.allProducts.length} products, ${this.categories.length} categories, ${this.brands.length} brands`);
     }
 
-    // Enhanced category mapping
-    mapCategory(category) {
-        if (!category) return 'office';
+    // Normalize category names
+    normalizeCategory(category) {
+        if (!category) return 'Office Supplies';
         
         const categoryMap = {
-            'notebooks': 'notebooks',
-            'pens': 'writing',
-            'pencils': 'writing',
-            'art supplies': 'art',
-            'markers': 'writing',
-            'highlighters': 'writing',
-            'planners': 'planners',
-            'office': 'office',
-            'gifts': 'gifts',
-            'writing': 'writing'
+            'notebooks': 'Notebooks',
+            'pens': 'Writing Instruments',
+            'pencils': 'Writing Instruments',
+            'art supplies': 'Art Supplies',
+            'markers': 'Writing Instruments',
+            'highlighters': 'Writing Instruments',
+            'planners': 'Planners',
+            'office': 'Office Supplies',
+            'gifts': 'Gift Sets',
+            'writing': 'Writing Instruments'
         };
 
         const normalized = category.toLowerCase().trim();
-        return categoryMap[normalized] || 'office';
+        return categoryMap[normalized] || category;
     }
 
     // Get icon for category
     getIconForCategory(category) {
         const iconMap = {
-            'notebooks': 'fa-solid fa-book',
-            'writing': 'fa-solid fa-pen',
-            'art': 'fa-solid fa-palette',
-            'planners': 'fa-solid fa-calendar-days',
-            'office': 'fa-solid fa-folder-open',
-            'gifts': 'fa-solid fa-gift',
-            'tech': 'fa-solid fa-calculator'
+            'Notebooks': 'fa-solid fa-book',
+            'Writing Instruments': 'fa-solid fa-pen',
+            'Art Supplies': 'fa-solid fa-palette',
+            'Planners': 'fa-solid fa-calendar-days',
+            'Office Supplies': 'fa-solid fa-folder-open',
+            'Gift Sets': 'fa-solid fa-gift'
         };
-
         return iconMap[category] || 'fa-solid fa-pen';
     }
 
     // Get gradient for category
     getGradientForCategory(category) {
         const gradientMap = {
-            'notebooks': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'writing': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'art': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-            'planners': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'office': 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
-            'gifts': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            'tech': 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)'
+            'Notebooks': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'Writing Instruments': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'Art Supplies': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'Planners': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'Office Supplies': 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+            'Gift Sets': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
         };
-
         return gradientMap[category] || 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)';
     }
 
-    // Enhanced filter dropdown population
-    populateFilterDropdowns() {
-        // Populate category filter
-        if (this.elements.categoryFilter) {
-            this.elements.categoryFilter.innerHTML = '<option value="">All Categories</option>';
-            this.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = this.formatCategoryName(category);
-                this.elements.categoryFilter.appendChild(option);
-            });
-        }
-
-        // Populate brand filter
-        if (this.elements.brandFilter) {
-            this.elements.brandFilter.innerHTML = '<option value="">All Brands</option>';
-            this.brands.forEach(brand => {
-                const option = document.createElement('option');
-                option.value = brand;
-                option.textContent = this.formatBrandName(brand);
-                this.elements.brandFilter.appendChild(option);
-            });
-        }
-    }
-
-    // Format category name for display
-    formatCategoryName(category) {
-        const nameMap = {
-            'notebooks': 'Notebooks & Journals',
-            'writing': 'Writing Instruments',
-            'art': 'Art Supplies',
-            'planners': 'Planners & Organizers',
-            'office': 'Office Supplies',
-            'gifts': 'Gift Sets',
-            'tech': 'Technology'
-        };
-
-        return nameMap[category] || category.charAt(0).toUpperCase() + category.slice(1);
-    }
-
-    // Format brand name for display
-    formatBrandName(brand) {
-        return brand.split('-').map(word => 
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-    }
-
-    // Calculate pagination
-    calculatePagination() {
-        this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
-        this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
-    }
-
-    // Render pagination controls
-    renderPagination() {
-        if (!this.elements.paginationContainer || this.totalPages <= 1) {
-            if (this.elements.paginationContainer) {
-                this.elements.paginationContainer.style.display = 'none';
-            }
-            return;
-        }
-
-        this.elements.paginationContainer.style.display = 'flex';
+    // Create product card matching your HTML structure
+    createProductCard(product) {
+        const card = document.createElement('div');
+        card.className = 'book-card';
         
-        let paginationHTML = '';
+        // Generate badge HTML
+        const badgeHtml = product.badge ? 
+            `<div class="book-badge ${product.badge.toLowerCase().replace(/\s+/g, '-')}">${product.badge}</div>` : '';
         
-        // Previous button
-        paginationHTML += `
-            <button class="pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}" 
-                    data-page="${this.currentPage - 1}" 
-                    ${this.currentPage === 1 ? 'disabled' : ''}>
-                <i class="fa-solid fa-chevron-left"></i>
-                Previous
-            </button>
-        `;
+        // Generate star rating
+        const starsHtml = this.generateStarRating(product.rating);
+        
+        // Generate price HTML
+        const originalPriceHtml = product.originalPrice ? 
+            `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : '';
 
-        // Page numbers
-        const startPage = Math.max(1, this.currentPage - 2);
-        const endPage = Math.min(this.totalPages, this.currentPage + 2);
-
-        // First page + ellipsis
-        if (startPage > 1) {
-            paginationHTML += `<button class="pagination-btn page-number" data-page="1">1</button>`;
-            if (startPage > 2) {
-                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
-            }
-        }
-
-        // Current range of pages
-        for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += `
-                <button class="pagination-btn page-number ${i === this.currentPage ? 'active' : ''}" 
-                        data-page="${i}">
-                    ${i}
-                </button>
-            `;
-        }
-
-        // Last page + ellipsis
-        if (endPage < this.totalPages) {
-            if (endPage < this.totalPages - 1) {
-                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
-            }
-            paginationHTML += `<button class="pagination-btn page-number" data-page="${this.totalPages}">${this.totalPages}</button>`;
-        }
-
-        // Next button
-        paginationHTML += `
-            <button class="pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}" 
-                    data-page="${this.currentPage + 1}"
-                    ${this.currentPage === this.totalPages ? 'disabled' : ''}>
-                Next
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        `;
-
-        // Page info
-        paginationHTML += `
-            <div class="pagination-info">
-                <span>Page ${this.currentPage} of ${this.totalPages}</span>
-                <select class="page-size-selector" onchange="stationeryStore.changePageSize(this.value)">
-                    <option value="12" ${this.productsPerPage === 12 ? 'selected' : ''}>12 per page</option>
-                    <option value="24" ${this.productsPerPage === 24 ? 'selected' : ''}>24 per page</option>
-                    <option value="48" ${this.productsPerPage === 48 ? 'selected' : ''}>48 per page</option>
-                </select>
+        card.innerHTML = `
+            ${badgeHtml}
+            <div class="book-img" style="background: ${product.gradient}; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                <i class="${product.icon}"></i>
+            </div>
+            <div class="book-content">
+                <h3>${product.title}</h3>
+                <p class="author">${product.brand}${product.color && product.color !== 'Default' ? `, ${product.color}` : ''}${product.size ? `, ${product.size}` : ''}</p>
+                <div class="rating">
+                    ${starsHtml}
+                    <span>(${product.rating})</span>
+                </div>
+                <div class="price">
+                    ₹${product.price.toLocaleString()} 
+                    ${originalPriceHtml}
+                </div>
+                <div class="book-actions">
+                    <button class="btn-primary" onclick="stationeryStore.addToCart(${product.id})">
+                        Add to Cart
+                    </button>
+                    <button class="btn-secondary heart-btn ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                            data-product-id="${product.id}"
+                            onclick="stationeryStore.toggleWishlist(${product.id})">
+                        <i class="fa-${this.wishlist.has(product.id) ? 'solid' : 'regular'} fa-heart"></i>
+                    </button>
+                </div>
             </div>
         `;
-
-        this.elements.paginationContainer.innerHTML = paginationHTML;
-
-        // Add pagination event listeners
-        this.elements.paginationContainer.querySelectorAll('.pagination-btn:not(.disabled)').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const page = parseInt(e.currentTarget.dataset.page);
-                if (page && page !== this.currentPage) {
-                    this.goToPage(page);
-                }
-            });
-        });
-    }
-
-    // Navigate to specific page
-    goToPage(page) {
-        if (page < 1 || page > this.totalPages) return;
         
-        this.currentPage = page;
-        this.renderProducts();
-        this.renderPagination();
-        this.updateResultsInfo();
-        
-        // Scroll to top of products
-        if (this.elements.productsContainer) {
-            this.elements.productsContainer.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
-        }
-    }
-
-    // Change page size
-    changePageSize(newSize) {
-        this.productsPerPage = parseInt(newSize);
-        this.currentPage = 1;
-        this.calculatePagination();
-        this.renderProducts();
-        this.renderPagination();
-        this.updateResultsInfo();
-    }
-
-    // Render category cards
-    renderCategories() {
-        if (!this.elements.categoriesGrid) return;
-
-        const categoryData = this.getCategoryData();
-        
-        this.elements.categoriesGrid.innerHTML = categoryData.map(category => `
-            <div class="category-card" data-category="${category.value}" onclick="stationeryStore.filterByCategory('${category.value}')">
-                <div class="category-icon">
-                    <i class="${category.icon}"></i>
-                </div>
-                <h3>${category.name}</h3>
-                <p>${category.description}</p>
-                <span class="book-count">${category.count} products</span>
-            </div>
-        `).join('');
-    }
-
-    // Get category data with counts
-    getCategoryData() {
-        const categories = [
-            {
-                value: 'writing',
-                name: 'Writing Instruments',
-                description: 'Pens, pencils, markers, and calligraphy tools',
-                icon: 'fa-solid fa-pencil'
-            },
-            {
-                value: 'notebooks',
-                name: 'Notebooks & Journals',
-                description: 'Diaries, planners, sketchbooks, and journals',
-                icon: 'fa-solid fa-book'
-            },
-            {
-                value: 'office',
-                name: 'Office Supplies',
-                description: 'Organizers, desk accessories, and tools',
-                icon: 'fa-solid fa-briefcase'
-            },
-            {
-                value: 'gifts',
-                name: 'Gift Sets',
-                description: 'Curated collections and special packages',
-                icon: 'fa-solid fa-gift'
-            },
-            {
-                value: 'art',
-                name: 'Art Supplies',
-                description: 'Colors, brushes, canvases, and craft materials',
-                icon: 'fa-solid fa-palette'
-            },
-            {
-                value: 'planners',
-                name: 'Planners & Organizers',
-                description: 'Calendars, schedules, and planning tools',
-                icon: 'fa-solid fa-calendar-days'
-            }
-        ];
-
-        // Add product counts
-        return categories.map(category => ({
-            ...category,
-            count: this.allProducts.filter(p => p.category === category.value).length
-        }));
-    }
-
-    // Filter by category (called from category cards)
-    filterByCategory(category) {
-        if (this.elements.categoryFilter) {
-            this.elements.categoryFilter.value = category;
-            this.currentPage = 1;
-            this.applyFilters();
-        }
-        
-        // Scroll to products section
-        const productsSection = document.querySelector('.main-content');
-        if (productsSection) {
-            productsSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    // Setup event listeners
-    setupEventListeners() {
-        // Filter and sort event listeners
-        this.elements.categoryFilter?.addEventListener('change', () => {
-            this.currentPage = 1;
-            this.applyFilters();
-        });
-        this.elements.brandFilter?.addEventListener('change', () => {
-            this.currentPage = 1;
-            this.applyFilters();
-        });
-        this.elements.priceFilter?.addEventListener('change', () => {
-            this.currentPage = 1;
-            this.applyFilters();
-        });
-        this.elements.sortSelect?.addEventListener('change', () => {
-            this.currentPage = 1;
-            this.applySorting();
-        });
-        
-        // Remove load more button functionality since we have pagination
-        if (this.elements.loadMoreBtn) {
-            this.elements.loadMoreBtn.style.display = 'none';
-        }
-        
-        // View toggle buttons
-        this.elements.viewButtons?.forEach(btn => {
-            btn.addEventListener('click', (e) => this.toggleView(e));
-        });
-        
-        // Search functionality with debouncing
-        if (this.elements.searchInput) {
-            let searchTimeout;
-            this.elements.searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.currentPage = 1;
-                    this.handleSearch(e);
-                }, 300);
-            });
-        }
-        
-        // Mobile menu
-        this.elements.mobileMenuButton?.addEventListener('click', () => this.openMobileMenu());
-        this.elements.closeMenuButton?.addEventListener('click', () => this.closeMobileMenu());
-        this.elements.mobileMenuOverlay?.addEventListener('click', () => this.closeMobileMenu());
-        
-        // Heart icon interactions
-        document.addEventListener('click', (e) => this.handleHeartClick(e));
-
-        // Keyboard navigation for pagination
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName.toLowerCase() === 'input') return;
-            
-            if (e.key === 'ArrowLeft' && this.currentPage > 1) {
-                this.goToPage(this.currentPage - 1);
-            } else if (e.key === 'ArrowRight' && this.currentPage < this.totalPages) {
-                this.goToPage(this.currentPage + 1);
-            }
-        });
-    }
-
-    // Apply filters with pagination reset
-    applyFilters() {
-        const selectedCategory = this.elements.categoryFilter?.value || '';
-        const selectedBrand = this.elements.brandFilter?.value || '';
-        const selectedPriceRange = this.elements.priceFilter?.value || '';
-        
-        this.filteredProducts = this.allProducts.filter(product => {
-            // Category filter
-            if (selectedCategory && product.category !== selectedCategory) {
-                return false;
-            }
-            
-            // Brand filter
-            if (selectedBrand && product.brand !== selectedBrand) {
-                return false;
-            }
-            
-            // Price filter
-            if (selectedPriceRange) {
-                const price = product.price;
-                switch (selectedPriceRange) {
-                    case '0-199':
-                        return price < 200;
-                    case '200-499':
-                        return price >= 200 && price <= 499;
-                    case '500-999':
-                        return price >= 500 && price <= 999;
-                    case '1000-1999':
-                        return price >= 1000 && price <= 1999;
-                    case '2000+':
-                        return price >= 2000;
-                    default:
-                        return true;
-                }
-            }
-            
-            return true;
-        });
-        
-        this.calculatePagination();
-        this.applySorting();
-    }
-
-    // Apply sorting with pagination
-    applySorting() {
-        const sortValue = this.elements.sortSelect?.value || 'featured';
-        
-        switch (sortValue) {
-            case 'newest':
-                this.filteredProducts.sort((a, b) => b.dateAdded - a.dateAdded);
-                break;
-            case 'popular':
-                this.filteredProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                break;
-            case 'rating':
-                this.filteredProducts.sort((a, b) => b.rating - a.rating);
-                break;
-            case 'price-low':
-                this.filteredProducts.sort((a, b) => a.price - b.price);
-                break;
-            case 'price-high':
-                this.filteredProducts.sort((a, b) => b.price - a.price);
-                break;
-            case 'title':
-                this.filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'featured':
-            default:
-                this.filteredProducts.sort((a, b) => {
-                    const badgePriority = { 'Bestseller': 4, 'Popular': 3, 'New': 2, 'Sale': 1 };
-                    const aPriority = badgePriority[a.badge] || 0;
-                    const bPriority = badgePriority[b.badge] || 0;
-                    return bPriority - aPriority || b.rating - a.rating;
-                });
-                break;
-        }
-        
-        this.calculatePagination();
-        this.renderProducts();
-        this.renderPagination();
-        this.updateResultsInfo();
-    }
-
-    // Enhanced search functionality
-    handleSearch(event) {
-        const searchTerm = event.target.value.toLowerCase().trim();
-        
-        if (searchTerm === '') {
-            this.filteredProducts = [...this.allProducts];
-        } else {
-            this.filteredProducts = this.allProducts.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) ||
-                product.author.toLowerCase().includes(searchTerm) ||
-                (product.color && product.color.toLowerCase().includes(searchTerm)) ||
-                (product.badge && product.badge.toLowerCase().includes(searchTerm)) ||
-                product.category.toLowerCase().includes(searchTerm)
-            );
-        }
-        
-        this.calculatePagination();
-        this.applySorting();
-    }
-
-    // Render products with pagination
-    renderProducts() {
-        if (!this.elements.productsContainer) return;
-
-        const startIndex = (this.currentPage - 1) * this.productsPerPage;
-        const endIndex = startIndex + this.productsPerPage;
-        const productsToShow = this.filteredProducts.slice(startIndex, endIndex);
-        
-        this.elements.productsContainer.innerHTML = '';
-        
-        if (productsToShow.length === 0) {
-            this.elements.productsContainer.innerHTML = `
-                <div class="no-products">
-                    <i class="fa-solid fa-search"></i>
-                    <h3>No products found</h3>
-                    <p>Try adjusting your search or filter criteria</p>
-                    <button class="btn-primary" onclick="stationeryStore.resetFilters()">Reset Filters</button>
-                </div>
-            `;
-            this.elements.paginationContainer.style.display = 'none';
-            return;
-        }
-        
-        // Add loading animation
-        productsToShow.forEach((product, index) => {
-            const productCard = this.createProductCard(product);
-            productCard.style.opacity = '0';
-            productCard.style.transform = 'translateY(20px)';
-            this.elements.productsContainer.appendChild(productCard);
-            
-            // Staggered animation
-            setTimeout(() => {
-                productCard.style.transition = 'all 0.3s ease';
-                productCard.style.opacity = '1';
-                productCard.style.transform = 'translateY(0)';
-            }, index * 50);
-        });
-    }
-
-    // Generate product details HTML
-    generateProductDetails(product) {
-        let details = [];
-        
-        if (product.color && product.color !== 'Default') {
-            details.push(`<span class="product-detail">Color: ${product.color}</span>`);
-        }
-        if (product.size) {
-            details.push(`<span class="product-detail">Size: ${product.size}</span>`);
-        }
-        if (product.inkType) {
-            details.push(`<span class="product-detail">Ink: ${product.inkType}</span>`);
-        }
-        if (product.leadSize) {
-            details.push(`<span class="product-detail">Lead: ${product.leadSize}</span>`);
-        }
-        if (product.nibSize) {
-            details.push(`<span class="product-detail">Nib: ${product.nibSize}</span>`);
-        }
-        if (product.tipType) {
-            details.push(`<span class="product-detail">Tip: ${product.tipType}</span>`);
-        }
-        if (product.count) {
-            details.push(`<span class="product-detail">Count: ${product.count}</span>`);
-        }
-
-        return details.length > 0 ? 
-            `<div class="product-details">${details.slice(0, 2).join('')}</div>` : '';
+        return card;
     }
 
     // Generate star rating HTML
@@ -774,79 +380,280 @@ class StationeryStore {
         return starsHtml;
     }
 
-    // Enhanced product card creation
-    // Enhanced product card creation
-    createProductCard(product) {
-        const card = document.createElement('div');
-        card.className = `book-card ${this.currentView === 'list' ? 'list-view' : ''}`;
-        
-        const badgeHtml = product.badge ? `<div class="book-badge ${product.badge.toLowerCase().replace(/\s+/g, '-')}">${product.badge}</div>` : '';
-        const originalPriceHtml = product.originalPrice ? 
-            `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : '';
-        
-        // Generate star rating
-        const starsHtml = this.generateStarRating(product.rating);
-        
-        // Determine text color for gradient backgrounds
-        const lightGradients = ['#a8edea', '#ffecd2', '#d299c2', '#fef9d7'];
-        const isLightGradient = lightGradients.some(color => 
-            product.gradient && product.gradient.includes(color)
-        );
-        const textColorClass = isLightGradient ? 'dark-text' : 'light-text';
+    // Render products with proper pagination
+    renderProducts() {
+        if (!this.elements.productsContainer) return;
 
-        card.innerHTML = `
-            <div class="book-cover" style="background: ${product.gradient}">
-                <div class="book-icon ${textColorClass}">
-                    <i class="${product.icon}"></i>
-                </div>
-                ${badgeHtml}
-                <div class="book-actions">
-                    <button class="action-btn heart-btn ${this.wishlist.has(product.id) ? 'active' : ''}" 
-                            data-product-id="${product.id}" 
-                            title="Add to Wishlist"
-                            aria-label="Add to wishlist">
-                        <i class="fa-${this.wishlist.has(product.id) ? 'solid' : 'regular'} fa-heart"></i>
-                    </button>
-                    <button class="action-btn cart-btn" 
-                            onclick="stationeryStore.addToCart(${product.id})"
-                            title="Add to Cart"
-                            aria-label="Add to cart">
-                        <i class="fa-solid fa-cart-plus"></i>
-                    </button>
-                    <button class="action-btn view-btn" 
-                            onclick="stationeryStore.viewProduct(${product.id})"
-                            title="Quick View"
-                            aria-label="Quick view">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="book-info">
-                <div class="book-category">${this.formatCategoryName(product.category)}</div>
-                <h3 class="book-title">${product.name}</h3>
-                <p class="book-author">${product.author}</p>
-                ${this.generateProductDetails(product)}
-                <div class="book-rating">
-                    <div class="stars">
-                        ${starsHtml}
-                    </div>
-                    <span class="rating-value">${product.rating}</span>
-                </div>
-                <div class="book-price">
-                    <span class="current-price">₹${product.price.toLocaleString()}</span>
-                    ${originalPriceHtml}
-                    ${product.originalPrice ? 
-                        `<span class="discount">${Math.round((1 - product.price / product.originalPrice) * 100)}% OFF</span>` 
-                        : ''
-                    }
-                </div>
-            </div>
-        `;
+        const startIndex = (this.currentPage - 1) * this.productsPerPage;
+        const endIndex = startIndex + this.productsPerPage;
+        const productsToShow = this.filteredProducts.slice(startIndex, endIndex);
         
-        return card;
+        this.elements.productsContainer.innerHTML = '';
+        
+        if (productsToShow.length === 0) {
+            this.elements.productsContainer.innerHTML = `
+                <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                    <i class="fa-solid fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your search or filter criteria</p>
+                    <button class="btn-primary" onclick="stationeryStore.resetFilters()">Reset Filters</button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Add products with staggered animation
+        productsToShow.forEach((product, index) => {
+            const productCard = this.createProductCard(product);
+            productCard.style.opacity = '0';
+            productCard.style.transform = 'translateY(20px)';
+            this.elements.productsContainer.appendChild(productCard);
+            
+            // Staggered animation
+            setTimeout(() => {
+                productCard.style.transition = 'all 0.3s ease';
+                productCard.style.opacity = '1';
+                productCard.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
     }
 
-    // Update results information
+    // Calculate pagination
+    calculatePagination() {
+        this.totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
+        this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
+    }
+
+    // Render pagination controls
+    renderPagination() {
+        if (!this.elements.paginationContainer || this.totalPages <= 1) {
+            if (this.elements.paginationContainer) {
+                this.elements.paginationContainer.style.display = 'none';
+            }
+            return;
+        }
+
+        this.elements.paginationContainer.style.display = 'flex';
+        
+        let paginationHTML = `
+            <button class="pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}" 
+                    onclick="stationeryStore.goToPage(${this.currentPage - 1})" 
+                    ${this.currentPage === 1 ? 'disabled' : ''}>
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </button>
+        `;
+
+        // Page numbers
+        const startPage = Math.max(1, this.currentPage - 2);
+        const endPage = Math.min(this.totalPages, this.currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHTML += `
+                <button class="pagination-btn page-number ${i === this.currentPage ? 'active' : ''}" 
+                        onclick="stationeryStore.goToPage(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+
+        paginationHTML += `
+            <button class="pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}" 
+                    onclick="stationeryStore.goToPage(${this.currentPage + 1})"
+                    ${this.currentPage === this.totalPages ? 'disabled' : ''}>
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        `;
+
+        this.elements.paginationContainer.innerHTML = paginationHTML;
+    }
+
+    // Navigate to specific page
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        
+        this.currentPage = page;
+        this.renderProducts();
+        this.renderPagination();
+        this.updateResultsInfo();
+        
+        // Scroll to top of products
+        if (this.elements.productsContainer) {
+            this.elements.productsContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }
+
+    // Apply filters
+    applyFilters() {
+        const selectedCategory = this.elements.categoryFilter?.value || '';
+        const selectedBrand = this.elements.brandFilter?.value || '';
+        const selectedPriceRange = this.elements.priceFilter?.value || '';
+        
+        this.filteredProducts = this.allProducts.filter(product => {
+            if (selectedCategory && product.category !== selectedCategory) return false;
+            if (selectedBrand && product.brand !== selectedBrand) return false;
+            
+            if (selectedPriceRange) {
+                const price = product.price;
+                switch (selectedPriceRange) {
+                    case '0-199': return price < 200;
+                    case '200-499': return price >= 200 && price <= 499;
+                    case '500-999': return price >= 500 && price <= 999;
+                    case '1000-1999': return price >= 1000 && price <= 1999;
+                    case '2000+': return price >= 2000;
+                    default: return true;
+                }
+            }
+            
+            return true;
+        });
+        
+        this.currentPage = 1;
+        this.calculatePagination();
+        this.applySorting();
+    }
+
+    // Apply sorting
+    applySorting() {
+        const sortValue = this.elements.sortSelect?.value || 'featured';
+        
+        switch (sortValue) {
+            case 'newest':
+                this.filteredProducts.sort((a, b) => b.dateAdded - a.dateAdded);
+                break;
+            case 'popular':
+                this.filteredProducts.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                break;
+            case 'rating':
+                this.filteredProducts.sort((a, b) => b.rating - a.rating);
+                break;
+            case 'price-low':
+                this.filteredProducts.sort((a, b) => a.price - b.price);
+                break;
+            case 'price-high':
+                this.filteredProducts.sort((a, b) => b.price - a.price);
+                break;
+            case 'title':
+                this.filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+            case 'featured':
+            default:
+                this.filteredProducts.sort((a, b) => {
+                    const badgePriority = { 'Bestseller': 4, 'Popular': 3, 'New': 2, 'Sale': 1 };
+                    const aPriority = badgePriority[a.badge] || 0;
+                    const bPriority = badgePriority[b.badge] || 0;
+                    return bPriority - aPriority || b.rating - a.rating;
+                });
+                break;
+        }
+        
+        this.renderProducts();
+        this.renderPagination();
+        this.updateResultsInfo();
+    }
+
+    // Populate filter dropdowns
+    populateFilterDropdowns() {
+        if (this.elements.categoryFilter) {
+            this.elements.categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            this.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                this.elements.categoryFilter.appendChild(option);
+            });
+        }
+
+        if (this.elements.brandFilter) {
+            this.elements.brandFilter.innerHTML = '<option value="">All Brands</option>';
+            this.brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                this.elements.brandFilter.appendChild(option);
+            });
+        }
+    }
+
+    // Setup event listeners
+    setupEventListeners() {
+        this.elements.categoryFilter?.addEventListener('change', () => {
+            this.currentPage = 1;
+            this.applyFilters();
+        });
+        
+        this.elements.brandFilter?.addEventListener('change', () => {
+            this.currentPage = 1;
+            this.applyFilters();
+        });
+        
+        this.elements.priceFilter?.addEventListener('change', () => {
+            this.currentPage = 1;
+            this.applyFilters();
+        });
+        
+        this.elements.sortSelect?.addEventListener('change', () => {
+            this.currentPage = 1;
+            this.applySorting();
+        });
+
+        // Search with debouncing
+        if (this.elements.searchInput) {
+            let searchTimeout;
+            this.elements.searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.handleSearch(e);
+                }, 300);
+            });
+        }
+    }
+
+    // Handle search
+    handleSearch(event) {
+        const searchTerm = event.target.value.toLowerCase().trim();
+        
+        this.filteredProducts = searchTerm === '' ? [...this.allProducts] : 
+            this.allProducts.filter(product => 
+                product.title.toLowerCase().includes(searchTerm) ||
+                product.brand.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+        
+        this.currentPage = 1;
+        this.calculatePagination();
+        this.applySorting();
+    }
+
+    // Add to cart
+    addToCart(productId) {
+        const product = this.allProducts.find(p => p.id === productId);
+        if (!product) return;
+        
+        console.log(`Added to cart: ${product.title}`);
+        this.showNotification(`Added "${product.title}" to cart!`, 'success');
+    }
+
+    // Toggle wishlist
+    toggleWishlist(productId) {
+        const product = this.allProducts.find(p => p.id === productId);
+        if (!product) return;
+
+        if (this.wishlist.has(productId)) {
+            this.wishlist.delete(productId);
+            console.log(`Removed from wishlist: ${product.title}`);
+        } else {
+            this.wishlist.add(productId);
+            console.log(`Added to wishlist: ${product.title}`);
+        }
+        
+        // Re-render to update heart icons
+        this.renderProducts();
+    }
+
+    // Update results info
     updateResultsInfo() {
         if (this.elements.resultsCount) {
             const startItem = (this.currentPage - 1) * this.productsPerPage + 1;
@@ -860,183 +667,7 @@ class StationeryStore {
         }
     }
 
-    // Toggle view between grid and list
-    toggleView(event) {
-        const clickedBtn = event.currentTarget;
-        const newView = clickedBtn.dataset.view;
-        
-        if (newView === this.currentView) return;
-        
-        // Update button states
-        this.elements.viewButtons.forEach(btn => btn.classList.remove('active'));
-        clickedBtn.classList.add('active');
-        
-        this.currentView = newView;
-        
-        // Update products container class
-        if (this.elements.productsContainer) {
-            this.elements.productsContainer.className = `products-grid ${newView}-view`;
-        }
-        
-        // Re-render products with new view
-        this.renderProducts();
-    }
-
-    // Handle heart/wishlist clicks
-    handleHeartClick(event) {
-        if (!event.target.closest('.heart-btn')) return;
-        
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const heartBtn = event.target.closest('.heart-btn');
-        const productId = parseInt(heartBtn.dataset.productId);
-        
-        if (this.wishlist.has(productId)) {
-            this.wishlist.delete(productId);
-            heartBtn.classList.remove('active');
-            heartBtn.querySelector('i').className = 'fa-regular fa-heart';
-        } else {
-            this.wishlist.add(productId);
-            heartBtn.classList.add('active');
-            heartBtn.querySelector('i').className = 'fa-solid fa-heart';
-            
-            // Add a little animation
-            heartBtn.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                heartBtn.style.transform = 'scale(1)';
-            }, 150);
-        }
-        
-        console.log(`Wishlist updated: ${this.wishlist.size} items`);
-    }
-
-    // Add to cart functionality
-    addToCart(productId) {
-        const product = this.allProducts.find(p => p.id === productId);
-        if (!product) return;
-        
-        // Here you would typically integrate with your cart system
-        console.log(`Added to cart: ${product.name}`);
-        
-        // Show a brief notification
-        this.showNotification(`Added "${product.name}" to cart!`, 'success');
-    }
-
-    // View product details
-    viewProduct(productId) {
-        const product = this.allProducts.find(p => p.id === productId);
-        if (!product) return;
-        
-        // Here you would typically open a product detail modal or navigate to product page
-        console.log(`Viewing product: ${product.name}`);
-        
-        // For now, just show product info in console
-        this.showProductModal(product);
-    }
-
-    // Show product modal (basic implementation)
-    showProductModal(product) {
-        // Create modal if it doesn't exist
-        let modal = document.getElementById('productModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'productModal';
-            modal.className = 'product-modal';
-            document.body.appendChild(modal);
-        }
-
-        const starsHtml = this.generateStarRating(product.rating);
-        const detailsHtml = this.generateProductDetails(product);
-
-        modal.innerHTML = `
-            <div class="modal-overlay" onclick="stationeryStore.closeProductModal()"></div>
-            <div class="modal-content">
-                <button class="modal-close" onclick="stationeryStore.closeProductModal()">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-                <div class="modal-body">
-                    <div class="product-image" style="background: ${product.gradient}">
-                        <div class="product-icon">
-                            <i class="${product.icon}"></i>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">${this.formatCategoryName(product.category)}</div>
-                        <h2>${product.name}</h2>
-                        <p class="product-brand">${product.author}</p>
-                        ${detailsHtml}
-                        <div class="product-rating">
-                            <div class="stars">${starsHtml}</div>
-                            <span class="rating-value">${product.rating}</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="current-price">₹${product.price.toLocaleString()}</span>
-                            ${product.originalPrice ? 
-                                `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : ''
-                            }
-                        </div>
-                        <div class="modal-actions">
-                            <button class="btn-primary" onclick="stationeryStore.addToCart(${product.id})">
-                                <i class="fa-solid fa-cart-plus"></i>
-                                Add to Cart
-                            </button>
-                            <button class="btn-secondary heart-btn ${this.wishlist.has(product.id) ? 'active' : ''}" 
-                                    data-product-id="${product.id}">
-                                <i class="fa-${this.wishlist.has(product.id) ? 'solid' : 'regular'} fa-heart"></i>
-                                ${this.wishlist.has(product.id) ? 'Remove from' : 'Add to'} Wishlist
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    // Close product modal
-    closeProductModal() {
-        const modal = document.getElementById('productModal');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    // Show notification
-    showNotification(message, type = 'info') {
-        // Create notification container if it doesn't exist
-        let container = document.getElementById('notificationContainer');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'notificationContainer';
-            container.className = 'notification-container';
-            document.body.appendChild(container);
-        }
-
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-            <button class="notification-close" onclick="this.parentElement.remove()">
-                <i class="fa-solid fa-times"></i>
-            </button>
-        `;
-
-        container.appendChild(notification);
-
-        // Auto-remove after 3 seconds
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 3000);
-    }
-
-    // Reset all filters
+    // Reset filters
     resetFilters() {
         if (this.elements.categoryFilter) this.elements.categoryFilter.value = '';
         if (this.elements.brandFilter) this.elements.brandFilter.value = '';
@@ -1050,175 +681,1011 @@ class StationeryStore {
         this.applySorting();
     }
 
-    // Mobile menu functions
-    openMobileMenu() {
-        if (this.elements.mobileMenuContainer) {
-            this.elements.mobileMenuContainer.classList.add('open');
+    // Show notification
+    showNotification(message, type = 'info') {
+        let container = document.getElementById('notificationContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notificationContainer';
+            container.className = 'notification-container';
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+            `;
+            document.body.appendChild(container);
         }
-        if (this.elements.mobileMenuOverlay) {
-            this.elements.mobileMenuOverlay.style.display = 'block';
-        }
-        document.body.style.overflow = 'hidden';
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.style.cssText = `
+            background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        notification.innerHTML = `
+            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 3000);
     }
 
-    closeMobileMenu() {
-        if (this.elements.mobileMenuContainer) {
-            this.elements.mobileMenuContainer.classList.remove('open');
-        }
-        if (this.elements.mobileMenuOverlay) {
-            this.elements.mobileMenuOverlay.style.display = 'none';
-        }
-        document.body.style.overflow = 'auto';
-    }
-
-    // Loading state management
+    // Loading state
     showLoadingState() {
         if (this.elements.productsContainer) {
             this.elements.productsContainer.innerHTML = `
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
+                <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <div class="loading-spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
                     <p>Loading products...</p>
                 </div>
             `;
         }
-        this.isLoading = true;
     }
 
     hideLoadingState() {
         this.isLoading = false;
     }
 
-    // Error state management
+    // Error state
     showErrorState(message) {
         if (this.elements.productsContainer) {
             this.elements.productsContainer.innerHTML = `
-                <div class="error-state">
-                    <i class="fa-solid fa-exclamation-triangle"></i>
+                <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <i class="fa-solid fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem;"></i>
                     <h3>Oops! Something went wrong</h3>
                     <p>${message}</p>
                     <button class="btn-primary" onclick="location.reload()">
-                        <i class="fa-solid fa-refresh"></i>
-                        Try Again
+                        <i class="fa-solid fa-refresh"></i> Try Again
                     </button>
                 </div>
             `;
         }
     }
 
-    // Fallback sample data for when JSON fails to load
+    // Render categories (if category grid exists)
+    renderCategories() {
+        if (!this.elements.categoriesGrid) return;
+
+        const categoryData = this.categories.map(category => ({
+            name: category,
+            count: this.allProducts.filter(p => p.category === category).length,
+            icon: this.getIconForCategory(category)
+        }));
+        
+        this.elements.categoriesGrid.innerHTML = categoryData.map(category => `
+            <div class="category-card" onclick="stationeryStore.filterByCategory('${category.name}')">
+                <div class="category-icon">
+                    <i class="${category.icon}"></i>
+                </div>
+                <h3>${category.name}</h3>
+                <span class="book-count">${category.count} products</span>
+            </div>
+        `).join('');
+    }
+
+    // Filter by category
+   // Filter by category
+    filterByCategory(category) {
+        if (this.elements.categoryFilter) {
+            this.elements.categoryFilter.value = category;
+            this.currentPage = 1;
+            this.applyFilters();
+        }
+        
+        // Scroll to products section
+        if (this.elements.productsContainer) {
+            this.elements.productsContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }
+
+    // Enhanced sample data with proper structure
     getSampleData() {
         return [
             {
                 id: 1,
-                title: "Premium Fountain Pen Set",
-                brand: "Parker",
-                category: "writing",
-                price: 2499,
-                originalPrice: 2999,
+                title: "Moleskine Classic Notebook",
+                brand: "Moleskine",
+                category: "Notebooks",
                 rating: 4.8,
-                badge: "Bestseller",
+                price: 1299,
+                originalPrice: 1599,
+                image: "images/moleskine-classic.jpg",
                 color: "Black",
-                inkType: "Blue",
-                nibSize: "Medium",
-                popularity: 95,
-                releaseDate: "2024-01-15"
+                badge: "Bestseller",
+                popularity: 96,
+                releaseDate: "2023-03-15",
+                size: "A5"
             },
             {
                 id: 2,
-                title: "Leather Journal Notebook",
-                brand: "Moleskine",
-                category: "notebooks",
-                price: 1299,
+                title: "Parker Jotter Ballpoint Pen",
+                brand: "Parker",
+                category: "Writing Instruments",
                 rating: 4.6,
+                price: 899,
+                originalPrice: 1199,
+                image: "images/parker-jotter.jpg",
+                color: "Blue",
                 badge: "Popular",
-                color: "Brown",
-                size: "A5",
                 popularity: 88,
-                releaseDate: "2024-02-01"
+                releaseDate: "2023-04-20",
+                size: "Standard"
             },
             {
                 id: 3,
-                title: "Watercolor Paint Set",
-                brand: "Winsor & Newton",
-                category: "art",
-                price: 3499,
-                originalPrice: 3999,
-                rating: 4.9,
+                title: "Staedtler Pigment Liner Set",
+                brand: "Staedtler",
+                category: "Art Supplies",
+                rating: 4.7,
+                price: 1599,
+                originalPrice: null,
+                image: "images/staedtler-liner.jpg",
+                color: "Black",
                 badge: "New",
-                count: "24 colors",
-                includes: "Brushes included",
-                popularity: 92,
-                releaseDate: "2024-03-10"
+                popularity: 75,
+                releaseDate: "2024-01-10",
+                size: "Pack of 8"
             },
             {
                 id: 4,
-                title: "Executive Desk Organizer",
-                brand: "Umbra",
-                category: "office",
-                price: 1899,
-                rating: 4.4,
-                color: "Walnut",
-                size: "Large",
-                popularity: 75,
-                releaseDate: "2024-01-20"
+                title: "Rhodia DotPad Notebook",
+                brand: "Rhodia",
+                category: "Notebooks",
+                rating: 4.5,
+                price: 750,
+                originalPrice: null,
+                image: "images/rhodia-dotpad.jpg",
+                color: "Orange",
+                badge: null,
+                popularity: 65,
+                releaseDate: "2023-08-15",
+                size: "A4"
             },
             {
                 id: 5,
-                title: "2024 Daily Planner",
+                title: "2024 Weekly Planner",
                 brand: "Passion Planner",
-                category: "planners",
+                category: "Planners",
+                rating: 4.9,
                 price: 2199,
-                rating: 4.7,
-                badge: "Sale",
+                originalPrice: 2599,
+                image: "images/passion-planner.jpg",
                 color: "Navy Blue",
-                size: "A4",
-                year: "2024",
-                popularity: 85,
-                releaseDate: "2023-12-01"
+                badge: "Bestseller",
+                popularity: 93,
+                releaseDate: "2023-11-01",
+                size: "A5"
             },
             {
                 id: 6,
-                title: "Calligraphy Gift Set",
-                brand: "Sheaffer",
-                category: "gifts",
-                price: 4299,
-                originalPrice: 4999,
+                title: "Faber-Castell Highlighter Set",
+                brand: "Faber-Castell",
+                category: "Writing Instruments",
+                rating: 4.4,
+                price: 350,
+                originalPrice: 450,
+                image: "images/faber-highlighter.jpg",
+                color: "Multicolor",
+                badge: "Sale",
+                popularity: 70,
+                releaseDate: "2023-06-10",
+                size: "Pack of 6"
+            },
+            {
+                id: 7,
+                title: "Executive Gift Set",
+                brand: "Cross",
+                category: "Gift Sets",
                 rating: 4.8,
-                badge: "Bestseller",
-                includes: "Ink bottles, nibs, paper",
-                popularity: 90,
-                releaseDate: "2024-02-14"
+                price: 4999,
+                originalPrice: 5999,
+                image: "images/cross-gift-set.jpg",
+                color: "Gold",
+                badge: "Premium",
+                popularity: 85,
+                releaseDate: "2023-12-01",
+                size: "Deluxe"
+            },
+            {
+                id: 8,
+                title: "Sticky Notes Collection",
+                brand: "3M Post-it",
+                category: "Office Supplies",
+                rating: 4.3,
+                price: 299,
+                originalPrice: null,
+                image: "images/post-it-notes.jpg",
+                color: "Assorted",
+                badge: null,
+                popularity: 60,
+                releaseDate: "2023-07-05",
+                size: "Standard"
+            },
+            {
+                id: 9,
+                title: "Watercolor Paint Set",
+                brand: "Winsor & Newton",
+                category: "Art Supplies",
+                rating: 4.6,
+                price: 3200,
+                originalPrice: 3800,
+                image: "images/watercolor-set.jpg",
+                color: "Multi",
+                badge: "Professional",
+                popularity: 78,
+                releaseDate: "2023-09-20",
+                size: "24 Colors"
+            },
+            {
+                id: 10,
+                title: "Mechanical Pencil Set",
+                brand: "Pentel",
+                category: "Writing Instruments",
+                rating: 4.5,
+                price: 650,
+                originalPrice: 800,
+                image: "images/pentel-mechanical.jpg",
+                color: "Black",
+                badge: null,
+                popularity: 72,
+                releaseDate: "2023-05-30",
+                size: "0.5mm"
+            },
+            {
+                id: 11,
+                title: "Leather Bound Journal",
+                brand: "Rustico",
+                category: "Notebooks",
+                rating: 4.7,
+                price: 1899,
+                originalPrice: 2299,
+                image: "images/leather-journal.jpg",
+                color: "Brown",
+                badge: "Handcrafted",
+                popularity: 82,
+                releaseDate: "2023-10-15",
+                size: "A5"
+            },
+            {
+                id: 12,
+                title: "Desk Organizer Set",
+                brand: "Bamboo Co",
+                category: "Office Supplies",
+                rating: 4.4,
+                price: 1250,
+                originalPrice: 1500,
+                image: "images/desk-organizer.jpg",
+                color: "Natural",
+                badge: "Eco-Friendly",
+                popularity: 68,
+                releaseDate: "2023-08-01",
+                size: "Large"
             }
         ];
     }
 
-    // Utility method to get current filters state
-    getCurrentFilters() {
-        return {
-            category: this.elements.categoryFilter?.value || '',
-            brand: this.elements.brandFilter?.value || '',
-            priceRange: this.elements.priceFilter?.value || '',
-            sort: this.elements.sortSelect?.value || 'featured',
-            search: this.elements.searchInput?.value || '',
-            page: this.currentPage,
-            view: this.currentView
-        };
+    // Enhanced create product card with improved alignment
+    createProductCard(product) {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.setAttribute('data-product-id', product.id);
+        card.setAttribute('data-category', product.category);
+        
+        // Generate badge HTML
+        const badgeHtml = product.badge ? 
+            `<div class="book-badge ${product.badge.toLowerCase().replace(/\s+/g, '-')}">${product.badge}</div>` : '';
+        
+        // Generate star rating
+        const starsHtml = this.generateStarRating(product.rating);
+        
+        // Generate price HTML
+        const originalPriceHtml = product.originalPrice ? 
+            `<span class="original-price">₹${product.originalPrice.toLocaleString()}</span>` : '';
+
+        // Create image or icon display
+        const imageHtml = product.image ? 
+            `<img src="${product.image}" alt="${product.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+             <div class="book-icon-fallback" style="display: none; background: ${product.gradient}; align-items: center; justify-content: center; color: white; font-size: 2rem; height: 100%;">
+                 <i class="${product.icon}"></i>
+             </div>` :
+            `<div class="book-icon" style="background: ${product.gradient}; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; height: 100%;">
+                 <i class="${product.icon}"></i>
+             </div>`;
+
+        // Build author/brand info
+        const authorInfo = [
+            product.brand,
+            product.color && product.color !== 'Default' ? product.color : null,
+            product.size ? product.size : null
+        ].filter(Boolean).join(', ');
+
+        card.innerHTML = `
+            ${badgeHtml}
+            <div class="book-img">
+                ${imageHtml}
+            </div>
+            <div class="book-content">
+                <h3 class="book-title" title="${product.title}">${product.title}</h3>
+                <p class="author">${authorInfo}</p>
+                <div class="rating">
+                    <div class="stars">
+                        ${starsHtml}
+                    </div>
+                    <span class="rating-value">(${product.rating})</span>
+                </div>
+                <div class="price">
+                    <span class="current-price">₹${product.price.toLocaleString()}</span>
+                    ${originalPriceHtml}
+                </div>
+                <div class="book-actions">
+                    <button class="btn-primary add-to-cart-btn" 
+                            data-product-id="${product.id}"
+                            onclick="stationeryStore.addToCart(${product.id})">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
+                    <button class="btn-secondary heart-btn ${this.wishlist.has(product.id) ? 'active' : ''}" 
+                            data-product-id="${product.id}"
+                            onclick="stationeryStore.toggleWishlist(${product.id})"
+                            title="${this.wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}">
+                        <i class="fa-${this.wishlist.has(product.id) ? 'solid' : 'regular'} fa-heart"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        return card;
     }
 
-    // Method to get statistics
-    getStatistics() {
-        return {
-            totalProducts: this.allProducts.length,
-            filteredProducts: this.filteredProducts.length,
-            categories: this.categories.length,
-            brands: this.brands.length,
-            wishlistItems: this.wishlist.size,
-            currentPage: this.currentPage,
-            totalPages: this.totalPages,
-            productsPerPage: this.productsPerPage
+    // Enhanced render products with better alignment
+    renderProducts() {
+        if (!this.elements.productsContainer) return;
+
+        // Add loading class
+        this.elements.productsContainer.classList.add('loading');
+
+        const startIndex = (this.currentPage - 1) * this.productsPerPage;
+        const endIndex = startIndex + this.productsPerPage;
+        const productsToShow = this.filteredProducts.slice(startIndex, endIndex);
+        
+        // Clear container
+        this.elements.productsContainer.innerHTML = '';
+        
+        if (productsToShow.length === 0) {
+            this.elements.productsContainer.innerHTML = `
+                <div class="no-products">
+                    <div class="no-products-content">
+                        <i class="fa-solid fa-search"></i>
+                        <h3>No products found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                        <button class="btn-primary" onclick="stationeryStore.resetFilters()">
+                            <i class="fa-solid fa-refresh"></i>
+                            Reset Filters
+                        </button>
+                    </div>
+                </div>
+            `;
+            this.elements.productsContainer.classList.remove('loading');
+            return;
+        }
+
+        // Create document fragment for better performance
+        const fragment = document.createDocumentFragment();
+        
+        // Add products
+        productsToShow.forEach((product, index) => {
+            const productCard = this.createProductCard(product);
+            productCard.style.animationDelay = `${index * 0.1}s`;
+            fragment.appendChild(productCard);
+        });
+
+        // Append all cards at once
+        this.elements.productsContainer.appendChild(fragment);
+        
+        // Remove loading class
+        setTimeout(() => {
+            this.elements.productsContainer.classList.remove('loading');
+        }, 100);
+
+        // Trigger entrance animations
+        requestAnimationFrame(() => {
+            const cards = this.elements.productsContainer.querySelectorAll('.book-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('animate-in');
+                }, index * 50);
+            });
+        });
+    }
+
+    // Enhanced database integration with better error handling
+    async fetchFromDatabase() {
+        const queries = [
+            // Modern fetch with error handling
+            this.executeDatabaseQuery('products'),
+            this.executeDatabaseQuery('categories'),
+            this.executeDatabaseQuery('brands')
+        ];
+
+        try {
+            const [productsResult, categoriesResult, brandsResult] = await Promise.allSettled(queries);
+            
+            if (productsResult.status === 'fulfilled' && productsResult.value.length > 0) {
+                this.allProducts = productsResult.value;
+                console.log(`✅ Loaded ${this.allProducts.length} products from database`);
+            } else {
+                throw new Error('No products found in database');
+            }
+
+            if (categoriesResult.status === 'fulfilled' && categoriesResult.value.length > 0) {
+                this.categories = categoriesResult.value;
+            }
+
+            if (brandsResult.status === 'fulfilled' && brandsResult.value.length > 0) {
+                this.brands = brandsResult.value;
+            }
+
+        } catch (error) {
+            console.warn('Database fetch failed:', error);
+            throw error;
+        }
+    }
+
+    // Execute database query with proper error handling
+    async executeDatabaseQuery(endpoint) {
+        const url = `${this.apiConfig.baseUrl}${this.apiConfig.endpoints[endpoint] || `/${endpoint}`}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Request-ID': this.generateRequestId()
+            },
+            // Add timeout
+            signal: AbortSignal.timeout(10000)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return this.extractProductsFromResponse(data);
+    }
+
+    // Generate unique request ID
+    generateRequestId() {
+        return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Enhanced view switching
+    switchView(view) {
+        this.currentView = view;
+        
+        // Update button states
+        this.elements.viewButtons?.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.view === view) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Update container class
+        if (this.elements.productsContainer) {
+            this.elements.productsContainer.classList.remove('grid-view', 'list-view');
+            this.elements.productsContainer.classList.add(`${view}-view`);
+        }
+
+        // Re-render products
+        this.renderProducts();
+    }
+
+    // Enhanced search with advanced filtering
+    performAdvancedSearch(query) {
+        const searchTerms = query.toLowerCase().trim().split(/\s+/);
+        
+        this.filteredProducts = this.allProducts.filter(product => {
+            const searchableText = [
+                product.title,
+                product.brand,
+                product.category,
+                product.color,
+                product.size
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            return searchTerms.every(term => searchableText.includes(term));
+        });
+
+        this.currentPage = 1;
+        this.calculatePagination();
+        this.applySorting();
+    }
+
+    // Bulk operations
+    async bulkAddToCart(productIds) {
+        const products = productIds.map(id => this.allProducts.find(p => p.id === id)).filter(Boolean);
+        
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            products.forEach(product => {
+                console.log(`Added to cart: ${product.title}`);
+            });
+            
+            this.showNotification(`Added ${products.length} items to cart!`, 'success');
+            return products;
+        } catch (error) {
+            this.showNotification('Failed to add items to cart', 'error');
+            throw error;
+        }
+    }
+
+    // Enhanced wishlist management
+    getWishlistProducts() {
+        return this.allProducts.filter(product => this.wishlist.has(product.id));
+    }
+
+    clearWishlist() {
+        this.wishlist.clear();
+        this.renderProducts();
+        this.showNotification('Wishlist cleared', 'info');
+    }
+
+    // Export functionality
+    exportProducts(format = 'json') {
+        const data = {
+            products: this.filteredProducts,
+            filters: {
+                category: this.elements.categoryFilter?.value || '',
+                brand: this.elements.brandFilter?.value || '',
+                priceRange: this.elements.priceFilter?.value || '',
+                sort: this.elements.sortSelect?.value || 'featured'
+            },
+            timestamp: new Date().toISOString(),
+            totalCount: this.filteredProducts.length
         };
+
+        if (format === 'json') {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            this.downloadFile(blob, 'stationery-products.json');
+        } else if (format === 'csv') {
+            const csv = this.convertToCSV(this.filteredProducts);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            this.downloadFile(blob, 'stationery-products.csv');
+        }
+    }
+
+    // Convert to CSV
+    convertToCSV(products) {
+        const headers = ['ID', 'Title', 'Brand', 'Category', 'Price', 'Rating', 'Color', 'Size'];
+        const rows = products.map(product => [
+            product.id,
+            `"${product.title}"`,
+            `"${product.brand}"`,
+            `"${product.category}"`,
+            product.price,
+            product.rating,
+            `"${product.color || ''}"`,
+            `"${product.size || ''}"`
+        ]);
+
+        return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+    }
+
+    // Download file helper
+    downloadFile(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // Enhanced error handling
+    handleError(error, context = '') {
+        console.error(`❌ Error ${context}:`, error);
+        
+        const errorMessage = error.message || 'An unexpected error occurred';
+        this.showNotification(`Error: ${errorMessage}`, 'error');
+        
+        // Log to external service if available
+        if (window.errorLogger) {
+            window.errorLogger.log(error, context);
+        }
+    }
+
+    // Performance monitoring
+    measurePerformance(operation, fn) {
+        const start = performance.now();
+        const result = fn();
+        const end = performance.now();
+        
+        console.log(`⏱️ ${operation} took ${(end - start).toFixed(2)}ms`);
+        return result;
+    }
+
+    // Cleanup and destroy
+    destroy() {
+        // Remove event listeners
+        Object.values(this.elements).forEach(element => {
+            if (element && element.removeEventListener) {
+                element.removeEventListener('change', this.applyFilters);
+                element.removeEventListener('input', this.handleSearch);
+            }
+        });
+
+        // Clear cache
+        this.cache.clear();
+        
+        // Clear data
+        this.allProducts = [];
+        this.filteredProducts = [];
+        this.wishlist.clear();
+        
+        console.log('🧹 Store instance destroyed');
+    }
+
+    // Initialize global instance
+    static getInstance() {
+        if (!window.stationeryStoreInstance) {
+            window.stationeryStoreInstance = new StationeryStore();
+        }
+        return window.stationeryStoreInstance;
     }
 }
 
-// Initialize the store when the script loads
-const stationeryStore = new StationeryStore();
+// CSS for proper card alignment and animations
+const additionalCSS = `
+/* Enhanced grid layout for proper card alignment */
+.books-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+    min-height: 400px;
+}
+
+/* Ensure all cards have equal height */
+.book-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.book-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Image container with consistent aspect ratio */
+.book-img {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.book-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Content area that grows to fill available space */
+.book-content {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Title with consistent height */
+.book-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    height: 2.6em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Author info */
+.author {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+/* Rating section */
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+}
+
+.stars i {
+    color: #ffc107;
+    font-size: 0.9rem;
+}
+
+.rating-value {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Price section */
+.price {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.current-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.original-price {
+    font-size: 0.9rem;
+    color: #999;
+    text-decoration: line-through;
+}
+
+/* Actions at bottom */
+.book-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary:hover {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.btn-secondary.active {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* Badge positioning */
+.book-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: #dc3545;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+    text-transform: uppercase;
+}
+
+.book-badge.bestseller { background: #28a745; }
+.book-badge.popular { background: #ffc107; color: #000; }
+.book-badge.new { background: #17a2b8; }
+.book-badge.sale { background: #fd7e14; }
+.book-badge.premium { background: #6f42c1; }
+
+/* No products state */
+.no-products {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.no-products-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.no-products-content i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+/* Loading state */
+.books-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .books-container {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+    
+    .book-card {
+        border-radius: 8px;
+    }
+    
+    .book-img {
+        height: 180px;
+    }
+    
+    .book-content {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .books-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .book-actions {
+        flex-direction: column;
+    }
+    
+    .btn-secondary {
+        width: 100%;
+        height: 44px;
+    }
+}
+
+/* List view styles */
+.books-container.list-view {
+    grid-template-columns: 1fr;
+}
+
+.books-container.list-view .book-card {
+    flex-direction: row;
+    height: auto;
+}
+
+.books-container.list-view .book-img {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+}
+
+.books-container.list-view .book-content {
+    flex: 1;
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Notification styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.notification {
+    background: #2196F3;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification.success { background: #4CAF50; }
+.notification.error { background: #f44336; }
+.notification.info { background: #2196F3; }
+`;
+
+// Inject CSS
+if (!document.getElementById('stationery-store-css')) {
+    const style = document.createElement('style');
+    style.id = 'stationery-store-css';
+    style.textContent = additionalCSS;
+    document.head.appendChild(style);
+}
+
+// Initialize the store
+const stationeryStore = StationeryStore.getInstance();
+
+// Export for global access
+window.stationeryStore = stationeryStore;

@@ -473,6 +473,7 @@ body {
 
 .book-badge {
     position: absolute;
+    max-width: min-content;
     top: 15px;
     left: 15px;
     background-color: #ad0b0b;
