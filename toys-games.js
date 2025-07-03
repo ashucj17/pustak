@@ -1,4 +1,4 @@
-// toys-games.js - Complete functionality for the toys and games page
+// toys-games.js - Complete functionality with working pagination
 
 class ToysGamesApp {
     constructor() {
@@ -24,6 +24,7 @@ class ToysGamesApp {
         this.applyFilters();
         this.renderProducts();
         this.updateResultsInfo();
+        this.renderPagination();
     }
 
     async loadProducts() {
@@ -115,6 +116,115 @@ class ToysGamesApp {
                 badge: "Creative",
                 popularity: 89,
                 releaseDate: "2023-10-21"
+            },
+            // Add more sample products to test pagination
+            {
+                title: "Scrabble Classic Word Game",
+                manufacturer: "Hasbro",
+                category: "Board Games",
+                rating: 4.4,
+                price: 1899,
+                image: "images/scrabble.jpg",
+                ageGroup: "8+",
+                badge: "Classic",
+                popularity: 88,
+                releaseDate: "2023-02-10"
+            },
+            {
+                title: "Nerf Ultra One Motorized Blaster",
+                manufacturer: "Nerf",
+                category: "Action Toys",
+                rating: 4.5,
+                price: 4999,
+                image: "images/nerf-ultra.jpg",
+                ageGroup: "8+",
+                badge: "New",
+                popularity: 85,
+                releaseDate: "2024-01-15"
+            },
+            {
+                title: "Play-Doh Modeling Compound 10-Pack",
+                manufacturer: "Play-Doh",
+                category: "Arts & Crafts",
+                rating: 4.6,
+                price: 1299,
+                image: "images/play-doh.jpg",
+                ageGroup: "3+",
+                badge: "Creative",
+                popularity: 92,
+                releaseDate: "2023-08-20"
+            },
+            {
+                title: "Rubik's Cube 3x3",
+                manufacturer: "Rubik's",
+                category: "Puzzles",
+                rating: 4.7,
+                price: 899,
+                image: "images/rubiks-cube.jpg",
+                ageGroup: "8+",
+                badge: "Classic",
+                popularity: 90,
+                releaseDate: "2023-05-10"
+            },
+            {
+                title: "Remote Control Racing Car",
+                manufacturer: "RC Pro",
+                category: "Vehicles",
+                rating: 4.3,
+                price: 2999,
+                image: "images/rc-car.jpg",
+                ageGroup: "6+",
+                badge: "Fast",
+                popularity: 83,
+                releaseDate: "2024-04-05"
+            },
+            {
+                title: "Wooden Puzzle Set",
+                manufacturer: "Melissa & Doug",
+                category: "Puzzles",
+                rating: 4.8,
+                price: 1599,
+                image: "images/wooden-puzzle.jpg",
+                ageGroup: "3-6",
+                badge: "Educational",
+                popularity: 87,
+                releaseDate: "2023-09-15"
+            },
+            {
+                title: "Action Figure Superhero Set",
+                manufacturer: "Marvel",
+                category: "Action Figures",
+                rating: 4.5,
+                price: 3499,
+                image: "images/superhero-set.jpg",
+                ageGroup: "4+",
+                badge: "Popular",
+                popularity: 91,
+                releaseDate: "2024-06-10"
+            },
+            {
+                title: "Electronic Learning Tablet",
+                manufacturer: "VTech",
+                category: "Educational",
+                rating: 4.6,
+                price: 5999,
+                image: "images/learning-tablet.jpg",
+                ageGroup: "3-9",
+                badge: "STEM",
+                popularity: 89,
+                releaseDate: "2024-02-28"
+            },
+            {
+                title: "Dollhouse Furniture Set",
+                manufacturer: "KidKraft",
+                category: "Dolls",
+                rating: 4.7,
+                price: 2799,
+                image: "images/dollhouse-furniture.jpg",
+                ageGroup: "3-8",
+                badge: "Detailed",
+                popularity: 86,
+                releaseDate: "2023-11-20"
             }
         ];
     }
@@ -195,14 +305,6 @@ class ToysGamesApp {
                 this.renderProducts();
             });
         });
-
-        // Load more button
-        const loadMoreBtn = document.querySelector('.btn-load-more');
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => {
-                this.loadMoreProducts();
-            });
-        }
 
         // Search functionality
         const searchInput = document.querySelector('.search-bar input');
@@ -322,6 +424,7 @@ class ToysGamesApp {
         this.currentPage = 1;
         this.renderProducts();
         this.updateResultsInfo();
+        this.renderPagination();
     }
 
     matchesAgeGroup(productAge, filterAge) {
@@ -354,7 +457,7 @@ class ToysGamesApp {
             'arts-crafts': ['Arts & Crafts'],
             'dolls': ['Dolls', 'Baby Toys'],
             'vehicles': ['Vehicles', 'Action Toys'],
-            'stem': ['Educational Toys', 'Puzzles'],
+            'stem': ['Educational Toys', 'Puzzles', 'Educational'],
             'outdoor': ['Sports Toys'],
             'electronic': ['Electronic Toys', 'Electronic Games']
         };
@@ -413,7 +516,7 @@ class ToysGamesApp {
         const container = document.getElementById('productsContainer');
         const startIndex = (this.currentPage - 1) * this.productsPerPage;
         const endIndex = startIndex + this.productsPerPage;
-        const productsToShow = this.filteredProducts.slice(0, endIndex);
+        const productsToShow = this.filteredProducts.slice(startIndex, endIndex);
 
         if (this.currentView === 'grid') {
             container.className = 'products-container';
@@ -422,16 +525,6 @@ class ToysGamesApp {
         }
 
         container.innerHTML = productsToShow.map(product => this.createProductCard(product)).join('');
-
-        // Update load more button visibility
-        const loadMoreBtn = document.querySelector('.btn-load-more');
-        if (loadMoreBtn) {
-            if (endIndex >= this.filteredProducts.length) {
-                loadMoreBtn.style.display = 'none';
-            } else {
-                loadMoreBtn.style.display = 'block';
-            }
-        }
 
         // Add event listeners to product cards
         this.addProductEventListeners();
@@ -565,13 +658,105 @@ class ToysGamesApp {
         }
     }
 
-    loadMoreProducts() {
-        const currentlyShowing = this.currentPage * this.productsPerPage;
-        if (currentlyShowing < this.filteredProducts.length) {
-            this.currentPage++;
-            this.renderProducts();
-            this.updateResultsInfo();
+    // NEW PAGINATION METHODS
+    renderPagination() {
+        const paginationContainer = document.querySelector('.pagination');
+        if (!paginationContainer) return;
+
+        const totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
+        
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
         }
+
+        let paginationHTML = '';
+        
+        // Previous button
+        paginationHTML += `
+            <button class="page-btn" ${this.currentPage === 1 ? 'disabled' : ''} onclick="app.goToPage(${this.currentPage - 1})">
+                Previous
+            </button>
+        `;
+
+        // Page numbers
+        const visiblePages = this.getVisiblePages(this.currentPage, totalPages);
+        
+        visiblePages.forEach(page => {
+            if (page === '...') {
+                paginationHTML += '<span class="page-dots">...</span>';
+            } else {
+                paginationHTML += `
+                    <button class="page-btn ${page === this.currentPage ? 'active' : ''}" 
+                            onclick="app.goToPage(${page})">
+                        ${page}
+                    </button>
+                `;
+            }
+        });
+
+        // Next button
+        paginationHTML += `
+            <button class="page-btn" ${this.currentPage === totalPages ? 'disabled' : ''} onclick="app.goToPage(${this.currentPage + 1})">
+                Next
+            </button>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    getVisiblePages(currentPage, totalPages) {
+        const pages = [];
+        const maxVisible = 7; // Maximum number of page buttons to show
+        
+        if (totalPages <= maxVisible) {
+            // Show all pages if total is less than max
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+            
+            if (currentPage > 3) {
+                pages.push('...');
+            }
+            
+            // Show pages around current page
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+            
+            for (let i = start; i <= end; i++) {
+                if (i !== 1 && i !== totalPages) {
+                    pages.push(i);
+                }
+            }
+            
+            if (currentPage < totalPages - 2) {
+                pages.push('...');
+            }
+            
+            // Always show last page
+            if (totalPages > 1) {
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    }
+
+    goToPage(page) {
+        const totalPages = Math.ceil(this.filteredProducts.length / this.productsPerPage);
+        
+        if (page < 1 || page > totalPages) return;
+        
+        this.currentPage = page;
+        this.renderProducts();
+        this.updateResultsInfo();
+        this.renderPagination();
+        
+        // Scroll to top of products section
+        document.querySelector('.products-grid').scrollIntoView({ behavior: 'smooth' });
     }
 
     updateResultsInfo() {
@@ -579,16 +764,19 @@ class ToysGamesApp {
         const totalResults = document.getElementById('total-results');
         
         if (resultsCount && totalResults) {
-            const showing = Math.min(this.currentPage * this.productsPerPage, this.filteredProducts.length);
-            resultsCount.textContent = `1-${showing}`;
+            const startIndex = (this.currentPage - 1) * this.productsPerPage + 1;
+            const endIndex = Math.min(this.currentPage * this.productsPerPage, this.filteredProducts.length);
+            
+            resultsCount.textContent = `${startIndex}-${endIndex}`;
             totalResults.textContent = this.filteredProducts.length.toLocaleString();
         }
     }
 }
 
 // Initialize the app when the DOM is loaded
+let app; // Global reference for pagination buttons
 document.addEventListener('DOMContentLoaded', () => {
-    new ToysGamesApp();
+    app = new ToysGamesApp();
 });
 
 // Add some CSS animations via JavaScript
@@ -647,5 +835,67 @@ style.textContent = `
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
+    
+    .page-btn {
+    padding: 12px 16px;
+    border: 2px solid #ff6b6b;
+    background: linear-gradient(135deg, #fff, #ffeaa7);
+    color: #ff6b6b;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(255,107,107,0.2);
+}
+
+.page-btn:hover {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+    color: white;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+    border-color: #ff8e53;
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+    color: white;
+    border-color: #ff6b6b;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+}
+
+.page-btn:disabled {
+    background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+    color: #ccc;
+    border-color: #ddd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.page-btn:disabled:hover {
+    background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+    color: #ccc;
+    transform: none;
+    box-shadow: none;
+}
+
+.page-dots {
+    color: #666;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+}
 `;
 document.head.appendChild(style);
