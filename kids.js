@@ -802,3 +802,215 @@ function addToCart(bookId) {
 function toggleWishlist(bookId) {
     if (bookStore) bookStore.toggleWishlist(bookId);
 }
+
+// Mobile Menu Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Get menu elements
+    const hamburgerBtn = document.querySelector('.fa-bars');
+    const mobileMenuContainer = document.querySelector('.mobile-menu-container');
+    const closeMenuBtn = document.querySelector('.close-menu');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    const body = document.body;
+
+    // Open mobile menu
+    function openMobileMenu() {
+        mobileMenuContainer.classList.add('active');
+        body.classList.add('menu-open');
+        
+        // Add animation delay for menu items
+        const menuItems = document.querySelectorAll('.mobile-menu-items li');
+        menuItems.forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+        });
+    }
+
+    // Close mobile menu
+    function closeMobileMenu() {
+        mobileMenuContainer.classList.remove('active');
+        body.classList.remove('menu-open');
+        
+        // Reset animation delays
+        const menuItems = document.querySelectorAll('.mobile-menu-items li');
+        menuItems.forEach(item => {
+            item.style.animationDelay = '';
+        });
+    }
+
+    // Event listeners
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', openMobileMenu);
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Close menu when clicking on menu links (for single page navigation)
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-items a');
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Close menu on escape key press
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+
+    // Handle window resize - close menu if window becomes larger
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+
+    // Prevent body scroll when menu is open
+    function toggleBodyScroll(disable) {
+        if (disable) {
+            body.style.overflow = 'hidden';
+            body.style.position = 'fixed';
+            body.style.width = '100%';
+        } else {
+            body.style.overflow = '';
+            body.style.position = '';
+            body.style.width = '';
+        }
+    }
+
+    // Update the open/close functions to handle body scroll
+    const originalOpenFunction = openMobileMenu;
+    const originalCloseFunction = closeMobileMenu;
+
+    openMobileMenu = function() {
+        originalOpenFunction();
+        toggleBodyScroll(true);
+    };
+
+    closeMobileMenu = function() {
+        originalCloseFunction();
+        toggleBodyScroll(false);
+    };
+
+    // Update event listeners with new functions
+    if (hamburgerBtn) {
+        hamburgerBtn.removeEventListener('click', originalOpenFunction);
+        hamburgerBtn.addEventListener('click', openMobileMenu);
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.removeEventListener('click', originalCloseFunction);
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.removeEventListener('click', originalCloseFunction);
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Update menu links event listeners
+    mobileMenuLinks.forEach(link => {
+        link.removeEventListener('click', originalCloseFunction);
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Update escape key listener
+    document.removeEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenuContainer.classList.contains('active')) {
+            originalCloseFunction();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+
+    // Update resize listener
+    window.removeEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileMenuContainer.classList.contains('active')) {
+            originalCloseFunction();
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+});
+
+// Additional functionality for smooth animations
+function addMenuAnimations() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .mobile-menu-container {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.3s, opacity 0.3s ease-in-out;
+        }
+        
+        .mobile-menu-container.active {
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0s linear 0s, opacity 0.3s ease-in-out;
+        }
+        
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu-container.active .mobile-menu {
+            transform: translateX(0);
+        }
+        
+        .mobile-menu-items li {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: none;
+        }
+        
+        .mobile-menu-container.active .mobile-menu-items li {
+            opacity: 1;
+            transform: translateX(0);
+            animation: slideInLeft 0.3s ease-out forwards;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-container {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-menu-container {
+                display: none !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialize animations when DOM is loaded
+document.addEventListener('DOMContentLoaded', addMenuAnimations);

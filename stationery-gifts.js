@@ -1689,3 +1689,218 @@ const stationeryStore = StationeryStore.getInstance();
 
 // Export for global access
 window.stationeryStore = stationeryStore;
+
+// Hamburger Menu Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const hamburgerBtn = document.querySelector('.fa-bars');
+    const mobileMenuContainer = document.querySelector('.mobile-menu-container');
+    const closeMenuBtn = document.querySelector('.close-menu');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    const body = document.body;
+
+    // Function to open mobile menu
+    function openMobileMenu() {
+        mobileMenuContainer.classList.add('active');
+        body.style.overflow = 'hidden'; // Prevent body scroll when menu is open
+    }
+
+    // Function to close mobile menu
+    function closeMobileMenu() {
+        mobileMenuContainer.classList.remove('active');
+        body.style.overflow = ''; // Restore body scroll
+    }
+
+    // Event listeners
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openMobileMenu();
+        });
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMobileMenu();
+        });
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMobileMenu();
+        });
+    }
+
+    // Close menu when clicking on menu items (optional - for better UX)
+    const mobileMenuItems = document.querySelectorAll('.mobile-menu-items a');
+    mobileMenuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            closeMobileMenu();
+        });
+    });
+
+    // Handle window resize - close menu if window becomes large
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) { // Adjust breakpoint as needed
+            closeMobileMenu();
+        }
+    });
+
+    // Handle escape key to close menu
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+});
+
+// Additional functionality for view toggle buttons (grid/list view)
+document.addEventListener('DOMContentLoaded', function() {
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const productsContainer = document.getElementById('productsContainer');
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get the view type
+            const viewType = this.getAttribute('data-view');
+            
+            // Update container class
+            if (viewType === 'list') {
+                productsContainer.classList.add('list-view');
+            } else {
+                productsContainer.classList.remove('list-view');
+            }
+        });
+    });
+});
+
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelects = document.querySelectorAll('.filter-group select');
+    const resultsCount = document.getElementById('results-count');
+    const totalResults = document.getElementById('total-results');
+
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // This is a placeholder for filter functionality
+            // You would implement actual filtering logic here
+            console.log(`Filter changed: ${this.id} = ${this.value}`);
+            
+            // Example: Update results count (you'd replace this with actual filtering)
+            if (this.value) {
+                resultsCount.textContent = '1-12';
+                totalResults.textContent = '1,200';
+            } else {
+                resultsCount.textContent = '1-24';
+                totalResults.textContent = '3,600';
+            }
+        });
+    });
+});
+
+// Load more functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const loadMoreBtn = document.querySelector('.btn-load-more');
+    
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            // This is a placeholder for load more functionality
+            // You would implement actual product loading here
+            console.log('Load more products clicked');
+            
+            // Example: Show loading state
+            const originalText = this.textContent;
+            this.textContent = 'Loading...';
+            this.disabled = true;
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                this.textContent = originalText;
+                this.disabled = false;
+                // Here you would append new products to the container
+            }, 1000);
+        });
+    }
+});
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-bar input');
+    const searchButton = document.querySelector('.search-bar .fa-magnifying-glass');
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            console.log(`Searching for: ${searchTerm}`);
+            // Implement actual search functionality here
+        }
+    }
+    
+    if (searchButton) {
+        searchButton.addEventListener('click', performSearch);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+});
+
+// Add to cart functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButtons = document.querySelectorAll('.btn-primary');
+    const wishlistButtons = document.querySelectorAll('.btn-secondary');
+    
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get product information
+            const productCard = this.closest('.book-card');
+            const productName = productCard.querySelector('h3').textContent;
+            const productPrice = productCard.querySelector('.price').textContent;
+            
+            console.log(`Added to cart: ${productName} - ${productPrice}`);
+            
+            // Show feedback
+            const originalText = this.textContent;
+            this.textContent = 'Added!';
+            this.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+                this.textContent = originalText;
+                this.style.backgroundColor = '';
+            }, 1500);
+        });
+    });
+    
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const heart = this.querySelector('.fa-heart');
+            const isWishlisted = heart.classList.contains('fa-solid');
+            
+            if (isWishlisted) {
+                heart.classList.remove('fa-solid');
+                heart.classList.add('fa-regular');
+                this.style.color = '';
+            } else {
+                heart.classList.remove('fa-regular');
+                heart.classList.add('fa-solid');
+                this.style.color = '#e74c3c';
+            }
+        });
+    });
+});

@@ -1173,3 +1173,238 @@ if (document.readyState === 'loading') {
     // DOM is already loaded
     initializeSalePage();
 }
+
+
+// Hamburger Menu Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const hamburgerBtn = document.querySelector('.fa-bars');
+    const mobileMenuContainer = document.querySelector('.mobile-menu-container');
+    const closeMenuBtn = document.querySelector('.close-menu');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    const body = document.body;
+
+    // Function to open mobile menu
+    function openMobileMenu() {
+        mobileMenuContainer.classList.add('active');
+        body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Function to close mobile menu
+    function closeMobileMenu() {
+        mobileMenuContainer.classList.remove('active');
+        body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Event listeners
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openMobileMenu();
+        });
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMobileMenu();
+        });
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMobileMenu();
+        });
+    }
+
+    // Close menu when clicking on menu items (optional - for better UX)
+    const mobileMenuItems = document.querySelectorAll('.mobile-menu-items a');
+    mobileMenuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            closeMobileMenu();
+        });
+    });
+
+    // Close menu on escape key press
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+
+    // Handle window resize - close menu if window becomes large
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileMenuContainer.classList.contains('active')) {
+            closeMobileMenu();
+        }
+    });
+});
+
+// Optional: Add touch/swipe functionality for mobile devices
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenu = document.querySelector('.mobile-menu');
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    if (mobileMenu) {
+        // Touch start
+        mobileMenu.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        // Touch move
+        mobileMenu.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            
+            // If swiping left and distance is significant, start closing animation
+            if (deltaX < -50) {
+                mobileMenu.style.transform = `translateX(${Math.max(deltaX, -300)}px)`;
+            }
+        });
+
+        // Touch end
+        mobileMenu.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const deltaX = currentX - startX;
+            
+            // If swiped left more than 100px, close the menu
+            if (deltaX < -100) {
+                document.querySelector('.mobile-menu-container').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // Reset transform
+            mobileMenu.style.transform = '';
+        });
+    }
+});
+
+// CSS classes for active states (add these to your CSS file)
+const mobileMenuStyles = `
+    .mobile-menu-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0.3s ease, opacity 0.3s ease;
+    }
+
+    .mobile-menu-container.active {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #fff;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 10000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .mobile-menu-container.active .mobile-menu {
+        transform: translateX(0);
+    }
+
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+    }
+
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-logo {
+        height: 40px;
+    }
+
+    .close-menu {
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+    }
+
+    .mobile-menu-items {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .mobile-menu-items li {
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-menu-items a {
+        display: block;
+        padding: 15px 20px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .mobile-menu-items a:hover,
+    .mobile-menu-items a.active {
+        background-color: #ffeb3b;
+        color: #ad0b0b;
+    }
+
+    /* Hide mobile menu on larger screens */
+    @media (min-width: 769px) {
+        .mobile-menu-container {
+            display: none !important;
+        }
+        
+        .fa-bars {
+            display: none !important;
+        }
+    }
+
+    /* Show hamburger only on mobile */
+    @media (max-width: 768px) {
+        .fa-bars {
+            display: block !important;
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .header-menu {
+            display: none !important;
+        }
+    }
+`;
+
+// Add styles to head if not already present
+if (!document.querySelector('#mobile-menu-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'mobile-menu-styles';
+    styleSheet.textContent = mobileMenuStyles;
+    document.head.appendChild(styleSheet);
+}
