@@ -10,22 +10,33 @@
     <title>Pustak</title>
 <<<<<<< HEAD
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18189879899"></script>
-<script>
-=======
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18189879899"></script>
     <script>
->>>>>>> d8bbd528f8e393d85f9d5b898c660713b92a1133
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'AW-18189879899');
 </script>
-<<<<<<< HEAD
+<!-- Event snippet for Click to call conversion page
+In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  };
+  gtag('event', 'conversion', {
+      'send_to': 'AW-18189879899/Wvb2CPjtq7QcENuUzuFD',
+      'value': 1.0,
+      'currency': 'INR',
+      'event_callback': callback
+  });
+  return false;
+}
+</script>
 
-=======
->>>>>>> d8bbd528f8e393d85f9d5b898c660713b92a1133
+
 </head>
 
 <body>
